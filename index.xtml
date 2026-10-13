@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Oway</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f5f9;
+      color: #172033;
+    }
+    header {
+      background: #087f5b;
+      color: white;
+      padding: 22px 16px;
+      text-align: center;
+    }
+    header h1 { margin: 0; }
+    .container {
+      max-width: 500px;
+      margin: 22px auto;
+      padding: 16px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      box-shadow: 0 3px 12px #00000010;
+    }
+    input, select, button {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 13px;
+      margin-top: 10px;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    input, select { border: 1px solid #ccd2dc; }
+    button {
+      background: #087f5b;
+      color: white;
+      border: none;
+      font-weight: bold;
+    }
+    .note { color: #667085; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛺 Mini Oway</h1>
+    <p>သင့်ခရီးအတွက် ယာဉ်လွယ်ကူစွာ ခေါ်ယူပါ</p>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>🚕 ခရီးသည်</h2>
+      <p>သွားလိုသည့်ခရီးကို တောင်းဆိုပါ။</p>
+      <input id="pickup" placeholder="ခရီးစတင်မည့်နေရာ">
+      <input id="destination" placeholder="သွားမည့်နေရာ">
+      <input id="phone" type="tel" placeholder="ဖုန်းနံပါတ်">
+      <button onclick="bookRide()">ယာဉ်ခေါ်မယ်</button>
+      <p id="message" class="note"></p>
+    </section>
+
+    <section class="card">
+      <h2>🛺 ယာဉ်မောင်း</h2>
+      <p>ယာဉ်မောင်းဝန်ဆောင်မှု</p>
+      <button onclick="alert('ယာဉ်မောင်းစနစ်ကို နောက်အဆင့်တွင် တည်ဆောက်ပါမည်။')">
+        ယာဉ်မောင်းဝင်ရန်
+      </button>
+    </section>
+
+    <p class="note">
+      Mini Oway — စမ်းသပ်ဗားရှင်း
+    </p>
+  </main>
+
+  <script>
+    function bookRide() {
+      const pickup = document.getElementById('pickup').value.trim();
+      const destination = document.getElementById('destination').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const message = document.getElementById('message');
+
+      if (!pickup || !destination || !phone) {
+        message.textContent = 'အချက်အလက်အားလုံး ဖြည့်ပေးပါ။';
+        return;
+      }
+
+      message.textContent =
+        'ခရီးအချက်အလက် ဖြည့်ပြီးပါပြီ။ ' +
+        'လက်ရှိစမ်းသပ်ဗားရှင်းဖြစ်၍ ခရီးတောင်းဆိုမှုကို မသိမ်းဆည်းရသေးပါ။';
+    }
+  </script>
+</body>
+</html>
