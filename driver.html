@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mini Oway - Driver Dashboard</title>
+  <title>Mini Oway - Driver Portal</title>
   <style>
     body {
       margin: 0;
@@ -30,30 +30,28 @@
       margin-bottom: 16px;
       box-shadow: 0 3px 12px #00000010;
     }
+    input, button, select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 13px;
+      margin-top: 10px;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    input, select { border: 1px solid #ccd2dc; }
     button {
       background: #087f5b;
       color: white;
       border: none;
-      padding: 10px 16px;
-      border-radius: 6px;
-      font-size: 14px;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 10px;
     }
-    button:disabled {
-      background: #94a3b8;
-      cursor: not-allowed;
-    }
+    button.secondary { background: #dc2626; }
+    button:disabled { background: #94a3b8; cursor: not-allowed; }
     .ride-item {
       border-bottom: 1px solid #e2e8f0;
       padding-bottom: 15px;
       margin-bottom: 15px;
-    }
-    .ride-item:last-child {
-      border-bottom: none;
-      margin-bottom: 0;
-      padding-bottom: 0;
     }
     .badge {
       display: inline-block;
@@ -65,16 +63,66 @@
     .badge.pending { background: #fef08a; color: #854d0e; }
     .badge.accepted { background: #bbf7d0; color: #166534; }
     .note { color: #667085; font-size: 14px; }
+    .hidden { display: none; }
+    label { font-weight: bold; font-size: 14px; margin-top: 10px; display: block; color: #334155; }
   </style>
 </head>
 <body>
   <header>
     <h1>🛺 ယာဉ်မောင်း ဒက်ရှ်ဘုတ်</h1>
-    <p>ခရီးသည်များ တောင်းဆိုထားသော ခရီးစဉ်များ</p>
+    <p>Mini Oway Driver Portal</p>
   </header>
 
   <main class="container">
-    <section class="card">
+    <!-- 1. Sign In Card -->
+    <section id="signInCard" class="card">
+      <h2>👤 ယာဉ်မောင်း အကောင့်ဝင်ရန်</h2>
+      <input id="signinEmail" type="email" placeholder="Gmail သို့မဟုတ် ဖုန်းနံပါတ်">
+      <input id="signinPassword" type="password" placeholder="စကားဝှက် (Password)">
+      <button onclick="handleSignIn()">အကောင့်ဝင်မည်</button>
+      <button onclick="switchView('signupStep1')" class="secondary" style="background:none; color:#1e3a8a; border:1px solid #1e3a8a; margin-top:5px;">အကောင့်အသစ်ဖွင့်ရန် (Sign Up)</button>
+      <p id="signinMsg" class="note"></p>
+    </section>
+
+    <!-- 2. Sign Up Step 1: Basic Info -->
+    <section id="signupStep1" class="card hidden">
+      <h2>📝 အကောင့်အသစ်ဖွင့်ခြင်း (အဆင့် ၁/၂)</h2>
+      <input id="signupPhone" type="tel" placeholder="ဖုန်းနံပါတ်">
+      <input id="signupEmail" type="email" placeholder="Gmail လိပ်စာ">
+      <input id="signupPassword" type="password" placeholder="စကားဝှက် (Password)">
+      <input id="signupConfirmPassword" type="password" placeholder="စကားဝှက်ကို ထပ်မံထည့်ပါ">
+      <button onclick="goToSignupStep2()">ရှေ့သို့ (Next)</button>
+      <button onclick="switchView('signInCard')" class="secondary" style="background:none; color:#dc2626; border:1px solid #dc2626; margin-top:5px;">ရှိပြီးသားအကောင့်သို့ ပြန်သွားရန်</button>
+      <p id="signupStep1Msg" class="note"></p>
+    </section>
+
+    <!-- 3. Sign Up Step 2: Verification Details -->
+    <section id="signupStep2" class="card hidden">
+      <h2>📋 အချက်အလက် အတည်ပြုခြင်း (အဆင့် ၂/၂)</h2>
+      <input id="driverAge" type="number" placeholder="အသက်">
+      <input id="driverNrc" placeholder="NRC နံပါတ် (ဥပမာ - ၁၂/မဂတ(နိုင်)၁၂၃၄၅၆)">
+      
+      <label>NRC ရှေ့ပုံ (Link သို့မဟုတ် Image)</label>
+      <input id="nrcFront" placeholder="NRC ရှေ့ဘက် ပုံလင့်ခ် (URL)">
+
+      <label>NRC နောက်ပုံ</label>
+      <input id="nrcBack" placeholder="NRC နောက်ဘက် ပုံလင့်ခ် (URL)">
+
+      <label>ယာဉ်ပုံ</label>
+      <input id="carPhoto" placeholder="ယာဉ်ပုံ လင့်ခ် (URL)">
+
+      <button onclick="completeSignUp()">အကောင့် အပြီးသတ်ဖွင့်မည်</button>
+      <button onclick="switchView('signupStep1')" class="secondary" style="background:none; color:#664d0e; border:1px solid #854d0e; margin-top:5px;">နောက်သို့</button>
+      <p id="signupStep2Msg" class="note"></p>
+    </section>
+
+    <!-- 4. Driver Dashboard Card -->
+    <section id="dashboardCard" class="card hidden">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 id="welcomeDriver" style="margin:0;">ကြိုဆိုပါတယ်</h3>
+        <button onclick="driverLogout()" style="width: auto; padding: 6px 12px; background: #dc2626; font-size: 12px;">ထွက်ရန်</button>
+      </div>
+      <hr style="margin: 15px 0; border:0; border-top:1px solid #eee;">
       <h2>📥 တောင်းဆိုထားသော ခရီးစဉ်များ</h2>
       <div id="rideList">
         <p class="note">ခရီးစဉ်များကို ရှာဖွေနေပါသည်...</p>
@@ -85,12 +133,21 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
   import {
+    getAuth,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
+  import {
     getFirestore,
     collection,
+    doc,
+    setDoc,
+    getDoc,
     query,
     orderBy,
     onSnapshot,
-    doc,
     updateDoc
   } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
 
@@ -104,54 +161,169 @@
   };
 
   const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
   const db = getFirestore(app);
 
-  const rideListEl = document.getElementById("rideList");
+  let tempSignupData = {};
 
-  // Real-time listener ဖြင့် ခရီးစဉ်များကို အမြဲစောင့်ကြည့်ခြင်း
-  const q = query(collection(db, "rideRequests"), orderBy("createdAt", "desc"));
+  // Check login state
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      // Fetch driver profile from Firestore
+      const docRef = doc(db, "drivers", user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        showDashboard(docSnap.data());
+      }
+    } else {
+      switchView('signInCard');
+    }
+  });
 
-  onSnapshot(q, (snapshot) => {
-    if (snapshot.empty) {
-      rideListEl.innerHTML = `<p class="note">ယခုလက်ရှိ ခရီးစဉ် တောင်းဆိုမှု မရှိသေးပါ။</p>`;
+  window.switchView = function(viewId) {
+    document.getElementById('signInCard').classList.add('hidden');
+    document.getElementById('signupStep1').classList.add('hidden');
+    document.getElementById('signupStep2').classList.add('hidden');
+    document.getElementById('dashboardCard').classList.add('hidden');
+    document.getElementById(viewId).classList.remove('hidden');
+  }
+
+  window.handleSignIn = async function() {
+    const email = document.getElementById('signinEmail').value.trim();
+    const pass = document.getElementById('signinPassword').value.trim();
+    const msg = document.getElementById('signinMsg');
+
+    if (!email || !pass) {
+      msg.textContent = "အချက်အလက်အားလုံး ဖြည့်ပေးပါ။";
       return;
     }
 
-    let html = "";
-    snapshot.forEach((docSnap) => {
-      const ride = docSnap.data();
-      const rideId = docSnap.id;
-      const status = ride.status || "pending";
-      
-      let statusBadge = status === "pending" 
-        ? `<span class="badge pending">စောင့်ဆိုင်းဆဲ</span>` 
-        : `<span class="badge accepted">လက်ခံပြီး</span>`;
+    msg.textContent = "အကောင့်ဝင်နေပါသည်...";
+    try {
+      // Gmail (or dummy email generated from phone) with password
+      let loginEmail = email;
+      if (!email.includes('@')) {
+        loginEmail = `${email}@minioway.com`; // If phone number was entered
+      }
+      await signInWithEmailAndPassword(auth, loginEmail, pass);
+    } catch (error) {
+      console.error(error);
+      msg.textContent = "အကောင့်ဝင်ရောက်၍ မရပါ။ စကားဝှက် သို့မဟုတ် အကောင့်ကို စစ်ဆေးပါ။";
+    }
+  };
 
-      let actionButton = status === "pending"
-        ? `<button onclick="acceptRide('${rideId}')">ခရီးစဉ် လက်ခံမည်</button>`
-        : `<button disabled>လက်ခံပြီးပါပြီ</button>`;
+  window.goToSignupStep2 = function() {
+    const phone = document.getElementById('signupPhone').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const pass = document.getElementById('signupPassword').value.trim();
+    const confirmPass = document.getElementById('signupConfirmPassword').value.trim();
+    const msg = document.getElementById('signupStep1Msg');
 
-      html += `
-        <div class="ride-item">
-          <p><strong>အစမှတ်:</strong> ${ride.pickup}</p>
-          <p><strong>ဆုံးမှတ်:</strong> ${ride.destination}</p>
-          <p><strong>ဖုန်းနံပါတ်:</strong> <a href="tel:${ride.phone}">${ride.phone}</a></p>
-          <p><strong>အခြေအနေ:</strong> ${statusBadge}</p>
-          ${actionButton}
-        </div>
-      `;
+    if (!phone || !email || !pass || !confirmPass) {
+      msg.textContent = "အချက်အလက်အားလုံး ဖြည့်ပေးပါ။";
+      return;
+    }
+    if (pass !== confirmPass) {
+      msg.textContent = "စကားဝှက် နှစ်ခု မတူညီပါ။";
+      return;
+    }
+
+    tempSignupData = { phone, email, pass };
+    switchView('signupStep2');
+  };
+
+  window.completeSignUp = async function() {
+    const age = document.getElementById('driverAge').value.trim();
+    const nrc = document.getElementById('driverNrc').value.trim();
+    const nrcFront = document.getElementById('nrcFront').value.trim();
+    const nrcBack = document.getElementById('nrcBack').value.trim();
+    const carPhoto = document.getElementById('carPhoto').value.trim();
+    const msg = document.getElementById('signupStep2Msg');
+
+    if (!age || !nrc) {
+      msg.textContent = "အသက်နှင့် NRC နံပါတ် မဖြစ်မနေ ဖြည့်ပါ။";
+      return;
+    }
+
+    msg.textContent = "အကောင့်ဖန်တီးနေပါသည်...";
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, tempSignupData.email, tempSignupData.pass);
+      const uid = cred.user.uid;
+
+      const driverProfile = {
+        uid,
+        phone: tempSignupData.phone,
+        email: tempSignupData.email,
+        age,
+        nrc,
+        nrcFront,
+        nrcBack,
+        carPhoto,
+        createdAt: new Date().toISOString()
+      };
+
+      await setDoc(doc(db, "drivers", uid), driverProfile);
+      alert("အကောင့်ဖွင့်ခြင်း အောင်မြင်ပါသည်။");
+    } catch (error) {
+      console.error(error);
+      msg.textContent = "အကောင့်ဖွင့်၍ မရပါ။ (Email ထပ်နေခြင်း သို့မဟုတ် error ရှိနိုင်သည်)";
+    }
+  };
+
+  function showDashboard(driver) {
+    switchView('dashboardCard');
+    document.getElementById("welcomeDriver").textContent = `ကြိုဆိုပါတယ် - ${driver.phone} (အသက်: ${driver.age})`;
+    loadRideRequests();
+  }
+
+  window.driverLogout = async function() {
+    await signOut(auth);
+    switchView('signInCard');
+  };
+
+  function loadRideRequests() {
+    const rideListEl = document.getElementById("rideList");
+    const q = query(collection(db, "rideRequests"), orderBy("createdAt", "desc"));
+
+    onSnapshot(q, (snapshot) => {
+      if (snapshot.empty) {
+        rideListEl.innerHTML = `<p class="note">ယခုလက်ရှိ ခရီးစဉ် တောင်းဆိုမှု မရှိသေးပါ။</p>`;
+        return;
+      }
+
+      let html = "";
+      snapshot.forEach((docSnap) => {
+        const ride = docSnap.data();
+        const rideId = docSnap.id;
+        const status = ride.status || "pending";
+        
+        let statusBadge = status === "pending" 
+          ? `<span class="badge pending">စောင့်ဆိုင်းဆဲ</span>` 
+          : `<span class="badge accepted">လက်ခံပြီး</span>`;
+
+        let actionButton = status === "pending"
+          ? `<button onclick="acceptRide('${rideId}')">ခရီးစဉ် လက်ခံမည်</button>`
+          : `<button disabled>လက်ခံပြီးပါပြီ</button>`;
+
+        html += `
+          <div class="ride-item">
+            <p><strong>အစမှတ်:</strong> ${ride.pickup}</p>
+            <p><strong>ဆုံးမှတ်:</strong> ${ride.destination}</p>
+            <p><strong>ဖုန်းနံပါတ်:</strong> <a href="tel:${ride.phone}">${ride.phone}</a></p>
+            <p><strong>အခြေအနေ:</strong> ${statusBadge}</p>
+            ${actionButton}
+          </div>
+        `;
+      });
+
+      rideListEl.innerHTML = html;
     });
+  }
 
-    rideListEl.innerHTML = html;
-  });
-
-  // ယာဉ်မောင်းက ခရီးစဉ် လက်ခံသည့် လုပ်ဆောင်ချက်
   window.acceptRide = async function (rideId) {
     try {
       const rideRef = doc(db, "rideRequests", rideId);
-      await updateDoc(rideRef, {
-        status: "accepted"
-      });
+      await updateDoc(rideRef, { status: "accepted" });
       alert("ခရီးစဉ်ကို အောင်မြင်စွာ လက်ခံလိုက်ပါပြီ။");
     } catch (error) {
       console.error(error);
