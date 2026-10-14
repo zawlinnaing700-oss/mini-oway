@@ -38,6 +38,10 @@
       border-radius: 8px;
       font-size: 16px;
     }
+    input[type="file"] {
+      padding: 8px;
+      background: #f8fafc;
+    }
     input, select { border: 1px solid #ccd2dc; }
     button {
       background: #087f5b;
@@ -64,7 +68,7 @@
     .badge.accepted { background: #bbf7d0; color: #166534; }
     .note { color: #667085; font-size: 14px; }
     .hidden { display: none; }
-    label { font-weight: bold; font-size: 14px; margin-top: 10px; display: block; color: #334155; }
+    label { font-weight: bold; font-size: 14px; margin-top: 12px; display: block; color: #334155; }
   </style>
 </head>
 <body>
@@ -87,6 +91,7 @@
     <!-- 2. Sign Up Step 1: Basic Info -->
     <section id="signupStep1" class="card hidden">
       <h2>📝 အကောင့်အသစ်ဖွင့်ခြင်း (အဆင့် ၁/၂)</h2>
+      <input id="signupFullName" placeholder="နာမည်အပြည့်အစုံ (Full Name)">
       <input id="signupPhone" type="tel" placeholder="ဖုန်းနံပါတ်">
       <input id="signupEmail" type="email" placeholder="Gmail လိပ်စာ">
       <input id="signupPassword" type="password" placeholder="စကားဝှက် (Password)">
@@ -96,20 +101,20 @@
       <p id="signupStep1Msg" class="note"></p>
     </section>
 
-    <!-- 3. Sign Up Step 2: Verification Details -->
+    <!-- 3. Sign Up Step 2: Verification Details & Photos -->
     <section id="signupStep2" class="card hidden">
       <h2>📋 အချက်အလက် အတည်ပြုခြင်း (အဆင့် ၂/၂)</h2>
       <input id="driverAge" type="number" placeholder="အသက်">
       <input id="driverNrc" placeholder="NRC နံပါတ် (ဥပမာ - ၁၂/မဂတ(နိုင်)၁၂၃၄၅၆)">
       
-      <label>NRC ရှေ့ပုံ (Link သို့မဟုတ် Image)</label>
-      <input id="nrcFront" placeholder="NRC ရှေ့ဘက် ပုံလင့်ခ် (URL)">
+      <label>📷 NRC ရှေ့ပုံ (ကင်မရာဖြင့်ရိုက်ရန် (သို့) ဖိုင်ရွေးရန်)</label>
+      <input id="nrcFrontFile" type="file" accept="image/*" capture="environment">
 
-      <label>NRC နောက်ပုံ</label>
-      <input id="nrcBack" placeholder="NRC နောက်ဘက် ပုံလင့်ခ် (URL)">
+      <label>📷 NRC နောက်ပုံ</label>
+      <input id="nrcBackFile" type="file" accept="image/*" capture="environment">
 
-      <label>ယာဉ်ပုံ</label>
-      <input id="carPhoto" placeholder="ယာဉ်ပုံ လင့်ခ် (URL)">
+      <label>🛺 ယာဉ်ပုံ</label>
+      <input id="carPhotoFile" type="file" accept="image/*" capture="environment">
 
       <button onclick="completeSignUp()">အကောင့် အပြီးသတ်ဖွင့်မည်</button>
       <button onclick="switchView('signupStep1')" class="secondary" style="background:none; color:#664d0e; border:1px solid #854d0e; margin-top:5px;">နောက်သို့</button>
@@ -150,6 +155,12 @@
     onSnapshot,
     updateDoc
   } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
+  import {
+    getStorage,
+    ref,
+    uploadBytes,
+    getDownloadURL
+  } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBXoDWq8O4A7yDpk7kYD5miY_0HwWxPKEE",
@@ -163,13 +174,12 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const storage = getStorage(app);
 
   let tempSignupData = {};
 
-  // Check login state
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      // Fetch driver profile from Firestore
       const docRef = doc(db, "drivers", user.uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
@@ -200,10 +210,9 @@
 
     msg.textContent = "အကောင့်ဝင်နေပါသည်...";
     try {
-      // Gmail (or dummy email generated from phone) with password
       let loginEmail = email;
       if (!email.includes('@')) {
-        loginEmail = `${email}@minioway.com`; // If phone number was entered
+        loginEmail = `${email}@minioway.com`;
       }
       await signInWithEmailAndPassword(auth, loginEmail, pass);
     } catch (error) {
@@ -213,13 +222,14 @@
   };
 
   window.goToSignupStep2 = function() {
+    const fullName = document.getElementById('signupFullName').value.trim();
     const phone = document.getElementById('signupPhone').value.trim();
     const email = document.getElementById('signupEmail').value.trim();
     const pass = document.getElementById('signupPassword').value.trim();
     const confirmPass = document.getElementById('signupConfirmPassword').value.trim();
     const msg = document.getElementById('signupStep1Msg');
 
-    if (!phone || !email || !pass || !confirmPass) {
+    if (!fullName || !phone || !email || !pass || !confirmPass) {
       msg.textContent = "အချက်အလက်အားလုံး ဖြည့်ပေးပါ။";
       return;
     }
@@ -228,16 +238,23 @@
       return;
     }
 
-    tempSignupData = { phone, email, pass };
+    tempSignupData = { fullName, phone, email, pass };
     switchView('signupStep2');
   };
+
+  async function uploadImage(file, path) {
+    if (!file) return "";
+    const storageRef = ref(storage, path);
+    await uploadBytes(storageRef, file);
+    return await getDownloadURL(storageRef);
+  }
 
   window.completeSignUp = async function() {
     const age = document.getElementById('driverAge').value.trim();
     const nrc = document.getElementById('driverNrc').value.trim();
-    const nrcFront = document.getElementById('nrcFront').value.trim();
-    const nrcBack = document.getElementById('nrcBack').value.trim();
-    const carPhoto = document.getElementById('carPhoto').value.trim();
+    const nrcFrontFile = document.getElementById('nrcFrontFile').files[0];
+    const nrcBackFile = document.getElementById('nrcBackFile').files[0];
+    const carPhotoFile = document.getElementById('carPhotoFile').files[0];
     const msg = document.getElementById('signupStep2Msg');
 
     if (!age || !nrc) {
@@ -245,20 +262,25 @@
       return;
     }
 
-    msg.textContent = "အကောင့်ဖန်တီးနေပါသည်...";
+    msg.textContent = "ပုံများကို တင်နေပါသည် (ခဏစောင့်ပါ)...";
     try {
       const cred = await createUserWithEmailAndPassword(auth, tempSignupData.email, tempSignupData.pass);
       const uid = cred.user.uid;
 
+      const nrcFrontUrl = await uploadImage(nrcFrontFile, `drivers/${uid}/nrc_front.jpg`);
+      const nrcBackUrl = await uploadImage(nrcBackFile, `drivers/${uid}/nrc_back.jpg`);
+      const carPhotoUrl = await uploadImage(carPhotoFile, `drivers/${uid}/car_photo.jpg`);
+
       const driverProfile = {
         uid,
+        fullName: tempSignupData.fullName,
         phone: tempSignupData.phone,
         email: tempSignupData.email,
         age,
         nrc,
-        nrcFront,
-        nrcBack,
-        carPhoto,
+        nrcFrontUrl,
+        nrcBackUrl,
+        carPhotoUrl,
         createdAt: new Date().toISOString()
       };
 
@@ -266,13 +288,13 @@
       alert("အကောင့်ဖွင့်ခြင်း အောင်မြင်ပါသည်။");
     } catch (error) {
       console.error(error);
-      msg.textContent = "အကောင့်ဖွင့်၍ မရပါ။ (Email ထပ်နေခြင်း သို့မဟုတ် error ရှိနိုင်သည်)";
+      msg.textContent = "အကောင့်ဖွင့်၍ မရပါ။ (Storage Rules သို့မဟုတ် Internet ကို စစ်ဆေးပါ)";
     }
   };
 
   function showDashboard(driver) {
     switchView('dashboardCard');
-    document.getElementById("welcomeDriver").textContent = `ကြိုဆိုပါတယ် - ${driver.phone} (အသက်: ${driver.age})`;
+    document.getElementById("welcomeDriver").textContent = `ကြိုဆိုပါတယ် - ${driver.fullName} (${driver.phone})`;
     loadRideRequests();
   }
 
