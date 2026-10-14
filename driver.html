@@ -38,10 +38,6 @@
       border-radius: 8px;
       font-size: 16px;
     }
-    input[type="file"] {
-      padding: 8px;
-      background: #f8fafc;
-    }
     input, select { border: 1px solid #ccd2dc; }
     button {
       background: #087f5b;
@@ -68,7 +64,6 @@
     .badge.accepted { background: #bbf7d0; color: #166534; }
     .note { color: #667085; font-size: 14px; }
     .hidden { display: none; }
-    label { font-weight: bold; font-size: 14px; margin-top: 12px; display: block; color: #334155; }
   </style>
 </head>
 <body>
@@ -94,27 +89,18 @@
       <input id="signupFullName" placeholder="နာမည်အပြည့်အစုံ (Full Name)">
       <input id="signupPhone" type="tel" placeholder="ဖုန်းနံပါတ်">
       <input id="signupEmail" type="email" placeholder="Gmail လိပ်စာ">
-      <input id="signupPassword" type="password" placeholder="စကားဝှက် (Password)">
+      <input id="signupPassword" type="password" placeholder="စကားဝှက် (Password - အနည်းဆုံး ၆ လုံး)">
       <input id="signupConfirmPassword" type="password" placeholder="စကားဝှက်ကို ထပ်မံထည့်ပါ">
       <button onclick="goToSignupStep2()">ရှေ့သို့ (Next)</button>
       <button onclick="switchView('signInCard')" class="secondary" style="background:none; color:#dc2626; border:1px solid #dc2626; margin-top:5px;">ရှိပြီးသားအကောင့်သို့ ပြန်သွားရန်</button>
       <p id="signupStep1Msg" class="note"></p>
     </section>
 
-    <!-- 3. Sign Up Step 2: Verification Details & Photos -->
+    <!-- 3. Sign Up Step 2: Verification Details -->
     <section id="signupStep2" class="card hidden">
       <h2>📋 အချက်အလက် အတည်ပြုခြင်း (အဆင့် ၂/၂)</h2>
       <input id="driverAge" type="number" placeholder="အသက်">
       <input id="driverNrc" placeholder="NRC နံပါတ် (ဥပမာ - ၁၂/မဂတ(နိုင်)၁၂၃၄၅၆)">
-      
-      <label>📷 NRC ရှေ့ပုံ (ကင်မရာဖြင့်ရိုက်ရန် (သို့) ဖိုင်ရွေးရန်)</label>
-      <input id="nrcFrontFile" type="file" accept="image/*" capture="environment">
-
-      <label>📷 NRC နောက်ပုံ</label>
-      <input id="nrcBackFile" type="file" accept="image/*" capture="environment">
-
-      <label>🛺 ယာဉ်ပုံ</label>
-      <input id="carPhotoFile" type="file" accept="image/*" capture="environment">
 
       <button onclick="completeSignUp()">အကောင့် အပြီးသတ်ဖွင့်မည်</button>
       <button onclick="switchView('signupStep1')" class="secondary" style="background:none; color:#664d0e; border:1px solid #854d0e; margin-top:5px;">နောက်သို့</button>
@@ -226,6 +212,10 @@
       msg.textContent = "အချက်အလက်အားလုံး ဖြည့်ပေးပါ။";
       return;
     }
+    if (pass.length < 6) {
+      msg.textContent = "စကားဝှက်သည် အနည်းဆုံး ၆ လုံး ရှိရပါမည်။";
+      return;
+    }
     if (pass !== confirmPass) {
       msg.textContent = "စကားဝှက် နှစ်ခု မတူညီပါ။";
       return;
@@ -235,56 +225,9 @@
     switchView('signupStep2');
   };
 
-  // Helper function to compress image and convert to Base64 (to prevent Firestore size limit error)
-  function compressImageAndConvertToBase64(file) {
-    return new Promise((resolve) => {
-      if (!file) {
-        resolve("");
-        return;
-      }
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target.result;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 600; // Resize width to keep file size small
-          const MAX_HEIGHT = 600;
-          let width = img.width;
-          let height = img.height;
-
-          if (width > height) {
-            if (width > MAX_WIDTH) {
-              height *= MAX_WIDTH / width;
-              width = MAX_WIDTH;
-            }
-          } else {
-            if (height > MAX_HEIGHT) {
-              width *= MAX_HEIGHT / height;
-              height = MAX_HEIGHT;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          
-          // Compress to JPEG with 0.6 quality
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
-          resolve(dataUrl);
-        };
-      };
-    });
-  }
-
   window.completeSignUp = async function() {
     const age = document.getElementById('driverAge').value.trim();
     const nrc = document.getElementById('driverNrc').value.trim();
-    const nrcFrontFile = document.getElementById('nrcFrontFile').files[0];
-    const nrcBackFile = document.getElementById('nrcBackFile').files[0];
-    const carPhotoFile = document.getElementById('carPhotoFile').files[0];
     const msg = document.getElementById('signupStep2Msg');
 
     if (!age || !nrc) {
@@ -292,15 +235,10 @@
       return;
     }
 
-    msg.textContent = "ပုံများကို အရွယ်အစားညှိပြီး သိမ်းဆည်းနေပါသည် (ခဏစောင့်ပါ)...";
+    msg.textContent = "အကောင့်ဖွင့်နေပါသည် (ခဏစောင့်ပါ)...";
     try {
       const cred = await createUserWithEmailAndPassword(auth, tempSignupData.email, tempSignupData.pass);
       const uid = cred.user.uid;
-
-      // Compress and convert images
-      const nrcFrontBase64 = await compressImageAndConvertToBase64(nrcFrontFile);
-      const nrcBackBase64 = await compressImageAndConvertToBase64(nrcBackFile);
-      const carPhotoBase64 = await compressImageAndConvertToBase64(carPhotoFile);
 
       const driverProfile = {
         uid,
@@ -309,9 +247,6 @@
         email: tempSignupData.email,
         age,
         nrc,
-        nrcFrontBase64,
-        nrcBackBase64,
-        carPhotoBase64,
         createdAt: new Date().toISOString()
       };
 
@@ -319,7 +254,7 @@
       alert("အကောင့်ဖွင့်ခြင်း အောင်မြင်ပါသည်။");
     } catch (error) {
       console.error(error);
-      msg.textContent = "အကောင့်ဖွင့်၍ မရပါ။ (Internet သို့မဟုတ် အချက်အလက်များကို စစ်ဆေးပါ)";
+      msg.textContent = "အကောင့်ဖွင့်၍ မရပါ။ (ဤ Gmail ဖြင့် အကောင့်ရှိပြီးသား ဖြစ်နေနိုင်သည်)";
     }
   };
 
