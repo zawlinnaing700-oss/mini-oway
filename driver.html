@@ -95,13 +95,12 @@
       <p id="signinMsg" class="note"></p>
     </section>
 
-    <!-- 2. Password Recovery Card -->
+    <!-- 2. Password Recovery Card (Firebase Native Reset Email) -->
     <section id="resetPasswordCard" class="card hidden">
-      <h2>🔑 စကားဝှက် ပြန်လည်သတ်မှတ်ရန်</h2>
-      <p class="note">စနစ်က အလိုအလျောက် စစ်ဆေးပြီး အသစ်ပြင်ဆင်ပေးပါမည်။</p>
-      <input id="resetEmail" type="email" placeholder="သင့် Gmail ထည့်ပါ">
-      <input id="newResetPassword" type="password" placeholder="စကားဝှက်အသစ် (အနည်းဆုံး ၆ လုံး)">
-      <button onclick="handleDirectResetPassword()">စကားဝှက်အသစ် သိမ်းမည်</button>
+      <h2>🔑 စကားဝှက် ပြန်လည်တောင်းဆိုရန်</h2>
+      <p class="note">သင့် Gmail ထံသို့ စကားဝှက် ပြန်လည်သတ်မှတ်ရန် လင့်ခ် ပို့ပေးပါမည်။</p>
+      <input id="resetEmail" type="email" placeholder="သင့် Gmail လိပ်စာထည့်ပါ">
+      <button onclick="handleResetPassword()">စကားဝှက် ပြန်ယူရန် လင့်ခ်ပို့မည်</button>
       <button onclick="switchView('signInCard')" class="secondary" style="background:none; color:#dc2626; border:1px solid #dc2626; margin-top:5px;">အကောင့်ဝင်သည့် စာမျက်နှာသို့ ပြန်သွားရန်</button>
       <p id="resetMsg" class="note"></p>
     </section>
@@ -153,6 +152,7 @@
     getAuth,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
+    sendPasswordResetEmail,
     signOut,
     onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
@@ -224,24 +224,27 @@
     }
   };
 
-  window.handleDirectResetPassword = async function() {
+  window.handleResetPassword = async function() {
     const email = document.getElementById('resetEmail').value.trim();
-    const newPass = document.getElementById('newResetPassword').value.trim();
     const msg = document.getElementById('resetMsg');
 
-    if (!email || !newPass) {
+    if (!email) {
       msg.style.color = "red";
-      msg.textContent = "အချက်အလက်အားလုံး ဖြည့်ပေးပါ။";
-      return;
-    }
-    if (newPass.length < 6) {
-      msg.style.color = "red";
-      msg.textContent = "စကားဝှက်သည် အနည်းဆုံး ၆ လုံး ရှိရပါမည်။";
+      msg.textContent = "ကျေးဇူးပြု၍ Gmail လိပ်စာ ထည့်သွင်းပါ။";
       return;
     }
 
-    msg.style.color = "green";
-    msg.textContent = "ကျေးဇူးပြု၍ အကောင့်အသစ် ထပ်မံဖွင့်ပါ သို့မဟုတ် ရှိပြီးသားစကားဝှက်ကို ပြန်သုံးပါ။";
+    msg.style.color = "#1e3a8a";
+    msg.textContent = "စကားဝှက် ပြန်ပြင်ရန် လင့်ခ် ပို့နေပါသည်...";
+    try {
+      await sendPasswordResetEmail(auth, email);
+      msg.style.color = "green";
+      msg.textContent = "သင့် Gmail ထံသို့ Password reset link ပို့လိုက်ပါပြီ။ Email ဝင်စစ်ပေးပါ။";
+    } catch (error) {
+      console.error(error);
+      msg.style.color = "red";
+      msg.textContent = "အမှားအယွင်းရှိနေပါသည်။ ဤ Gmail ဖြင့် အကောင့်ရှိမရှိ စစ်ဆေးပါ။";
+    }
   };
 
   window.goToNrcVerifyStep = function() {
@@ -267,7 +270,6 @@
       return;
     }
 
-    // Extract digits from NRC to extract last 6 digits
     const digitsOnly = nrc.replace(/\D/g, "");
     if (digitsOnly.length < 6) {
       msg.textContent = "NRC နံပါတ်တွင် ဂဏန်း အနည်းဆုံး ၆ လုံး ပါဝင်ရပါမည်။";
@@ -291,7 +293,7 @@
     }
 
     if (enteredLast6 !== tempSignupData.expectedLast6) {
-      msg.textContent = "ရိုက်ထည့်ထားသော ဂဏန်း ၆ လုံးသည် အဆင့် ၁ တွင်ဖြည့်ခဲ့သည့် NRC နောက်ဆုံး ၆ လုံးနှင့် မတူပါ! (" + tempSignupData.expectedLast6 + " ဖြစ်ရပါမည်)";
+      msg.textContent = "ရိုက်ထည့်ထားသော ဂဏန်း ၆ လုံးသည် အဆင့် ၁ တွင်ဖြည့်ခဲ့သည့် NRC နောက်ဆုံး ၆ လုံးနှင့် မတူပါ။";
       return;
     }
 
@@ -315,7 +317,7 @@
       showDashboard(driverProfile);
     } catch (error) {
       console.error(error);
-      msg.textContent = "အကောင့်ဖွင့်၍ မရပါ။ (ဤ Gmail ဖြင့် အကောင့်ရှိပြီးသား ဖြစ်နေနိုင်သည်)";
+      msg.textContent = "အကောင့်ဖွင့်၍ မရပါ။ (ဤ Gmail ဖြင့် အကောင့်ရှိပြီးသား ဖြစ်နိုင်သည်)";
     }
   };
 
