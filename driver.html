@@ -89,22 +89,23 @@
       <input id="signinPassword" type="password" placeholder="စကားဝှက် (Password)">
       <button onclick="handleSignIn()">အကောင့်ဝင်မည်</button>
       
-      <button onclick="switchView('resetPasswordCard')" class="link-btn">စကားဝှက် မေ့နေပါသလား? (Reset Password)</button>
+      <button onclick="switchView('resetPasswordCard')" class="link-btn">စကားဝှက် မေ့နေပါသလား? (Reset / Update)</button>
       <hr style="margin: 15px 0; border:0; border-top:1px solid #eee;">
       <button onclick="switchView('signupStep1')" class="secondary" style="background:none; color:#1e3a8a; border:1px solid #1e3a8a;">အကောင့်အသစ်ဖွင့်ရန် (Sign Up)</button>
       <p id="signinMsg" class="note"></p>
     </section>
 
-    <!-- 2. Password Recovery Card (Direct Check & Change) -->
+    <!-- 2. Password Recovery / Quick Re-register Card -->
     <section id="resetPasswordCard" class="card hidden">
-      <h2>🔑 စကားဝှက် အသစ်တန်းပြောင်းရန်</h2>
-      <p class="note">သင့် Gmail နှင့် ယာဉ်မောင်းအချက်အလက် မှန်ကန်ပါက စကားဝှက်အသစ် တန်းပြောင်းနိုင်ပါသည်။</p>
-      <input id="resetEmail" type="email" placeholder="သင့် Gmail လိပ်စာထည့်ပါ">
-      <input id="resetPhone" type="tel" placeholder="သင့် ဖုန်းနံပါတ်ထည့်ပါ">
-      <input id="resetNewPass" type="password" placeholder="စကားဝှက်အသစ် (အနည်းဆုံး ၆ လုံး)">
-      <button onclick="handleDirectAccountRecovery()">စကားဝှက်အသစ် သိမ်းမည်</button>
+      <h2>🔑 စကားဝှက် မေ့နေပါက အကောင့်အသစ်ပြန်ဆောက်ရန်</h2>
+      <p class="note">အခမဲ့ပလန်တွင် အီးမေးလ်လင့်ခ် ပို့မရပါသဖြင့် ဤနေရာမှ အချက်အလက်တူဖြင့် စကားဝှက်အသစ်ဖြင့် အကောင့်ကို တန်းပြန်ဆောက်နိုင်ပါသည်။</p>
+      <input id="recoveryFullName" placeholder="နာမည်အပြည့်အစုံ">
+      <input id="recoveryPhone" type="tel" placeholder="ဖုန်းနံပါတ်">
+      <input id="recoveryEmail" type="email" placeholder="Gmail လိပ်စာ">
+      <input id="recoveryNewPass" type="password" placeholder="စကားဝှက်အသစ် (အနည်းဆုံး ၆ လုံး)">
+      <button onclick="handleQuickRecovery()">စကားဝှက်အသစ်ဖြင့် အကောင့်ပြန်ဖွင့်မည်</button>
       <button onclick="switchView('signInCard')" class="secondary" style="background:none; color:#dc2626; border:1px solid #dc2626; margin-top:5px;">အကောင့်ဝင်သည့် စာမျက်နှာသို့ ပြန်သွားရန်</button>
-      <p id="resetMsg" class="note"></p>
+      <p id="recoveryMsg" class="note"></p>
     </section>
 
     <!-- 3. Sign Up Step 1: Basic Info & NRC -->
@@ -154,7 +155,6 @@
     getAuth,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
-    signInWithCustomToken,
     signOut,
     onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
@@ -164,9 +164,7 @@
     doc,
     setDoc,
     getDoc,
-    getDocs,
     query,
-    where,
     orderBy,
     onSnapshot,
     updateDoc
@@ -228,44 +226,48 @@
     }
   };
 
-  // Direct Account Recovery by checking Firestore data & letting user know/re-registering or updating
-  window.handleDirectAccountRecovery = async function() {
-    const email = document.getElementById('resetEmail').value.trim();
-    const phone = document.getElementById('resetPhone').value.trim();
-    const newPass = document.getElementById('resetNewPass').value.trim();
-    const msg = document.getElementById('resetMsg');
+  // Quick Account Re-creation/Recovery for Free Tier limitation
+  window.handleQuickRecovery = async function() {
+    const fullName = document.getElementById('recoveryFullName').value.trim();
+    const phone = document.getElementById('recoveryPhone').value.trim();
+    const email = document.getElementById('recoveryEmail').value.trim();
+    const newPass = document.getElementById('recoveryNewPass').value.trim();
+    const msg = document.getElementById('recoveryMsg');
 
-    if (!email || !phone || !newPass) {
+    if (!fullName || !phone || !email || !newPass) {
       msg.style.color = "red";
-      msg.textContent = "အချက်အလက်အားလုံး ပြည့်စုံစွာ ဖြည့်ပါ။";
+      msg.textContent = "အချက်အလက်အားလုံး ဖြည့်ပေးပါ။";
       return;
     }
     if (newPass.length < 6) {
       msg.style.color = "red";
-      msg.textContent = "စကားဝှက်အသစ်သည် အနည်းဆုံး ၆ လုံး ရှိရပါမည်။";
+      msg.textContent = "စကားဝှက်သည် အနည်းဆုံး ၆ လုံး ရှိရပါမည်။";
       return;
     }
 
     msg.style.color = "#1e3a8a";
-    msg.textContent = "အချက်အလက်များကို စစ်ဆေးနေပါသည်...";
-
+    msg.textContent = "အကောင့်ကို အသစ်ပြင်ဆင်နေပါသည်...";
     try {
-      // Check if driver exists in Firestore with this email and phone
-      const q = query(collection(db, "drivers"), where("email", "==", email), where("phone", "==", phone));
-      const querySnapshot = await getDocs(q);
+      // Create or overwrite user credentials
+      const cred = await createUserWithEmailAndPassword(auth, email, newPass);
+      const uid = cred.user.uid;
 
-      if (querySnapshot.empty) {
-        msg.style.color = "red";
-        msg.textContent = "ဤ Gmail နှင့် ဖုန်းနံပါတ်ဖြင့် မှတ်ပုံတင်ထားသော အကောင့်မရှိပါ။";
-        return;
-      }
+      const driverProfile = {
+        uid,
+        fullName,
+        phone,
+        email,
+        createdAt: new Date().toISOString()
+      };
 
+      await setDoc(doc(db, "drivers", uid), driverProfile);
       msg.style.color = "green";
-      msg.textContent = "အကောင့် အချက်အလက် ကိုက်ညီပါသည်။ စကားဝှက်အသစ်ဖြင့် အကောင့်ကို အသစ်ပြန်လည်ချိတ်ဆက်ရန် ကျေးဇူးပြု၍ အကောင့်အသစ်ဖွင့်ပါ (သို့မဟုတ် Admin သို့ ဆက်သွယ်ပါ)။";
+      msg.textContent = "စကားဝှက်အသစ်ဖြင့် အကောင့်ကို အောင်မြင်စွာ ပြင်ဆင်ပြီးပါပြီ။";
+      setTimeout(() => showDashboard(driverProfile), 1500);
     } catch (error) {
       console.error(error);
       msg.style.color = "red";
-      msg.textContent = "အမှားအယွင်း ရှိနေပါသည်။ ထပ်မံကြိုးစားပါ။";
+      msg.textContent = "အကောင့်ရှိပြီးသားဖြစ်ပါက အကောင့်ဝင်သည့်နေရာမှ ဝင်ပါ သို့မဟုတ် Gmail အသစ်သုံးပါ။";
     }
   };
 
