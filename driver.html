@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Oway - Driver Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f5f9;
+      color: #172033;
+    }
+    header {
+      background: #1e3a8a;
+      color: white;
+      padding: 22px 16px;
+      text-align: center;
+    }
+    header h1 { margin: 0; }
+    .container {
+      max-width: 600px;
+      margin: 22px auto;
+      padding: 16px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      box-shadow: 0 3px 12px #00000010;
+    }
+    button {
+      background: #087f5b;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+    .ride-item {
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 15px;
+      margin-bottom: 15px;
+    }
+    .ride-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .badge.pending { background: #fef08a; color: #854d0e; }
+    .badge.accepted { background: #bbf7d0; color: #166534; }
+    .note { color: #667085; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛺 ယာဉ်မောင်း ဒက်ရှ်ဘုတ်</h1>
+    <p>ခရီးသည်များ တောင်းဆိုထားသော ခရီးစဉ်များ</p>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>📥 တောင်းဆိုထားသော ခရီးစဉ်များ</h2>
+      <div id="rideList">
+        <p class="note">ခရီးစဉ်များကို ရှာဖွေနေပါသည်...</p>
+      </div>
+    </section>
+  </main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    query,
+    orderBy,
+    onSnapshot,
+    doc,
+    updateDoc
+  } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBXoDWq8O4A7yDpk7kYD5miY_0HwWxPKEE",
+    authDomain: "mini-oway-app.firebaseapp.com",
+    projectId: "mini-oway-app",
+    storageBucket: "mini-oway-app.firebasestorage.app",
+    messagingSenderId: "316881153859",
+    appId: "1:316881153859:web:3c67faa66636f7417089f6"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const rideListEl = document.getElementById("rideList");
+
+  // Real-time listener ဖြင့် ခရီးစဉ်များကို အမြဲစောင့်ကြည့်ခြင်း
+  const q = query(collection(db, "rideRequests"), orderBy("createdAt", "desc"));
+
+  onSnapshot(q, (snapshot) => {
+    if (snapshot.empty) {
+      rideListEl.innerHTML = `<p class="note">ယခုလက်ရှိ ခရီးစဉ် တောင်းဆိုမှု မရှိသေးပါ။</p>`;
+      return;
+    }
+
+    let html = "";
+    snapshot.forEach((docSnap) => {
+      const ride = docSnap.data();
+      const rideId = docSnap.id;
+      const status = ride.status || "pending";
+      
+      let statusBadge = status === "pending" 
+        ? `<span class="badge pending">စောင့်ဆိုင်းဆဲ</span>` 
+        : `<span class="badge accepted">လက်ခံပြီး</span>`;
+
+      let actionButton = status === "pending"
+        ? `<button onclick="acceptRide('${rideId}')">ခရီးစဉ် လက်ခံမည်</button>`
+        : `<button disabled>လက်ခံပြီးပါပြီ</button>`;
+
+      html += `
+        <div class="ride-item">
+          <p><strong>အစမှတ်:</strong> ${ride.pickup}</p>
+          <p><strong>ဆုံးမှတ်:</strong> ${ride.destination}</p>
+          <p><strong>ဖုန်းနံပါတ်:</strong> <a href="tel:${ride.phone}">${ride.phone}</a></p>
+          <p><strong>အခြေအနေ:</strong> ${statusBadge}</p>
+          ${actionButton}
+        </div>
+      `;
+    });
+
+    rideListEl.innerHTML = html;
+  });
+
+  // ယာဉ်မောင်းက ခရီးစဉ် လက်ခံသည့် လုပ်ဆောင်ချက်
+  window.acceptRide = async function (rideId) {
+    try {
+      const rideRef = doc(db, "rideRequests", rideId);
+      await updateDoc(rideRef, {
+        status: "accepted"
+      });
+      alert("ခရီးစဉ်ကို အောင်မြင်စွာ လက်ခံလိုက်ပါပြီ။");
+    } catch (error) {
+      console.error(error);
+      alert("ခရီးစဉ် လက်ခံရာတွင် အမှားအယွင်း ရှိနေပါသည်။");
+    }
+  };
+</script>
+</body>
+</html>
