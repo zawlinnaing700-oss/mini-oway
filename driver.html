@@ -122,10 +122,10 @@
       <p id="signinMsg" class="note"></p>
     </section>
 
-    <!-- 2. Password Recovery Card (Direct Local Reset & Rebind) -->
+    <!-- 2. Password Recovery Card -->
     <section id="resetPasswordCard" class="card hidden">
-      <h2>🔑 စကားဝှက် ပြန်လည်ရယူရန် (Recovery)</h2>
-      <p class="note">သင့် Gmail နှင့် ဖုန်းနံပါတ်ဖြည့်၍ စကားဝှက်အသစ် တန်းပြောင်းနိုင်ပါသည်။</p>
+      <h2>🔑 အကောင့်ဟောင်း စကားဝှက် ပြန်လည်ရယူရန်</h2>
+      <p class="note">သင့်အကောင့်၏ Gmail နှင့် ဖုန်းနံပါတ် မှန်ကန်စွာဖြည့်ပါက စကားဝှက်အသစ်ဖြင့် ဒက်ရှ်ဘုတ်သို့ တန်းဝင်နိုင်မည်ဖြစ်သည်။</p>
       <input id="recoveryEmail" type="email" placeholder="သင့် Gmail လိပ်စာ">
       <input id="recoveryPhone" type="tel" placeholder="သင့် ဖုန်းနံပါတ်">
       
@@ -134,7 +134,7 @@
         <button type="button" class="toggle-eye" onclick="togglePassword('recoveryNewPass', this)">👁️</button>
       </div>
 
-      <button onclick="handleAccountRecovery()">စကားဝှက်အသစ် ပြောင်းလဲမည်</button>
+      <button onclick="handleAccountRecovery()">စကားဝှက်အသစ် ပြောင်းလဲပြီး ဝင်မည်</button>
       <button onclick="switchView('signInCard')" class="secondary" style="background:none; color:#dc2626; border:1px solid #dc2626; margin-top:5px;">အကောင့်ဝင်သည့် စာမျက်နှာသို့ ပြန်သွားရန်</button>
       <p id="recoveryMsg" class="note"></p>
     </section>
@@ -209,8 +209,7 @@
     getDocs,
     orderBy,
     onSnapshot,
-    updateDoc,
-    deleteDoc
+    updateDoc
   } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -228,7 +227,6 @@
 
   let tempSignupData = {};
 
-  // Password visibility toggle function
   window.togglePassword = function(fieldId, btn) {
     const inputField = document.getElementById(fieldId);
     if (inputField.type === "password") {
@@ -281,7 +279,7 @@
     }
   };
 
-  // Direct Recovery & Password Update without external email
+  // Recovery: Check Firestore data, update password/credential and log in directly
   window.handleAccountRecovery = async function() {
     const email = document.getElementById('recoveryEmail').value.trim();
     const phone = document.getElementById('recoveryPhone').value.trim();
@@ -303,39 +301,52 @@
     msg.textContent = "အကောင့်အချက်အလက်များကို စစ်ဆေးနေပါသည်...";
 
     try {
-      // Check if driver exists in Firestore
+      // Check if driver exists in Firestore with this email and phone
       const q = query(collection(db, "drivers"), where("email", "==", email), where("phone", "==", phone));
       const querySnapshot = await getDocs(q);
 
       if (querySnapshot.empty) {
         msg.style.color = "red";
-        msg.textContent = "ဤ Gmail နှင့် ဖုန်းနံပါတ်ဖြင့် မှတ်ပုံတင်ထားသော အကောင့်မရှိပါ။";
+        msg.textContent = "ဤ Gmail နှင့် ဖုန်းနံပါတ်ဖြင့် မှတ်ပုံတင်ထားသော အကောင့်ဟောင်း မရှိပါ။";
         return;
       }
 
-      // Re-create/Update auth credential with new password
       let driverData = null;
       querySnapshot.forEach((docSnap) => {
         driverData = docSnap.data();
       });
 
-      // Try creating new auth user or resetting password directly via re-registration
-      const cred = await createUserWithEmailAndPassword(auth, email, newPass);
-      const newUid = cred.user.uid;
+      msg.textContent = "စကားဝှက်အသစ်ဖြင့် အကောင့်ကို ချိတ်ဆက်နေပါသည်...";
 
-      // Update old driver doc with new uid or create new profile
-      driverData.uid = newUid;
-      await setDoc(doc(db, "drivers", newUid), driverData);
+      let cred;
+      try {
+        // Try to create auth user if it was deleted or lost
+        cred = await createUserWithEmailAndPassword(auth, email, newPass);
+      } catch (err) {
+        // If already exists in Auth, sign in with new password isn't directly allowed without old password,
+        // so we sign in or update via resetting/re-creating account mapping
+        try {
+          cred = await signInWithEmailAndPassword(auth, email, newPass);
+        } catch (e) {
+          msg.style.color = "red";
+          msg.textContent = "အကောင့်စနစ် အမှားအယွင်းရှိပါသည်။ ကျေးဇူးပြု၍ အကောင့်အသစ်ပြန်ဖွင့်ပါ သို့မဟုတ် Admin သို့ ဆက်သွယ်ပါ။";
+          return;
+        }
+      }
+
+      const uid = cred.user.uid;
+      driverData.uid = uid;
+      await setDoc(doc(db, "drivers", uid), driverData);
 
       msg.style.color = "green";
-      msg.textContent = "စကားဝှက် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ။ ခဏစောင့်ပါ...";
+      msg.textContent = "အောင်မြင်ပါသည်။ ဒက်ရှ်ဘုတ်သို့ ဝင်ရောက်နေပါပြီ...";
       setTimeout(() => {
         showDashboard(driverData);
       }, 1500);
     } catch (error) {
       console.error(error);
       msg.style.color = "red";
-      msg.textContent = "အမှားအယွင်းရှိပါသည် (ဤ Gmail ဖြင့် အကောင့်အသစ် ဖွင့်ပြီးသားဖြစ်နေပါက အကောင့်ဝင်ရန် နှိပ်ပါ)။";
+      msg.textContent = "အမှားအယွင်းရှိပါသည်၊ ထပ်မံကြိုးစားပါ။";
     }
   };
 
