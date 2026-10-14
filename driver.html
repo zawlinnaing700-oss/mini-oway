@@ -47,7 +47,15 @@
       cursor: pointer;
     }
     button.secondary { background: #dc2626; }
-    button:disabled { background: #94a3b8; cursor: not-allowed; }
+    button.link-btn {
+      background: none;
+      color: #1e3a8a;
+      border: none;
+      padding: 5px;
+      margin-top: 8px;
+      font-weight: normal;
+      text-decoration: underline;
+    }
     .ride-item {
       border-bottom: 1px solid #e2e8f0;
       padding-bottom: 15px;
@@ -62,8 +70,19 @@
     }
     .badge.pending { background: #fef08a; color: #854d0e; }
     .badge.accepted { background: #bbf7d0; color: #166534; }
-    .note { color: #667085; font-size: 14px; }
+    .note { color: #667085; font-size: 14px; word-break: break-all; }
     .hidden { display: none; }
+    .otp-inputs {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    .otp-inputs input {
+      width: 15%;
+      text-align: center;
+      font-size: 20px;
+      padding: 10px 0;
+    }
   </style>
 </head>
 <body>
@@ -76,38 +95,69 @@
     <!-- 1. Sign In Card -->
     <section id="signInCard" class="card">
       <h2>👤 ယာဉ်မောင်း အကောင့်ဝင်ရန်</h2>
-      <input id="signinEmail" type="email" placeholder="Gmail သို့မဟုတ် ဖုန်းနံပါတ်">
+      <input id="signinEmail" type="email" placeholder="Gmail လိပ်စာ">
       <input id="signinPassword" type="password" placeholder="စကားဝှက် (Password)">
       <button onclick="handleSignIn()">အကောင့်ဝင်မည်</button>
-      <button onclick="switchView('signupStep1')" class="secondary" style="background:none; color:#1e3a8a; border:1px solid #1e3a8a; margin-top:5px;">အကောင့်အသစ်ဖွင့်ရန် (Sign Up)</button>
+      
+      <button onclick="switchView('resetPasswordCard')" class="link-btn">စကားဝှက် မေ့နေပါသလား? (Reset Password)</button>
+      <hr style="margin: 15px 0; border:0; border-top:1px solid #eee;">
+      <button onclick="switchView('signupStep1')" class="secondary" style="background:none; color:#1e3a8a; border:1px solid #1e3a8a;">အကောင့်အသစ်ဖွင့်ရန် (Sign Up)</button>
       <p id="signinMsg" class="note"></p>
     </section>
 
-    <!-- 2. Sign Up Step 1: Basic Info -->
+    <!-- 2. Password Recovery Card -->
+    <section id="resetPasswordCard" class="card hidden">
+      <h2>🔑 စကားဝှက် ပြန်လည်တောင်းဆိုရန်</h2>
+      <p class="note">သင့် Gmail ထံသို့ စကားဝှက် ပြန်ပြင်ရန် လင့်ခ် ပို့ပေးပါမည်။</p>
+      <input id="resetEmail" type="email" placeholder="သင့် Gmail ထည့်ပါ">
+      <button onclick="handleResetPassword()">စကားဝှက် ပြန်ယူမည်</button>
+      <button onclick="switchView('signInCard')" class="secondary" style="background:none; color:#dc2626; border:1px solid #dc2626; margin-top:5px;">အကောင့်ဝင်သည့် စာမျက်နှာသို့ ပြန်သွားရန်</button>
+      <p id="resetMsg" class="note"></p>
+    </section>
+
+    <!-- 3. Sign Up Step 1: Basic Info -->
     <section id="signupStep1" class="card hidden">
-      <h2>📝 အကောင့်အသစ်ဖွင့်ခြင်း (အဆင့် ၁/၂)</h2>
+      <h2>📝 အကောင့်အသစ်ဖွင့်ခြင်း (အဆင့် ၁/၃)</h2>
       <input id="signupFullName" placeholder="နာမည်အပြည့်အစုံ (Full Name)">
-      <input id="signupPhone" type="tel" placeholder="ဖုန်းနံပါတ်">
+      <input id="signupPhone" type="tel" placeholder="ဖုန်းနံပါတ် (ဥပမာ - 09123456789)">
       <input id="signupEmail" type="email" placeholder="Gmail လိပ်စာ">
       <input id="signupPassword" type="password" placeholder="စကားဝှက် (Password - အနည်းဆုံး ၆ လုံး)">
       <input id="signupConfirmPassword" type="password" placeholder="စကားဝှက်ကို ထပ်မံထည့်ပါ">
-      <button onclick="goToSignupStep2()">ရှေ့သို့ (Next)</button>
+      <button onclick="goToOtpStep()">ရှေ့သို့ (6-Digit Code အတည်ပြုရန်)</button>
       <button onclick="switchView('signInCard')" class="secondary" style="background:none; color:#dc2626; border:1px solid #dc2626; margin-top:5px;">ရှိပြီးသားအကောင့်သို့ ပြန်သွားရန်</button>
       <p id="signupStep1Msg" class="note"></p>
     </section>
 
-    <!-- 3. Sign Up Step 2: Verification Details -->
+    <!-- 4. Sign Up Step 2: 6-Digit Code Verification -->
+    <section id="otpStepCard" class="card hidden">
+      <h2>🔢 အတည်ပြုကုဒ် ရိုက်ထည့်ပါ (အဆင့် ၂/၃)</h2>
+      <p class="note" id="otpInstruction">သင့် ဖုန်း/Gmail သို့ ပို့ထားသော 6-Digit Code ကို ရိုက်ထည့်ပါ (စမ်းသပ်ရန် ကုဒ်: <strong>123456</strong>)</p>
+      
+      <div class="otp-inputs">
+        <input type="text" maxlength="1" oninput="moveFocus(this, 'otp2')" id="otp1">
+        <input type="text" maxlength="1" oninput="moveFocus(this, 'otp3')" id="otp2">
+        <input type="text" maxlength="1" oninput="moveFocus(this, 'otp4')" id="otp3">
+        <input type="text" maxlength="1" oninput="moveFocus(this, 'otp5')" id="otp4">
+        <input type="text" maxlength="1" oninput="moveFocus(this, 'otp6')" id="otp5">
+        <input type="text" maxlength="1" id="otp6">
+      </div>
+
+      <button onclick="verifyOtpCode()">Code အတည်ပြုမည်</button>
+      <button onclick="switchView('signupStep1')" class="secondary" style="background:none; color:#664d0e; border:1px solid #854d0e; margin-top:5px;">နောက်သို့</button>
+      <p id="otpMsg" class="note"></p>
+    </section>
+
+    <!-- 5. Sign Up Step 3: Verification Details -->
     <section id="signupStep2" class="card hidden">
-      <h2>📋 အချက်အလက် အတည်ပြုခြင်း (အဆင့် ၂/၂)</h2>
+      <h2>📋 အချက်အလက် အတည်ပြုခြင်း (အဆင့် ၃/၃)</h2>
       <input id="driverAge" type="number" placeholder="အသက်">
       <input id="driverNrc" placeholder="NRC နံပါတ် (ဥပမာ - ၁၂/မဂတ(နိုင်)၁၂၃၄၅၆)">
 
       <button onclick="completeSignUp()">အကောင့် အပြီးသတ်ဖွင့်မည်</button>
-      <button onclick="switchView('signupStep1')" class="secondary" style="background:none; color:#664d0e; border:1px solid #854d0e; margin-top:5px;">နောက်သို့</button>
       <p id="signupStep2Msg" class="note"></p>
     </section>
 
-    <!-- 4. Driver Dashboard Card -->
+    <!-- 6. Driver Dashboard Card -->
     <section id="dashboardCard" class="card hidden">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <h3 id="welcomeDriver" style="margin:0;">ကြိုဆိုပါတယ်</h3>
@@ -127,6 +177,7 @@
     getAuth,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
+    sendPasswordResetEmail,
     signOut,
     onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
@@ -156,13 +207,20 @@
   const db = getFirestore(app);
 
   let tempSignupData = {};
+  const MOCK_OTP = "123456"; // Default testing 6-digit code
 
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      const docRef = doc(db, "drivers", user.uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        showDashboard(docSnap.data());
+      try {
+        const docRef = doc(db, "drivers", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          showDashboard(docSnap.data());
+        } else {
+          showDashboard({ fullName: user.email, phone: "-" });
+        }
+      } catch (err) {
+        console.error("Dashboard fetch error:", err);
       }
     } else {
       switchView('signInCard');
@@ -171,36 +229,68 @@
 
   window.switchView = function(viewId) {
     document.getElementById('signInCard').classList.add('hidden');
+    document.getElementById('resetPasswordCard').classList.add('hidden');
     document.getElementById('signupStep1').classList.add('hidden');
+    document.getElementById('otpStepCard').classList.add('hidden');
     document.getElementById('signupStep2').classList.add('hidden');
     document.getElementById('dashboardCard').classList.add('hidden');
     document.getElementById(viewId).classList.remove('hidden');
-  }
+  };
 
+  // Sign In Handler with error catching
   window.handleSignIn = async function() {
     const email = document.getElementById('signinEmail').value.trim();
     const pass = document.getElementById('signinPassword').value.trim();
     const msg = document.getElementById('signinMsg');
 
     if (!email || !pass) {
-      msg.textContent = "အချက်အလက်အားလုံး ဖြည့်ပေးပါ။";
+      msg.textContent = "Gmail နှင့် စကားဝှက် ဖြည့်ပေးပါ။";
       return;
     }
 
     msg.textContent = "အကောင့်ဝင်နေပါသည်...";
     try {
-      let loginEmail = email;
-      if (!email.includes('@')) {
-        loginEmail = `${email}@minioway.com`;
-      }
-      await signInWithEmailAndPassword(auth, loginEmail, pass);
+      await signInWithEmailAndPassword(auth, email, pass);
     } catch (error) {
       console.error(error);
-      msg.textContent = "အကောင့်ဝင်ရောက်၍ မရပါ။ စကားဝှက် သို့မဟုတ် အကောင့်ကို စစ်ဆေးပါ။";
+      if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        msg.textContent = "Gmail သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်။";
+      } else {
+        msg.textContent = "အကောင့်ဝင်ရောက်၍ မရပါ။ (" + error.message + ")";
+      }
     }
   };
 
-  window.goToSignupStep2 = function() {
+  // Password Recovery / Reset
+  window.handleResetPassword = async function() {
+    const email = document.getElementById('resetEmail').value.trim();
+    const msg = document.getElementById('resetMsg');
+
+    if (!email) {
+      msg.textContent = "Gmail လိပ်စာ ထည့်သွင်းပါ။";
+      return;
+    }
+
+    msg.textContent = "စကားဝှက် ပြန်ပြင်ရန် လင့်ခ် ပို့နေပါသည်...";
+    try {
+      await sendPasswordResetEmail(auth, email);
+      msg.style.color = "green";
+      msg.textContent = "သင့် Gmail ထံသို့ Password reset link ပို့လိုက်ပါပြီ။ Email သွားစစ်ပေးပါ။";
+    } catch (error) {
+      console.error(error);
+      msg.style.color = "red";
+      msg.textContent = "အမှားအယွင်းရှိနေပါသည်။ Gmail ကို သေချာပြန်စစ်ပေးပါ။";
+    }
+  };
+
+  // Move focus automatically in OTP inputs
+  window.moveFocus = function(current, nextId) {
+    if (current.value.length >= 1) {
+      document.getElementById(nextId).focus();
+    }
+  };
+
+  window.goToOtpStep = function() {
     const fullName = document.getElementById('signupFullName').value.trim();
     const phone = document.getElementById('signupPhone').value.trim();
     const email = document.getElementById('signupEmail').value.trim();
@@ -222,7 +312,30 @@
     }
 
     tempSignupData = { fullName, phone, email, pass };
-    switchView('signupStep2');
+    switchView('otpStepCard');
+  };
+
+  window.verifyOtpCode = function() {
+    const otp1 = document.getElementById('otp1').value;
+    const otp2 = document.getElementById('otp2').value;
+    const otp3 = document.getElementById('otp3').value;
+    const otp4 = document.getElementById('otp4').value;
+    const otp5 = document.getElementById('otp5').value;
+    const otp6 = document.getElementById('otp6').value;
+
+    const fullOtp = otp1 + otp2 + otp3 + otp4 + otp5 + otp6;
+    const msg = document.getElementById('otpMsg');
+
+    if (fullOtp.length < 6) {
+      msg.textContent = "6-Digit Code အပြည့်အစုံ ရိုက်ထည့်ပါ။";
+      return;
+    }
+
+    if (fullOtp === MOCK_OTP) {
+      switchView('signupStep2');
+    } else {
+      msg.textContent = "အတည်ပြုကုဒ် မှားယွင်းနေပါသည်။ (စမ်းသပ်ရန် ကုဒ်: 123456)";
+    }
   };
 
   window.completeSignUp = async function() {
@@ -254,7 +367,7 @@
       alert("အကောင့်ဖွင့်ခြင်း အောင်မြင်ပါသည်။");
     } catch (error) {
       console.error(error);
-      msg.textContent = "အကောင့်ဖွင့်၍ မရပါ။ (ဤ Gmail ဖြင့် အကောင့်ရှိပြီးသား ဖြစ်နေနိုင်သည်)";
+      msg.textContent = "အကောင့်ဖွင့်၍ မရပါ။ (ဤ Gmail ဖြင့် အကောင့်ရှိပြီးသား ဖြစ်နိုင်သည်)";
     }
   };
 
