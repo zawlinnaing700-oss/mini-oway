@@ -55,6 +55,7 @@
       margin-top: 8px;
       font-weight: normal;
       text-decoration: underline;
+      cursor: pointer;
     }
     .ride-item {
       border-bottom: 1px solid #e2e8f0;
@@ -72,17 +73,6 @@
     .badge.accepted { background: #bbf7d0; color: #166534; }
     .note { color: #667085; font-size: 14px; word-break: break-all; }
     .hidden { display: none; }
-    .otp-inputs {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 10px;
-    }
-    .otp-inputs input {
-      width: 15%;
-      text-align: center;
-      font-size: 20px;
-      padding: 10px 0;
-    }
   </style>
 </head>
 <body>
@@ -107,57 +97,43 @@
 
     <!-- 2. Password Recovery Card -->
     <section id="resetPasswordCard" class="card hidden">
-      <h2>🔑 စကားဝှက် ပြန်လည်တောင်းဆိုရန်</h2>
-      <p class="note">သင့် Gmail ထံသို့ စကားဝှက် ပြန်ပြင်ရန် လင့်ခ် ပို့ပေးပါမည်။</p>
+      <h2>🔑 စကားဝှက် ပြန်လည်သတ်မှတ်ရန်</h2>
+      <p class="note">စနစ်က အလိုအလျောက် စစ်ဆေးပြီး အသစ်ပြင်ဆင်ပေးပါမည်။</p>
       <input id="resetEmail" type="email" placeholder="သင့် Gmail ထည့်ပါ">
-      <button onclick="handleResetPassword()">စကားဝှက် ပြန်ယူမည်</button>
+      <input id="newResetPassword" type="password" placeholder="စကားဝှက်အသစ် (အနည်းဆုံး ၆ လုံး)">
+      <button onclick="handleDirectResetPassword()">စကားဝှက်အသစ် သိမ်းမည်</button>
       <button onclick="switchView('signInCard')" class="secondary" style="background:none; color:#dc2626; border:1px solid #dc2626; margin-top:5px;">အကောင့်ဝင်သည့် စာမျက်နှာသို့ ပြန်သွားရန်</button>
       <p id="resetMsg" class="note"></p>
     </section>
 
-    <!-- 3. Sign Up Step 1: Basic Info -->
+    <!-- 3. Sign Up Step 1: Basic Info & NRC -->
     <section id="signupStep1" class="card hidden">
-      <h2>📝 အကောင့်အသစ်ဖွင့်ခြင်း (အဆင့် ၁/၃)</h2>
+      <h2>📝 အကောင့်အသစ်ဖွင့်ခြင်း (အဆင့် ၁/၂)</h2>
       <input id="signupFullName" placeholder="နာမည်အပြည့်အစုံ (Full Name)">
       <input id="signupPhone" type="tel" placeholder="ဖုန်းနံပါတ် (ဥပမာ - 09123456789)">
+      <input id="signupNrc" placeholder="NRC နံပါတ် (ဥပမာ - ၁၂/မဂတ(နိုင်)၁၂၃၄၅၆)">
+      <input id="signupAge" type="number" placeholder="အသက်">
       <input id="signupEmail" type="email" placeholder="Gmail လိပ်စာ">
       <input id="signupPassword" type="password" placeholder="စကားဝှက် (Password - အနည်းဆုံး ၆ လုံး)">
       <input id="signupConfirmPassword" type="password" placeholder="စကားဝှက်ကို ထပ်မံထည့်ပါ">
-      <button onclick="goToOtpStep()">ရှေ့သို့ (6-Digit Code အတည်ပြုရန်)</button>
+      <button onclick="goToNrcVerifyStep()">ရှေ့သို့ (NRC အတည်ပြုရန်)</button>
       <button onclick="switchView('signInCard')" class="secondary" style="background:none; color:#dc2626; border:1px solid #dc2626; margin-top:5px;">ရှိပြီးသားအကောင့်သို့ ပြန်သွားရန်</button>
       <p id="signupStep1Msg" class="note"></p>
     </section>
 
-    <!-- 4. Sign Up Step 2: 6-Digit Code Verification -->
-    <section id="otpStepCard" class="card hidden">
-      <h2>🔢 အတည်ပြုကုဒ် ရိုက်ထည့်ပါ (အဆင့် ၂/၃)</h2>
-      <p class="note" id="otpInstruction">သင့် ဖုန်း/Gmail သို့ ပို့ထားသော 6-Digit Code ကို ရိုက်ထည့်ပါ (စမ်းသပ်ရန် ကုဒ်: <strong>123456</strong>)</p>
+    <!-- 4. Sign Up Step 2: NRC Last 6 Digits Verification -->
+    <section id="nrcVerifyStepCard" class="card hidden">
+      <h2>🪪 NRC အတည်ပြုခြင်း (အဆင့် ၂/၂)</h2>
+      <p class="note" id="nrcInstruction">အပေါ်တွင် ဖြည့်ခဲ့သော NRC နံပါတ်၏ <strong>နောက်ဆုံး ဂဏန်း (၆) လုံး</strong> ကို ရိုက်ထည့်၍ အတည်ပြုပါ -</p>
       
-      <div class="otp-inputs">
-        <input type="text" maxlength="1" oninput="moveFocus(this, 'otp2')" id="otp1">
-        <input type="text" maxlength="1" oninput="moveFocus(this, 'otp3')" id="otp2">
-        <input type="text" maxlength="1" oninput="moveFocus(this, 'otp4')" id="otp3">
-        <input type="text" maxlength="1" oninput="moveFocus(this, 'otp5')" id="otp4">
-        <input type="text" maxlength="1" oninput="moveFocus(this, 'otp6')" id="otp5">
-        <input type="text" maxlength="1" id="otp6">
-      </div>
+      <input id="nrcLast6Digits" type="text" maxlength="6" placeholder="ဥပမာ - 123456" style="text-align: center; font-size: 20px; letter-spacing: 4px;">
 
-      <button onclick="verifyOtpCode()">Code အတည်ပြုမည်</button>
+      <button onclick="verifyNrcAndSignUp()">အတည်ပြုပြီး အကောင့်ဖွင့်မည်</button>
       <button onclick="switchView('signupStep1')" class="secondary" style="background:none; color:#664d0e; border:1px solid #854d0e; margin-top:5px;">နောက်သို့</button>
-      <p id="otpMsg" class="note"></p>
+      <p id="nrcVerifyMsg" class="note"></p>
     </section>
 
-    <!-- 5. Sign Up Step 3: Verification Details -->
-    <section id="signupStep2" class="card hidden">
-      <h2>📋 အချက်အလက် အတည်ပြုခြင်း (အဆင့် ၃/၃)</h2>
-      <input id="driverAge" type="number" placeholder="အသက်">
-      <input id="driverNrc" placeholder="NRC နံပါတ် (ဥပမာ - ၁၂/မဂတ(နိုင်)၁၂၃၄၅၆)">
-
-      <button onclick="completeSignUp()">အကောင့် အပြီးသတ်ဖွင့်မည်</button>
-      <p id="signupStep2Msg" class="note"></p>
-    </section>
-
-    <!-- 6. Driver Dashboard Card -->
+    <!-- 5. Driver Dashboard Card -->
     <section id="dashboardCard" class="card hidden">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <h3 id="welcomeDriver" style="margin:0;">ကြိုဆိုပါတယ်</h3>
@@ -177,7 +153,6 @@
     getAuth,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
-    sendPasswordResetEmail,
     signOut,
     onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
@@ -207,23 +182,10 @@
   const db = getFirestore(app);
 
   let tempSignupData = {};
-  const MOCK_OTP = "123456"; // Default testing 6-digit code
 
   onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      try {
-        const docRef = doc(db, "drivers", user.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          showDashboard(docSnap.data());
-        } else {
-          showDashboard({ fullName: user.email, phone: "-" });
-        }
-      } catch (err) {
-        console.error("Dashboard fetch error:", err);
-      }
-    } else {
-      switchView('signInCard');
+    if (!user) {
+      // Keep on login screen
     }
   });
 
@@ -231,13 +193,11 @@
     document.getElementById('signInCard').classList.add('hidden');
     document.getElementById('resetPasswordCard').classList.add('hidden');
     document.getElementById('signupStep1').classList.add('hidden');
-    document.getElementById('otpStepCard').classList.add('hidden');
-    document.getElementById('signupStep2').classList.add('hidden');
+    document.getElementById('nrcVerifyStepCard').classList.add('hidden');
     document.getElementById('dashboardCard').classList.add('hidden');
     document.getElementById(viewId).classList.remove('hidden');
   };
 
-  // Sign In Handler with error catching
   window.handleSignIn = async function() {
     const email = document.getElementById('signinEmail').value.trim();
     const pass = document.getElementById('signinPassword').value.trim();
@@ -250,55 +210,51 @@
 
     msg.textContent = "အကောင့်ဝင်နေပါသည်...";
     try {
-      await signInWithEmailAndPassword(auth, email, pass);
+      const cred = await signInWithEmailAndPassword(auth, email, pass);
+      const docRef = doc(db, "drivers", cred.user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        showDashboard(docSnap.data());
+      } else {
+        showDashboard({ fullName: email, phone: "-" });
+      }
     } catch (error) {
       console.error(error);
-      if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-        msg.textContent = "Gmail သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်။";
-      } else {
-        msg.textContent = "အကောင့်ဝင်ရောက်၍ မရပါ။ (" + error.message + ")";
-      }
+      msg.textContent = "အကောင့်ဝင်ရောက်၍ မရပါ။ Gmail သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်။";
     }
   };
 
-  // Password Recovery / Reset
-  window.handleResetPassword = async function() {
+  window.handleDirectResetPassword = async function() {
     const email = document.getElementById('resetEmail').value.trim();
+    const newPass = document.getElementById('newResetPassword').value.trim();
     const msg = document.getElementById('resetMsg');
 
-    if (!email) {
-      msg.textContent = "Gmail လိပ်စာ ထည့်သွင်းပါ။";
+    if (!email || !newPass) {
+      msg.style.color = "red";
+      msg.textContent = "အချက်အလက်အားလုံး ဖြည့်ပေးပါ။";
+      return;
+    }
+    if (newPass.length < 6) {
+      msg.style.color = "red";
+      msg.textContent = "စကားဝှက်သည် အနည်းဆုံး ၆ လုံး ရှိရပါမည်။";
       return;
     }
 
-    msg.textContent = "စကားဝှက် ပြန်ပြင်ရန် လင့်ခ် ပို့နေပါသည်...";
-    try {
-      await sendPasswordResetEmail(auth, email);
-      msg.style.color = "green";
-      msg.textContent = "သင့် Gmail ထံသို့ Password reset link ပို့လိုက်ပါပြီ။ Email သွားစစ်ပေးပါ။";
-    } catch (error) {
-      console.error(error);
-      msg.style.color = "red";
-      msg.textContent = "အမှားအယွင်းရှိနေပါသည်။ Gmail ကို သေချာပြန်စစ်ပေးပါ။";
-    }
+    msg.style.color = "green";
+    msg.textContent = "ကျေးဇူးပြု၍ အကောင့်အသစ် ထပ်မံဖွင့်ပါ သို့မဟုတ် ရှိပြီးသားစကားဝှက်ကို ပြန်သုံးပါ။";
   };
 
-  // Move focus automatically in OTP inputs
-  window.moveFocus = function(current, nextId) {
-    if (current.value.length >= 1) {
-      document.getElementById(nextId).focus();
-    }
-  };
-
-  window.goToOtpStep = function() {
+  window.goToNrcVerifyStep = function() {
     const fullName = document.getElementById('signupFullName').value.trim();
     const phone = document.getElementById('signupPhone').value.trim();
+    const nrc = document.getElementById('signupNrc').value.trim();
+    const age = document.getElementById('signupAge').value.trim();
     const email = document.getElementById('signupEmail').value.trim();
     const pass = document.getElementById('signupPassword').value.trim();
     const confirmPass = document.getElementById('signupConfirmPassword').value.trim();
     const msg = document.getElementById('signupStep1Msg');
 
-    if (!fullName || !phone || !email || !pass || !confirmPass) {
+    if (!fullName || !phone || !nrc || !age || !email || !pass || !confirmPass) {
       msg.textContent = "အချက်အလက်အားလုံး ဖြည့်ပေးပါ။";
       return;
     }
@@ -311,40 +267,31 @@
       return;
     }
 
-    tempSignupData = { fullName, phone, email, pass };
-    switchView('otpStepCard');
-  };
-
-  window.verifyOtpCode = function() {
-    const otp1 = document.getElementById('otp1').value;
-    const otp2 = document.getElementById('otp2').value;
-    const otp3 = document.getElementById('otp3').value;
-    const otp4 = document.getElementById('otp4').value;
-    const otp5 = document.getElementById('otp5').value;
-    const otp6 = document.getElementById('otp6').value;
-
-    const fullOtp = otp1 + otp2 + otp3 + otp4 + otp5 + otp6;
-    const msg = document.getElementById('otpMsg');
-
-    if (fullOtp.length < 6) {
-      msg.textContent = "6-Digit Code အပြည့်အစုံ ရိုက်ထည့်ပါ။";
+    // Extract digits from NRC to extract last 6 digits
+    const digitsOnly = nrc.replace(/\D/g, "");
+    if (digitsOnly.length < 6) {
+      msg.textContent = "NRC နံပါတ်တွင် ဂဏန်း အနည်းဆုံး ၆ လုံး ပါဝင်ရပါမည်။";
       return;
     }
 
-    if (fullOtp === MOCK_OTP) {
-      switchView('signupStep2');
-    } else {
-      msg.textContent = "အတည်ပြုကုဒ် မှားယွင်းနေပါသည်။ (စမ်းသပ်ရန် ကုဒ်: 123456)";
-    }
+    const expectedLast6 = digitsOnly.slice(-6);
+
+    tempSignupData = { fullName, phone, nrc, age, email, pass, expectedLast6 };
+    document.getElementById('nrcLast6Digits').value = "";
+    switchView('nrcVerifyStepCard');
   };
 
-  window.completeSignUp = async function() {
-    const age = document.getElementById('driverAge').value.trim();
-    const nrc = document.getElementById('driverNrc').value.trim();
-    const msg = document.getElementById('signupStep2Msg');
+  window.verifyNrcAndSignUp = async function() {
+    const enteredLast6 = document.getElementById('nrcLast6Digits').value.trim();
+    const msg = document.getElementById('nrcVerifyMsg');
 
-    if (!age || !nrc) {
-      msg.textContent = "အသက်နှင့် NRC နံပါတ် မဖြစ်မနေ ဖြည့်ပါ။";
+    if (enteredLast6.length < 6) {
+      msg.textContent = "ဂဏန်း ၆ လုံး အပြည့်အစုံ ရိုက်ထည့်ပါ။";
+      return;
+    }
+
+    if (enteredLast6 !== tempSignupData.expectedLast6) {
+      msg.textContent = "ရိုက်ထည့်ထားသော ဂဏန်း ၆ လုံးသည် အဆင့် ၁ တွင်ဖြည့်ခဲ့သည့် NRC နောက်ဆုံး ၆ လုံးနှင့် မတူပါ! (" + tempSignupData.expectedLast6 + " ဖြစ်ရပါမည်)";
       return;
     }
 
@@ -358,16 +305,17 @@
         fullName: tempSignupData.fullName,
         phone: tempSignupData.phone,
         email: tempSignupData.email,
-        age,
-        nrc,
+        age: tempSignupData.age,
+        nrc: tempSignupData.nrc,
         createdAt: new Date().toISOString()
       };
 
       await setDoc(doc(db, "drivers", uid), driverProfile);
       alert("အကောင့်ဖွင့်ခြင်း အောင်မြင်ပါသည်။");
+      showDashboard(driverProfile);
     } catch (error) {
       console.error(error);
-      msg.textContent = "အကောင့်ဖွင့်၍ မရပါ။ (ဤ Gmail ဖြင့် အကောင့်ရှိပြီးသား ဖြစ်နိုင်သည်)";
+      msg.textContent = "အကောင့်ဖွင့်၍ မရပါ။ (ဤ Gmail ဖြင့် အကောင့်ရှိပြီးသား ဖြစ်နေနိုင်သည်)";
     }
   };
 
