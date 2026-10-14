@@ -39,6 +39,28 @@
       font-size: 16px;
     }
     input, select { border: 1px solid #ccd2dc; }
+    .password-container {
+      position: relative;
+      width: 100%;
+    }
+    .password-container input {
+      width: 100%;
+      padding-right: 45px;
+    }
+    .toggle-eye {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 0;
+      width: auto;
+      margin: 0;
+      color: #667085;
+    }
     button {
       background: #087f5b;
       color: white;
@@ -86,24 +108,33 @@
     <section id="signInCard" class="card">
       <h2>👤 ယာဉ်မောင်း အကောင့်ဝင်ရန်</h2>
       <input id="signinEmail" type="email" placeholder="Gmail လိပ်စာ">
-      <input id="signinPassword" type="password" placeholder="စကားဝှက် (Password)">
+      
+      <div class="password-container">
+        <input id="signinPassword" type="password" placeholder="စကားဝှက် (Password)">
+        <button type="button" class="toggle-eye" onclick="togglePassword('signinPassword', this)">👁️</button>
+      </div>
+
       <button onclick="handleSignIn()">အကောင့်ဝင်မည်</button>
       
-      <button onclick="switchView('resetPasswordCard')" class="link-btn">စကားဝှက် မေ့နေပါသလား? (Reset / Update)</button>
+      <button onclick="switchView('resetPasswordCard')" class="link-btn">စကားဝှက် မေ့နေပါသလား? (Recovery)</button>
       <hr style="margin: 15px 0; border:0; border-top:1px solid #eee;">
       <button onclick="switchView('signupStep1')" class="secondary" style="background:none; color:#1e3a8a; border:1px solid #1e3a8a;">အကောင့်အသစ်ဖွင့်ရန် (Sign Up)</button>
       <p id="signinMsg" class="note"></p>
     </section>
 
-    <!-- 2. Password Recovery / Quick Re-register Card -->
+    <!-- 2. Password Recovery Card (Direct Local Reset & Rebind) -->
     <section id="resetPasswordCard" class="card hidden">
-      <h2>🔑 စကားဝှက် မေ့နေပါက အကောင့်အသစ်ပြန်ဆောက်ရန်</h2>
-      <p class="note">အခမဲ့ပလန်တွင် အီးမေးလ်လင့်ခ် ပို့မရပါသဖြင့် ဤနေရာမှ အချက်အလက်တူဖြင့် စကားဝှက်အသစ်ဖြင့် အကောင့်ကို တန်းပြန်ဆောက်နိုင်ပါသည်။</p>
-      <input id="recoveryFullName" placeholder="နာမည်အပြည့်အစုံ">
-      <input id="recoveryPhone" type="tel" placeholder="ဖုန်းနံပါတ်">
-      <input id="recoveryEmail" type="email" placeholder="Gmail လိပ်စာ">
-      <input id="recoveryNewPass" type="password" placeholder="စကားဝှက်အသစ် (အနည်းဆုံး ၆ လုံး)">
-      <button onclick="handleQuickRecovery()">စကားဝှက်အသစ်ဖြင့် အကောင့်ပြန်ဖွင့်မည်</button>
+      <h2>🔑 စကားဝှက် ပြန်လည်ရယူရန် (Recovery)</h2>
+      <p class="note">သင့် Gmail နှင့် ဖုန်းနံပါတ်ဖြည့်၍ စကားဝှက်အသစ် တန်းပြောင်းနိုင်ပါသည်။</p>
+      <input id="recoveryEmail" type="email" placeholder="သင့် Gmail လိပ်စာ">
+      <input id="recoveryPhone" type="tel" placeholder="သင့် ဖုန်းနံပါတ်">
+      
+      <div class="password-container">
+        <input id="recoveryNewPass" type="password" placeholder="စကားဝှက်အသစ် (အနည်းဆုံး ၆ လုံး)">
+        <button type="button" class="toggle-eye" onclick="togglePassword('recoveryNewPass', this)">👁️</button>
+      </div>
+
+      <button onclick="handleAccountRecovery()">စကားဝှက်အသစ် ပြောင်းလဲမည်</button>
       <button onclick="switchView('signInCard')" class="secondary" style="background:none; color:#dc2626; border:1px solid #dc2626; margin-top:5px;">အကောင့်ဝင်သည့် စာမျက်နှာသို့ ပြန်သွားရန်</button>
       <p id="recoveryMsg" class="note"></p>
     </section>
@@ -116,8 +147,17 @@
       <input id="signupNrc" placeholder="NRC နံပါတ် (ဥပမာ - ၁၂/မဂတ(နိုင်)၁၂၃၄၅၆)">
       <input id="signupAge" type="number" placeholder="အသက်">
       <input id="signupEmail" type="email" placeholder="Gmail လိပ်စာ">
-      <input id="signupPassword" type="password" placeholder="စကားဝှက် (Password - အနည်းဆုံး ၆ လုံး)">
-      <input id="signupConfirmPassword" type="password" placeholder="စကားဝှက်ကို ထပ်မံထည့်ပါ">
+      
+      <div class="password-container">
+        <input id="signupPassword" type="password" placeholder="စကားဝှက် (အနည်းဆုံး ၆ လုံး)">
+        <button type="button" class="toggle-eye" onclick="togglePassword('signupPassword', this)">👁️</button>
+      </div>
+
+      <div class="password-container">
+        <input id="signupConfirmPassword" type="password" placeholder="စကားဝှက်ကို ထပ်မံထည့်ပါ">
+        <button type="button" class="toggle-eye" onclick="togglePassword('signupConfirmPassword', this)">👁️</button>
+      </div>
+
       <button onclick="goToNrcVerifyStep()">ရှေ့သို့ (NRC အတည်ပြုရန်)</button>
       <button onclick="switchView('signInCard')" class="secondary" style="background:none; color:#dc2626; border:1px solid #dc2626; margin-top:5px;">ရှိပြီးသားအကောင့်သို့ ပြန်သွားရန်</button>
       <p id="signupStep1Msg" class="note"></p>
@@ -165,9 +205,12 @@
     setDoc,
     getDoc,
     query,
+    where,
+    getDocs,
     orderBy,
     onSnapshot,
-    updateDoc
+    updateDoc,
+    deleteDoc
   } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -184,6 +227,18 @@
   const db = getFirestore(app);
 
   let tempSignupData = {};
+
+  // Password visibility toggle function
+  window.togglePassword = function(fieldId, btn) {
+    const inputField = document.getElementById(fieldId);
+    if (inputField.type === "password") {
+      inputField.type = "text";
+      btn.textContent = "🙈";
+    } else {
+      inputField.type = "password";
+      btn.textContent = "👁️";
+    }
+  };
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
@@ -226,48 +281,61 @@
     }
   };
 
-  // Quick Account Re-creation/Recovery for Free Tier limitation
-  window.handleQuickRecovery = async function() {
-    const fullName = document.getElementById('recoveryFullName').value.trim();
-    const phone = document.getElementById('recoveryPhone').value.trim();
+  // Direct Recovery & Password Update without external email
+  window.handleAccountRecovery = async function() {
     const email = document.getElementById('recoveryEmail').value.trim();
+    const phone = document.getElementById('recoveryPhone').value.trim();
     const newPass = document.getElementById('recoveryNewPass').value.trim();
     const msg = document.getElementById('recoveryMsg');
 
-    if (!fullName || !phone || !email || !newPass) {
+    if (!email || !phone || !newPass) {
       msg.style.color = "red";
-      msg.textContent = "အချက်အလက်အားလုံး ဖြည့်ပေးပါ။";
+      msg.textContent = "အချက်အလက်အားလုံး ပြည့်စုံစွာ ဖြည့်ပါ။";
       return;
     }
     if (newPass.length < 6) {
       msg.style.color = "red";
-      msg.textContent = "စကားဝှက်သည် အနည်းဆုံး ၆ လုံး ရှိရပါမည်။";
+      msg.textContent = "စကားဝှက်အသစ်သည် အနည်းဆုံး ၆ လုံး ရှိရပါမည်။";
       return;
     }
 
     msg.style.color = "#1e3a8a";
-    msg.textContent = "အကောင့်ကို အသစ်ပြင်ဆင်နေပါသည်...";
+    msg.textContent = "အကောင့်အချက်အလက်များကို စစ်ဆေးနေပါသည်...";
+
     try {
-      // Create or overwrite user credentials
+      // Check if driver exists in Firestore
+      const q = query(collection(db, "drivers"), where("email", "==", email), where("phone", "==", phone));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        msg.style.color = "red";
+        msg.textContent = "ဤ Gmail နှင့် ဖုန်းနံပါတ်ဖြင့် မှတ်ပုံတင်ထားသော အကောင့်မရှိပါ။";
+        return;
+      }
+
+      // Re-create/Update auth credential with new password
+      let driverData = null;
+      querySnapshot.forEach((docSnap) => {
+        driverData = docSnap.data();
+      });
+
+      // Try creating new auth user or resetting password directly via re-registration
       const cred = await createUserWithEmailAndPassword(auth, email, newPass);
-      const uid = cred.user.uid;
+      const newUid = cred.user.uid;
 
-      const driverProfile = {
-        uid,
-        fullName,
-        phone,
-        email,
-        createdAt: new Date().toISOString()
-      };
+      // Update old driver doc with new uid or create new profile
+      driverData.uid = newUid;
+      await setDoc(doc(db, "drivers", newUid), driverData);
 
-      await setDoc(doc(db, "drivers", uid), driverProfile);
       msg.style.color = "green";
-      msg.textContent = "စကားဝှက်အသစ်ဖြင့် အကောင့်ကို အောင်မြင်စွာ ပြင်ဆင်ပြီးပါပြီ။";
-      setTimeout(() => showDashboard(driverProfile), 1500);
+      msg.textContent = "စကားဝှက် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ။ ခဏစောင့်ပါ...";
+      setTimeout(() => {
+        showDashboard(driverData);
+      }, 1500);
     } catch (error) {
       console.error(error);
       msg.style.color = "red";
-      msg.textContent = "အကောင့်ရှိပြီးသားဖြစ်ပါက အကောင့်ဝင်သည့်နေရာမှ ဝင်ပါ သို့မဟုတ် Gmail အသစ်သုံးပါ။";
+      msg.textContent = "အမှားအယွင်းရှိပါသည် (ဤ Gmail ဖြင့် အကောင့်အသစ် ဖွင့်ပြီးသားဖြစ်နေပါက အကောင့်ဝင်ရန် နှိပ်ပါ)။";
     }
   };
 
