@@ -64,7 +64,7 @@
       margin-bottom: 16px;
       text-align: center;
     }
-    input {
+    input, select {
       width: 100%;
       padding: 12px 14px;
       margin-bottom: 12px;
@@ -74,7 +74,7 @@
       outline: none;
       background: #f9fafb;
     }
-    input:focus {
+    input:focus, select:focus {
       border-color: #00b14f;
       background: #ffffff;
     }
@@ -283,6 +283,14 @@
       padding: 3px 8px;
       border-radius: 20px;
     }
+    .payment-badge {
+      font-size: 11px;
+      font-weight: bold;
+      background: #f3f4f6;
+      color: #374151;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
     .route-timeline {
       position: relative;
       padding-left: 18px;
@@ -323,6 +331,13 @@
       font-size: 14px;
       font-weight: 600;
       color: #111827;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .point-name:hover {
+      color: #00b14f;
     }
     .passenger-bar {
       display: flex;
@@ -391,6 +406,26 @@
       font-size: 18px;
       margin-bottom: 2px;
     }
+
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      padding: 16px;
+    }
+    .modal-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
   </style>
 </head>
 <body>
@@ -451,6 +486,8 @@
       <input id="signupFullName" placeholder="နာမည်အပြည့်အစုံ">
       <input id="signupPhone" type="tel" placeholder="ဖုန်းနံပါတ် (ဥပမာ - 09123456789)">
       <input id="signupNrc" placeholder="NRC နံပါတ် (ဥပမာ - ၁၂/မဂတ(နိုင်)၁၂၃၄၅၆)">
+      <input id="signupVehicleType" placeholder="ယာဉ်အမျိုးအစား (ဥပမာ - သုံးဘီး/ဆိုင်ကယ်)">
+      <input id="signupVehicleNo" placeholder="ယာဉ်နံပါတ် (ဥပမာ - YGN 1A/1234)">
       <input id="signupAge" type="number" placeholder="အသက်">
       <input id="signupEmail" type="email" placeholder="Gmail လိပ်စာ">
       
@@ -516,6 +553,7 @@
         <div style="background: #e6f7ed; padding: 16px; border-radius: 10px; text-align: center; margin-bottom: 12px;">
           <p style="margin:0; font-size: 12px; color: #00b14f;">ဒီနေ့ ရရှိသော ဝင်ငွေစုစုပေါင်း</p>
           <h1 style="margin:4px 0 0 0; color: #00b14f;" id="todayEarnings">0 KS</h1>
+          <button onclick="openEarningsBreakdown()" class="link-btn" style="margin-top: 8px;">📊 ဝင်ငွေ မှတ်တမ်းအသေးစိတ် ကြည့်မည်</button>
         </div>
       </div>
 
@@ -526,7 +564,6 @@
           <div style="background: #222; padding: 4px 10px; border-radius: 20px; font-size: 15px; font-weight: bold; font-family: monospace; color: #fff;" id="liveTimer">00:00:00</div>
         </div>
 
-        <!-- Live Amount Badge (Speedometer အပေါ်တွင် အချိန်နဲ့တပြေးညီ ဈေးပြရန်) -->
         <div style="display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 10px 14px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #333;">
           <span style="font-size: 12px; color: #aaa;">ခန့်မှန်း ဝင်ငွေ (Amount):</span>
           <span style="font-size: 18px; font-weight: bold; color: #00ff66;" id="liveCalculatedAmount">2000 KS</span>
@@ -576,12 +613,54 @@
           <p><strong>ဖုန်းနံပါတ်:</strong> <span id="profilePhone">-</span></p>
           <p><strong>Gmail:</strong> <span id="profileEmail">-</span></p>
           <p><strong>NRC:</strong> <span id="profileNrc">-</span></p>
+          <p><strong>ယာဉ်အမျိုးအစား:</strong> <span id="profileVehicleType">-</span></p>
+          <p><strong>ယာဉ်နံပါတ်:</strong> <span id="profileVehicleNo">-</span></p>
         </div>
+        <button class="btn-secondary" onclick="openEditProfileModal()">✏️ အချက်အလက်များ ပြင်ဆင်မည်</button>
         <div class="divider"></div>
         <button class="btn-primary" style="background: #ef4444;" onclick="driverLogout()">အကောင့်မှ ထွက်မည် (Logout)</button>
       </div>
     </section>
   </main>
+
+  <!-- Modals -->
+  <!-- 1. Receipt Modal -->
+  <div id="receiptModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h2 style="color: #00b14f; margin-top:0;">🧾 ခရီးစဉ် ပြေစာ (Receipt)</h2>
+      <div class="divider"></div>
+      <p style="display:flex; justify-content:space-between; margin: 8px 0;"><span>ကြာမြင့်ချိန်:</span> <strong id="recTime">00:00:00</strong></p>
+      <p style="display:flex; justify-content:space-between; margin: 8px 0;"><span>အကွာအဝေး:</span> <strong id="recDistance">0.00 km</strong></p>
+      <p style="display:flex; justify-content:space-between; margin: 8px 0;"><span>ခရီးသည် လူဦးရေ:</span> <strong id="recPersons">1 ဦး</strong></p>
+      <div class="divider"></div>
+      <p style="display:flex; justify-content:space-between; font-size: 18px; margin: 12px 0;"><span style="font-weight:bold;">စုစုပေါင်း ရရှိငွေ:</span> <strong id="recAmount" style="color: #00b14f;">0 KS</strong></p>
+      <button class="btn-primary" onclick="closeReceiptModal()">အတည်ပြုပါပြီ (OK)</button>
+    </div>
+  </div>
+
+  <!-- 2. Edit Profile Modal -->
+  <div id="editProfileModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h2>✏️ အချက်အလက် ပြင်ဆင်ရန်</h2>
+      <input id="editName" placeholder="နာမည်အပြည့်အစုံ">
+      <input id="editPhone" placeholder="ဖုန်းနံပါတ်">
+      <input id="editVehicleType" placeholder="ယာဉ်အမျိုးအစား">
+      <input id="editVehicleNo" placeholder="ယာဉ်နံပါတ်">
+      <button class="btn-primary" onclick="saveProfileChanges()">သိမ်းဆည်းမည်</button>
+      <button class="btn-secondary" style="margin-top: 8px; border-color: #6b7280; color: #6b7280;" onclick="closeEditProfileModal()">မလုပ်ဆောင်တော့ပါ</button>
+    </div>
+  </div>
+
+  <!-- 3. Earnings Breakdown Modal -->
+  <div id="earningsModal" class="modal-overlay hidden">
+    <div class="modal-card" style="max-height: 80vh; overflow-y: auto;">
+      <h2>📊 ဝင်ငွေ မှတ်တမ်းအသေးစိတ်</h2>
+      <div id="earningsBreakdownList">
+        <p class="sub-title">မှတ်တမ်းများကို ရယူနေပါသည်...</p>
+      </div>
+      <button class="btn-secondary" style="margin-top: 12px;" onclick="closeEarningsModal()">ပိတ်မည်</button>
+    </div>
+  </div>
 
   <nav id="bottomNav" class="bottom-nav hidden">
     <button class="nav-item active" onclick="switchTab('dashboardTab', this)">
@@ -639,9 +718,11 @@
 
     let tempSignupData = {};
     let currentDriverUid = null;
+    let currentDriverData = {};
     let map, driverMarker;
     let totalEarnings = 0;
     let hasActiveMission = false;
+    let previousRideCount = 0;
 
     let activeMap = null;
     let activeMarker = null;
@@ -654,6 +735,25 @@
     let speedSamples = [];
     let timerInterval = null;
     let secondsElapsed = 0;
+    let activePersons = 1;
+
+    // Web Audio Sound Notification
+    function playOrderAlertSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // High pitch A5
+        gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.6);
+      } catch (e) {
+        console.log("Audio play error", e);
+      }
+    }
 
     window.togglePassword = function(fieldId, btn) {
       const inputField = document.getElementById(fieldId);
@@ -666,7 +766,6 @@
       }
     };
 
-    // Fullscreen Toggle
     window.toggleMapFullscreen = function() {
       const wrapper = document.getElementById("mapWrapper");
       wrapper.classList.toggle("fullscreen");
@@ -710,9 +809,11 @@
         const docRef = doc(db, "drivers", user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          showDashboard(docSnap.data());
+          currentDriverData = docSnap.data();
+          showDashboard(currentDriverData);
         } else {
-          showDashboard({ fullName: user.email, phone: "-", email: user.email, nrc: "-" });
+          currentDriverData = { fullName: user.email, phone: "-", email: user.email, nrc: "-", vehicleType: "-", vehicleNo: "-" };
+          showDashboard(currentDriverData);
         }
       } else {
         document.getElementById('bottomNav').classList.add('hidden');
@@ -751,9 +852,11 @@
         const docRef = doc(db, "drivers", cred.user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          showDashboard(docSnap.data());
+          currentDriverData = docSnap.data();
+          showDashboard(currentDriverData);
         } else {
-          showDashboard({ fullName: email, phone: "-", email: email, nrc: "-" });
+          currentDriverData = { fullName: email, phone: "-", email: email, nrc: "-", vehicleType: "-", vehicleNo: "-" };
+          showDashboard(currentDriverData);
         }
       } catch (error) {
         console.error(error);
@@ -818,6 +921,7 @@
         msg.style.color = "#00b14f";
         msg.textContent = "အောင်မြင်ပါသည်။ ဒက်ရှ်ဘုတ်သို့ ဝင်ရောက်နေပါပြီ...";
         setTimeout(() => {
+          currentDriverData = driverData;
           showDashboard(driverData);
         }, 1200);
       } catch (error) {
@@ -831,6 +935,8 @@
       const fullName = document.getElementById('signupFullName').value.trim();
       const phone = document.getElementById('signupPhone').value.trim();
       const nrc = document.getElementById('signupNrc').value.trim();
+      const vehicleType = document.getElementById('signupVehicleType').value.trim();
+      const vehicleNo = document.getElementById('signupVehicleNo').value.trim();
       const age = document.getElementById('signupAge').value.trim();
       const email = document.getElementById('signupEmail').value.trim();
       const pass = document.getElementById('signupPassword').value.trim();
@@ -857,7 +963,7 @@
       }
 
       const expectedLast6 = digitsOnly.slice(-6);
-      tempSignupData = { fullName, phone, nrc, age, email, pass, expectedLast6 };
+      tempSignupData = { fullName, phone, nrc, vehicleType, vehicleNo, age, email, pass, expectedLast6 };
       document.getElementById('nrcLast6Digits').value = "";
       switchView('nrcVerifyStepCard');
     };
@@ -890,10 +996,13 @@
           email: tempSignupData.email,
           age: tempSignupData.age,
           nrc: tempSignupData.nrc,
+          vehicleType: tempSignupData.vehicleType || "-",
+          vehicleNo: tempSignupData.vehicleNo || "-",
           createdAt: new Date().toISOString()
         };
 
         await setDoc(doc(db, "drivers", uid), driverProfile);
+        currentDriverData = driverProfile;
         showDashboard(driverProfile);
       } catch (error) {
         console.error(error);
@@ -911,13 +1020,18 @@
       document.getElementById('bottomNav').classList.remove('hidden');
       switchTab('dashboardTab');
 
+      updateProfileUI(driver);
+      initMap();
+      loadRideRequests();
+    }
+
+    function updateProfileUI(driver) {
       document.getElementById("profileName").textContent = driver.fullName || '-';
       document.getElementById("profilePhone").textContent = driver.phone || '-';
       document.getElementById("profileEmail").textContent = driver.email || '-';
       document.getElementById("profileNrc").textContent = driver.nrc || '-';
-
-      initMap();
-      loadRideRequests();
+      document.getElementById("profileVehicleType").textContent = driver.vehicleType || '-';
+      document.getElementById("profileVehicleNo").textContent = driver.vehicleNo || '-';
     }
 
     function initMap() {
@@ -964,12 +1078,13 @@
     }
 
     function startActiveNavigation(rideId, pickup, destination, basePersons = 1) {
+      activePersons = basePersons;
       document.getElementById('myActiveRideList').classList.add('hidden');
       const navCard = document.getElementById('activeNavigationCard');
       navCard.classList.remove('hidden');
       document.getElementById('navRouteTitle').textContent = `${pickup} ➔ ${destination}`;
       
-      document.getElementById('endRideBtn').setAttribute('onclick', `updateRideStatus('${rideId}', 'completed')`);
+      document.getElementById('endRideBtn').setAttribute('onclick', `updateRideStatus('${rideId}', 'completed', '${pickup}', '${destination}', ${basePersons})`);
 
       if (!activeMap) {
         activeMap = L.map('activeMap').setView([16.8661, 96.1951], 15);
@@ -1032,7 +1147,6 @@
 
           document.getElementById('liveDistance').textContent = totalDistanceKm.toFixed(2);
 
-          // ဈေးနှုန်းသစ် တွက်ချက်ခြင်း: 2000 + ((persons - 1) * 1000) + (distanceKm * 1000)
           const extraPersons = Math.max(0, basePersons - 1);
           const currentAmount = 2000 + (extraPersons * 1000) + Math.floor(totalDistanceKm * 1000);
           document.getElementById('liveCalculatedAmount').textContent = `${currentAmount} KS`;
@@ -1053,6 +1167,7 @@
         let activeMissionsHtml = "";
         totalEarnings = 0;
         hasActiveMission = false;
+        let currentAvailableCount = 0;
 
         const isOnDuty = document.getElementById("dutyToggle").checked;
 
@@ -1070,7 +1185,16 @@
           if (driverUid === currentDriverUid && (status === "accepted" || status === "started")) {
             hasActiveMission = true;
           }
+          if (status === "pending") {
+            currentAvailableCount++;
+          }
         });
+
+        // Audio Alert for new orders
+        if (isOnDuty && currentAvailableCount > previousRideCount) {
+          playOrderAlertSound();
+        }
+        previousRideCount = currentAvailableCount;
 
         snapshot.forEach((docSnap) => {
           const ride = docSnap.data();
@@ -1078,8 +1202,9 @@
           const status = ride.status || "pending";
           const driverUid = ride.driverUid || null;
           const persons = Number(ride.persons) || 1; 
+          const paymentMethod = ride.paymentMethod || "Cash";
           const extraP = Math.max(0, persons - 1);
-          const baseEstimatedPrice = 2000 + (extraP * 1000); // ယာယီအခြေခံဈေး (0 km စစချင်းအတွက်)
+          const baseEstimatedPrice = 2000 + (extraP * 1000);
 
           if (driverUid === currentDriverUid && status === "completed") {
             totalEarnings += Number(ride.price || baseEstimatedPrice);
@@ -1091,22 +1216,28 @@
               acceptBtnHtml = `<button class="mission-btn" style="background: #9ca3af; cursor: not-allowed;" disabled>မစ်ရှင်တစ်ခု ပြီးဆုံးမှသာ အသစ်လက်ခံနိုင်မည်</button>`;
             }
 
+            const pickupMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ride.pickup)}`;
+            const destMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ride.destination)}`;
+
             homeAvailableHtml += `
               <div class="yg-ride-card">
                 <div class="card-top">
                   <span class="service-type">🛺 YG Express</span>
-                  <span style="font-size: 11px; color: #00b14f; font-weight: bold;">လူဦးရေ: ${persons} ဦး (အစပြုဈေး ~ ${baseEstimatedPrice} KS)</span>
+                  <span class="payment-badge">💳 ${paymentMethod}</span>
+                </div>
+                <div style="font-size: 11px; color: #00b14f; font-weight: bold; margin-bottom: 8px;">
+                  လူဦးရေ: ${persons} ဦး (အစပြုဈေး ~ ${baseEstimatedPrice} KS)
                 </div>
                 <div class="route-timeline">
                   <div class="route-point">
                     <span class="point-dot dot-start"></span>
-                    <div class="point-label">အစမှတ် (PICK UP)</div>
-                    <div class="point-name">${ride.pickup}</div>
+                    <div class="point-label">အစမှတ် (PICK UP - နှိပ်ပါ)</div>
+                    <a href="${pickupMapUrl}" target="_blank" class="point-name">${ride.pickup} 🗺️</a>
                   </div>
                   <div class="route-point">
                     <span class="point-dot dot-end"></span>
-                    <div class="point-label">အဆုံးမှတ် (DROP OFF)</div>
-                    <div class="point-name">${ride.destination}</div>
+                    <div class="point-label">အဆုံးမှတ် (DROP OFF - နှိပ်ပါ)</div>
+                    <a href="${destMapUrl}" target="_blank" class="point-name">${ride.destination} 🗺️</a>
                   </div>
                 </div>
                 ${acceptBtnHtml}
@@ -1126,22 +1257,28 @@
               missionBtnHtml = `<button class="mission-btn btn-complete" onclick="updateRideStatus('${rideId}', 'completed', '${ride.pickup}', '${ride.destination}', ${persons})">ခရီးစဉ် ပြီးဆုံးမည် (Complete Ride)</button>`;
             }
 
+            const pickupMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ride.pickup)}`;
+            const destMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ride.destination)}`;
+
             activeMissionsHtml += `
               <div class="yg-ride-card" style="border: 1.5px solid #00b14f;">
                 <div class="card-top">
                   <span class="service-type">${statusText}</span>
-                  <span style="font-size: 11px; color: #00b14f; font-weight: bold;">လူဦးရေ: ${persons} ဦး</span>
+                  <span class="payment-badge">💳 ${paymentMethod}</span>
+                </div>
+                <div style="font-size: 11px; color: #00b14f; font-weight: bold; margin-bottom: 8px;">
+                  လူဦးရေ: ${persons} ဦး
                 </div>
                 <div class="route-timeline">
                   <div class="route-point">
                     <span class="point-dot dot-start"></span>
-                    <div class="point-label">အစမှတ် (PICK UP)</div>
-                    <div class="point-name">${ride.pickup}</div>
+                    <div class="point-label">အစမှတ် (PICK UP - နှိပ်ပါ)</div>
+                    <a href="${pickupMapUrl}" target="_blank" class="point-name">${ride.pickup} 🗺️</a>
                   </div>
                   <div class="route-point">
                     <span class="point-dot dot-end"></span>
-                    <div class="point-label">အဆုံးမှတ် (DROP OFF)</div>
-                    <div class="point-name">${ride.destination}</div>
+                    <div class="point-label">အဆုံးမှတ် (DROP OFF - နှိပ်ပါ)</div>
+                    <a href="${destMapUrl}" target="_blank" class="point-name">${ride.destination} 🗺️</a>
                   </div>
                 </div>
                 <div class="passenger-bar">
@@ -1191,6 +1328,13 @@
           const extraP = Math.max(0, persons - 1);
           const finalPrice = 2000 + (extraP * 1000) + Math.floor(totalDistanceKm * 1000);
           await updateDoc(rideRef, { status: newStatus, price: finalPrice });
+
+          // Show Receipt Modal
+          document.getElementById("recTime").textContent = formatTime(secondsElapsed);
+          document.getElementById("recDistance").textContent = `${totalDistanceKm.toFixed(2)} km`;
+          document.getElementById("recPersons").textContent = `${persons} ဦး`;
+          document.getElementById("recAmount").textContent = `${finalPrice} KS`;
+          document.getElementById("receiptModal").classList.remove("hidden");
         } else {
           await updateDoc(rideRef, { status: newStatus });
         }
@@ -1206,6 +1350,98 @@
       } catch (error) {
         console.error(error);
       }
+    };
+
+    // Modal Control Functions
+    window.closeReceiptModal = function() {
+      document.getElementById("receiptModal").classList.add("hidden");
+    };
+
+    window.openEditProfileModal = function() {
+      document.getElementById("editName").value = currentDriverData.fullName || "";
+      document.getElementById("editPhone").value = currentDriverData.phone || "";
+      document.getElementById("editVehicleType").value = currentDriverData.vehicleType || "";
+      document.getElementById("editVehicleNo").value = currentDriverData.vehicleNo || "";
+      document.getElementById("editProfileModal").classList.remove("hidden");
+    };
+
+    window.closeEditProfileModal = function() {
+      document.getElementById("editProfileModal").classList.add("hidden");
+    };
+
+    window.saveProfileChanges = async function() {
+      const name = document.getElementById("editName").value.trim();
+      const phone = document.getElementById("editPhone").value.trim();
+      const vehicleType = document.getElementById("editVehicleType").value.trim();
+      const vehicleNo = document.getElementById("editVehicleNo").value.trim();
+
+      if (!name || !phone) {
+        alert("နာမည်နှင့် ဖုန်းနံပါတ် ဖြည့်ပေးပါ။");
+        return;
+      }
+
+      try {
+        const docRef = doc(db, "drivers", currentDriverUid);
+        const updatedData = {
+          ...currentDriverData,
+          fullName: name,
+          phone: phone,
+          vehicleType: vehicleType,
+          vehicleNo: vehicleNo
+        };
+        await updateDoc(docRef, updatedData);
+        currentDriverData = updatedData;
+        updateProfileUI(updatedData);
+        closeEditProfileModal();
+        alert("အချက်အလက်များ အောင်မြင်စွာ ပြင်ဆင်ပြီးပါပြီ။");
+      } catch (e) {
+        console.error(e);
+        alert("ပြင်ဆင်ရာတွင် အမှားအယွင်း ရှိပါသည်း။");
+      }
+    };
+
+    window.openEarningsBreakdown = async function() {
+      document.getElementById("earningsModal").classList.remove("hidden");
+      const listEl = document.getElementById("earningsBreakdownList");
+      listEl.innerHTML = `<p class="sub-title">မှတ်တမ်းများကို ရယူနေပါသည်...</p>`;
+
+      try {
+        const q = query(
+          collection(db, "rideRequests"),
+          where("driverUid", "==", currentDriverUid),
+          where("status", "==", "completed")
+        );
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          listEl.innerHTML = `<p class="sub-title">ပြီးစီးခဲ့သော ခရီးစဉ် မှတ်တမ်း မရှိသေးပါ။</p>`;
+          return;
+        }
+
+        let html = "";
+        querySnapshot.forEach((docSnap) => {
+          const r = docSnap.data();
+          html += `
+            <div style="background: #f9fafb; padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #e5e7eb; text-align: left;">
+              <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 13px;">
+                <span>${r.pickup} ➔ ${r.destination}</span>
+                <span style="color: #00b14f;">${r.price || 2000} KS</span>
+              </div>
+              <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">
+                လူဦးရေ: ${r.persons || 1} ဦး | ငွေပေးချေမှု: ${r.paymentMethod || 'Cash'}
+              </div>
+            </div>
+          `;
+        });
+        listEl.innerHTML = html;
+      } catch (e) {
+        console.error(e);
+        listEl.innerHTML = `<p class="sub-title" style="color:#ef4444;">မှတ်တမ်း ရယူ၍ မရပါ။</p>`;
+      }
+    };
+
+    window.closeEarningsModal = function() {
+      document.getElementById("earningsModal").classList.add("hidden");
     };
   </script>
 </body>
