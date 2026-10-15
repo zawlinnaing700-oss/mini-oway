@@ -148,7 +148,7 @@
       display: none !important;
     }
 
-    /* Grab Map & Fullscreen Toggle */
+    /* Map Wrapper & Fullscreen */
     .map-wrapper {
       position: relative;
       width: 100%;
@@ -206,7 +206,6 @@
       gap: 6px;
     }
     .status-dot {
-      width: 100%;
       width: 10px;
       height: 10px;
       background-color: #00b14f;
@@ -252,7 +251,7 @@
       transform: translateX(22px);
     }
 
-    /* Grab Ride Cards & Mission Buttons */
+    /* Ride Cards & Mission Buttons */
     .grab-ride-card {
       background: #ffffff;
       border-radius: 12px;
@@ -348,10 +347,9 @@
       cursor: pointer;
       color: white;
     }
-    .btn-accept { background: #00b14f; } /* Green */
-    .btn-start { background: #3b82f6; }  /* Blue */
-    .btn-complete { background: #ef4444; } /* Red */
-    .btn-completed-label { background: #e5e7eb; color: #9ca3af; cursor: not-allowed; }
+    .btn-accept { background: #00b14f; }
+    .btn-start { background: #3b82f6; }
+    .btn-complete { background: #ef4444; }
 
     /* Bottom Navigation */
     .bottom-nav {
@@ -495,7 +493,7 @@
         </label>
       </div>
 
-      <!-- Live Map Section with Fullscreen Toggle -->
+      <!-- Live Map Section -->
       <div class="map-wrapper" id="mapWrapper">
         <button class="fullscreen-btn" onclick="toggleMapFullscreen()">ᛝ Fullscreen</button>
         <div id="map"></div>
@@ -643,9 +641,25 @@
     }
   };
 
+  // Auth State Listener - Keep user logged in automatically
   onAuthStateChanged(auth, async (user) => {
-    if (!user) {
+    if (user) {
+      currentDriverUid = user.uid;
+      try {
+        const docRef = doc(db, "drivers", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          showDashboard(docSnap.data());
+        } else {
+          showDashboard({ fullName: user.email, phone: "-", email: user.email, nrc: "-" });
+        }
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+        showDashboard({ fullName: user.email, phone: "-", email: user.email, nrc: "-" });
+      }
+    } else {
       document.getElementById('bottomNav').classList.add('hidden');
+      switchView('signInCard');
     }
   });
 
@@ -662,12 +676,14 @@
     document.getElementById(viewId).classList.remove('hidden');
   };
 
+  // Fixed Sign-in Handler
   window.handleSignIn = async function() {
     const email = document.getElementById('signinEmail').value.trim();
     const pass = document.getElementById('signinPassword').value.trim();
     const msg = document.getElementById('signinMsg');
 
     if (!email || !pass) {
+      msg.style.color = "#ef4444";
       msg.textContent = "Gmail နှင့် စကားဝှက် ဖြည့်ပေးပါ။";
       return;
     }
@@ -677,17 +693,28 @@
     try {
       const cred = await signInWithEmailAndPassword(auth, email, pass);
       currentDriverUid = cred.user.uid;
-      const docRef = doc(db, "drivers", cred.user.uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        showDashboard(docSnap.data());
-      } else {
-        showDashboard({ fullName: email, phone: "-", email: email, nrc: "-" });
+      
+      let driverProfile = { fullName: email, phone: "-", email: email, nrc: "-" };
+      try {
+        const docRef = doc(db, "drivers", cred.user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          driverProfile = docSnap.data();
+        }
+      } catch(e) {
+        console.warn("Firestore fetch warn:", e);
       }
+      
+      msg.textContent = "";
+      showDashboard(driverProfile);
     } catch (error) {
       console.error(error);
       msg.style.color = "#ef4444";
-      msg.textContent = "Gmail သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်။";
+      if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        msg.textContent = "Gmail သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်။";
+      } else {
+        msg.textContent = "အကောင့်ဝင်ရောက်၍ မရပါ။ (Error: " + error.message + ")";
+      }
     }
   };
 
@@ -749,279 +776,4 @@
       msg.style.color = "#00b14f";
       msg.textContent = "အောင်မြင်ပါသည်။ ဒက်ရှ်ဘုတ်သို့ ဝင်ရောက်နေပါပြီ...";
       setTimeout(() => {
-        showDashboard(driverData);
-      }, 1200);
-    } catch (error) {
-      console.error(error);
-      msg.style.color = "#ef4444";
-      msg.textContent = "အမှားအယွင်းရှိပါသည်၊ ထပ်မံကြိုးစားပါ။";
-    }
-  };
-
-  window.goToNrcVerifyStep = function() {
-    const fullName = document.getElementById('signupFullName').value.trim();
-    const phone = document.getElementById('signupPhone').value.trim();
-    const nrc = document.getElementById('signupNrc').value.trim();
-    const age = document.getElementById('signupAge').value.trim();
-    const email = document.getElementById('signupEmail').value.trim();
-    const pass = document.getElementById('signupPassword').value.trim();
-    const confirmPass = document.getElementById('signupConfirmPassword').value.trim();
-    const msg = document.getElementById('signupStep1Msg');
-
-    if (!fullName || !phone || !nrc || !age || !email || !pass || !confirmPass) {
-      msg.textContent = "အချက်အလက်အားလုံး ဖြည့်ပေးပါ။";
-      return;
-    }
-    if (pass.length < 6) {
-      msg.textContent = "စကားဝှက်သည် အနည်းဆုံး ၆ လုံး ရှိရပါမည်။";
-      return;
-    }
-    if (pass !== confirmPass) {
-      msg.textContent = "စကားဝှက် နှစ်ခု မတူညီပါ။";
-      return;
-    }
-
-    const digitsOnly = nrc.replace(/\D/g, "");
-    if (digitsOnly.length < 6) {
-      msg.textContent = "NRC နံပါတ်တွင် ဂဏန်း အနည်းဆုံး ၆ လုံး ပါဝင်ရပါမည်။";
-      return;
-    }
-
-    const expectedLast6 = digitsOnly.slice(-6);
-
-    tempSignupData = { fullName, phone, nrc, age, email, pass, expectedLast6 };
-    document.getElementById('nrcLast6Digits').value = "";
-    switchView('nrcVerifyStepCard');
-  };
-
-  window.verifyNrcAndSignUp = async function() {
-    const enteredLast6 = document.getElementById('nrcLast6Digits').value.trim();
-    const msg = document.getElementById('nrcVerifyMsg');
-
-    if (enteredLast6.length < 6) {
-      msg.textContent = "ဂဏန်း ၆ လုံး အပြည့်အစုံ ရိုက်ထည့်ပါ။";
-      return;
-    }
-
-    if (enteredLast6 !== tempSignupData.expectedLast6) {
-      msg.textContent = "ရိုက်ထည့်ထားသော ဂဏန်း ၆ လုံးသည် NRC နောက်ဆုံး ၆ လုံးနှင့် မတူပါ။";
-      return;
-    }
-
-    msg.style.color = "#00b14f";
-    msg.textContent = "အကောင့်ဖွင့်နေပါသည် (ခဏစောင့်ပါ)...";
-    try {
-      const cred = await createUserWithEmailAndPassword(auth, tempSignupData.email, tempSignupData.pass);
-      const uid = cred.user.uid;
-      currentDriverUid = uid;
-
-      const driverProfile = {
-        uid,
-        fullName: tempSignupData.fullName,
-        phone: tempSignupData.phone,
-        email: tempSignupData.email,
-        age: tempSignupData.age,
-        nrc: tempSignupData.nrc,
-        createdAt: new Date().toISOString()
-      };
-
-      await setDoc(doc(db, "drivers", uid), driverProfile);
-      alert("အကောင့်ဖွင့်ခြင်း အောင်မြင်ပါသည်။");
-      showDashboard(driverProfile);
-    } catch (error) {
-      console.error(error);
-      msg.style.color = "#ef4444";
-      msg.textContent = "အကောင့်ဖွင့်၍ မရပါ။ (ဤ Gmail ဖြင့် အကောင့်ရှိပြီးသား ဖြစ်နေနိုင်သည်)";
-    }
-  };
-
-  function showDashboard(driver) {
-    document.getElementById('signInCard').classList.add('hidden');
-    document.getElementById('resetPasswordCard').classList.add('hidden');
-    document.getElementById('signupStep1').classList.add('hidden');
-    document.getElementById('nrcVerifyStepCard').classList.add('hidden');
-
-    document.getElementById('bottomNav').classList.remove('hidden');
-    switchTab('dashboardTab');
-
-    document.getElementById("profileName").textContent = driver.fullName || '-';
-    document.getElementById("profilePhone").textContent = driver.phone || '-';
-    document.getElementById("profileEmail").textContent = driver.email || '-';
-    document.getElementById("profileNrc").textContent = driver.nrc || '-';
-
-    initMap();
-    loadRideRequests();
-  }
-
-  function initMap() {
-    if (map) return;
-    map = L.map('map').setView([16.8661, 96.1951], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19
-    }).addTo(map);
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-        map.setView([lat, lng], 14);
-        driverMarker = L.marker([lat, lng]).addTo(map).bindPopup("သင့်လက်ရှိနေရာ").openPopup();
-      });
-    }
-  }
-
-  window.driverLogout = async function() {
-    await signOut(auth);
-    currentDriverUid = null;
-    switchView('signInCard');
-  };
-
-  // Real-time Load Available Rides & Driver's Active Missions
-  function loadRideRequests() {
-    const rideListEl = document.getElementById("rideList");
-    const myActiveRideListEl = document.getElementById("myActiveRideList");
-
-    const q = query(collection(db, "rideRequests"), orderBy("createdAt", "desc"));
-
-    onSnapshot(q, (snapshot) => {
-      let homeAvailableHtml = "";
-      let activeMissionsHtml = "";
-      totalEarnings = 0;
-
-      if (snapshot.empty) {
-        rideListEl.innerHTML = `<p class="sub-title">ယခုလက်ရှိ ခရီးစဉ် တောင်းဆိုမှု မရှိသေးပါ။</p>`;
-        myActiveRideListEl.innerHTML = `<p class="sub-title">လက်ခံထားသော ခရီးစဉ် မရှိသေးပါ။</p>`;
-        document.getElementById("todayEarnings").textContent = "0 KS";
-        return;
-      }
-
-      snapshot.forEach((docSnap) => {
-        const ride = docSnap.data();
-        const rideId = docSnap.id;
-        const status = ride.status || "pending";
-        const driverUid = ride.driverUid || null;
-        const price = ride.price || 3000;
-
-        // Calculate earnings for completed rides
-        if (driverUid === currentDriverUid && status === "completed") {
-          totalEarnings += Number(price);
-        }
-
-        // Home View: Only show "pending" orders that have no driver assigned
-        if (status === "pending") {
-          homeAvailableHtml += `
-            <div class="grab-ride-card">
-              <div class="card-top">
-                <span class="service-type">🛺 Mini Oway Express</span>
-                <span style="font-size: 11px; color: #00b14f; font-weight: bold;">${price} KS</span>
-              </div>
-
-              <div class="route-timeline">
-                <div class="route-point">
-                  <span class="point-dot dot-start"></span>
-                  <div class="point-label">အစမှတ် (PICK UP)</div>
-                  <div class="point-name">${ride.pickup}</div>
-                </div>
-                <div class="route-point">
-                  <span class="point-dot dot-end"></span>
-                  <div class="point-label">အဆုံးမှတ် (DROP OFF)</div>
-                  <div class="point-name">${ride.destination}</div>
-                </div>
-              </div>
-
-              <div class="passenger-bar">
-                <span style="font-size: 12px; font-weight: 600; color: #374151;">👤 ခရီးသည် ဖုန်း</span>
-                <a href="tel:${ride.phone}" class="grab-call-btn">📞 ${ride.phone}</a>
-              </div>
-
-              <button class="mission-btn btn-accept" onclick="acceptRide('${rideId}')">ခရီးစဉ် လက်ခံမည် (Accept)</button>
-            </div>
-          `;
-        }
-
-        // Earnings View: Show Active Missions assigned to THIS driver
-        if (driverUid === currentDriverUid && status !== "completed") {
-          let missionBtnHtml = "";
-          let statusText = "";
-
-          if (status === "accepted") {
-            statusText = "လက်ခံပြီး (Accepted)";
-            missionBtnHtml = `<button class="mission-btn btn-start" onclick="updateRideStatus('${rideId}', 'started')">ခရီးစဉ် စတင်မည် (Start Ride)</button>`;
-          } else if (status === "started") {
-            statusText = "ခရီးစဉ် စတင်နေပြီ (In Progress)";
-            missionBtnHtml = `<button class="mission-btn btn-complete" onclick="updateRideStatus('${rideId}', 'completed')">ခရီးစဉ် ပြီးဆုံးမည် (Complete Ride)</button>`;
-          }
-
-          activeMissionsHtml += `
-            <div class="grab-ride-card" style="border: 1.5px solid #00b14f;">
-              <div class="card-top">
-                <span class="service-type">${statusText}</span>
-                <span style="font-size: 11px; color: #00b14f; font-weight: bold;">${price} KS</span>
-              </div>
-
-              <div class="route-timeline">
-                <div class="route-point">
-                  <span class="point-dot dot-start"></span>
-                  <div class="point-label">အစမှတ် (PICK UP)</div>
-                  <div class="point-name">${ride.pickup}</div>
-                </div>
-                <div class="route-point">
-                  <span class="point-dot dot-end"></span>
-                  <div class="point-label">အဆုံးမှတ် (DROP OFF)</div>
-                  <div class="point-name">${ride.destination}</div>
-                </div>
-              </div>
-
-              <div class="passenger-bar">
-                <span style="font-size: 12px; font-weight: 600; color: #374151;">👤 ခရီးသည် ဖုန်း</span>
-                <a href="tel:${ride.phone}" class="grab-call-btn">📞 ${ride.phone}</a>
-              </div>
-
-              ${missionBtnHtml}
-            </div>
-          `;
-        }
-      });
-
-      rideListEl.innerHTML = homeAvailableHtml || `<p class="sub-title">ယခုလက်ရှိ တောင်းဆိုထားသော ခရီးစဉ် မရှိသေးပါ။</p>`;
-      myActiveRideListEl.innerHTML = activeMissionsHtml || `<p class="sub-title">လက်ခံထားသော ခရီးစဉ် မရှိသေးပါ။</p>`;
-      document.getElementById("todayEarnings").textContent = `${totalEarnings} KS`;
-    });
-  }
-
-  // 1. Accept Ride: Assign Driver UID & Switch to Earnings Tab
-  window.acceptRide = async function (rideId) {
-    try {
-      const rideRef = doc(db, "rideRequests", rideId);
-      await updateDoc(rideRef, {
-        status: "accepted",
-        driverUid: currentDriverUid
-      });
-      alert("ခရီးစဉ်ကို လက်ခံလိုက်ပါပြီ။ Earnings စာမျက်နှာသို့ သွားပါမည်။");
-      // Auto Switch to Earnings Page to see active mission
-      const earningsTabBtn = document.querySelectorAll('.nav-item')[1];
-      switchTab('earningsTab', earningsTabBtn);
-    } catch (error) {
-      console.error(error);
-      alert("ခရီးစဉ် လက်ခံရာတွင် အမှားအယွင်း ရှိနေပါသည်။");
-    }
-  };
-
-  // 2 & 3. Update Ride Status (started -> completed)
-  window.updateRideStatus = async function (rideId, newStatus) {
-    try {
-      const rideRef = doc(db, "rideRequests", rideId);
-      await updateDoc(rideRef, { status: newStatus });
-      if (newStatus === "started") {
-        alert("ခရီးစဉ် စတင်လိုက်ပါပြီ။");
-      } else if (newStatus === "completed") {
-        alert("ခရီးစဉ် အောင်မြင်စွာ ပြီးဆုံးပါပြီ။ ဝင်ငွေ ပေါင်းထည့်ပြီးပါပြီ။");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("အခြေအနေ ပြောင်းလဲရာတွင် အမှားအယွင်း ရှိနေပါသည်။");
-    }
-  };
-</script>
-</body>
-</html>
+        showDashboard
