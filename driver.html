@@ -516,31 +516,51 @@
           <h1 style="margin:4px 0 0 0; color: #00b14f;" id="todayEarnings">0 KS</h1>
         </div>
       </div>
-      <!-- Live Navigation Dashboard (ခရီးစဉ်စတင်နေစဉ် ပေါ်မည့် ဒိုင်ခွက်) -->
-      <div id="activeNavigationCard" class="card hidden" style="border: 2px solid #00b14f; background: #f9fafb;">
-        <h2 style="color: #00b14f; margin-bottom: 4px;">🚗 ခရီးစဉ် မောင်းနှင်နေပါသည်</h2>
-        <p class="sub-title" id="navRouteTitle">လမ်းကြောင်း:</p>
+           <!-- Live Navigation Dashboard (GPS Speedometer Style) -->
+      <div id="activeNavigationCard" class="card hidden" style="background: #121212; color: #ffffff; border-radius: 12px; padding: 12px; border: 1px solid #333;">
+        
+        <!-- Top Bar: Timer & Route -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <span style="font-size: 13px; color: #00ff66; font-weight: bold;" id="navRouteTitle">လမ်းကြောင်း</span>
+          <div style="background: #222; padding: 4px 10px; border-radius: 20px; font-size: 16px; font-weight: bold; font-family: monospace; color: #fff;" id="liveTimer">00:00:00</div>
+        </div>
 
-        <!-- Driving Map -->
-        <div style="position: relative; width: 100%; height: 180px; margin-bottom: 12px; border-radius: 8px; overflow: hidden;">
+        <!-- Driving Map with Floating Current Speed -->
+        <div style="position: relative; width: 100%; height: 220px; margin-bottom: 12px; border-radius: 8px; overflow: hidden;">
           <div id="activeMap" style="width: 100%; height: 100%;"></div>
-        </div>
-
-        <!-- Kilometer & Fare Dashboard -->
-        <div style="display: flex; gap: 10px; margin-bottom: 12px;">
-          <div style="flex: 1; background: white; padding: 10px; border-radius: 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <span style="font-size: 11px; color: #6b7280;">ခရီးအကွာအဝေး</span>
-            <h3 style="margin: 4px 0 0 0; color: #111827; font-size: 16px;" id="liveDistance">0.00 ကီလိုမီတာ</h3>
-          </div>
-          <div style="flex: 1; background: white; padding: 10px; border-radius: 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <span style="font-size: 11px; color: #6b7280;">ခန့်မှန်း ဈေးနှုန်း</span>
-            <h3 style="margin: 4px 0 0 0; color: #00b14f; font-size: 16px;" id="liveFare">0 KS</h3>
+          
+          <!-- Floating Speed Badge on Map (ညာဘက်အောက်ထောင့်မှာ လက်ရှိအရှိန်ပြရန်) -->
+          <div style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); border: 2px solid #333; padding: 8px 14px; border-radius: 10px; text-align: center; z-index: 1000;">
+            <div style="font-size: 24px; font-weight: bold; color: #ffffff; line-height: 1;" id="liveCurrentSpeed">0</div>
+            <div style="font-size: 9px; color: #aaa; text-transform: uppercase;">km/h</div>
           </div>
         </div>
 
-        <button class="mission-btn btn-complete" id="endRideBtn">ခရီးစဉ် ပြီးဆုံးမည် (Complete Ride)</button>
+        <!-- 3-Grid Dashboard (Distance, Avg Speed, Max Speed) -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+          <!-- Distance -->
+          <div style="background: #1a1a1a; padding: 10px 4px; border-radius: 8px; text-align: center; border: 1px solid #2a2a2a;">
+            <div style="font-size: 18px; font-weight: bold; color: #00ff66;" id="liveDistance">0.00</div>
+            <div style="font-size: 10px; color: #888; margin-top: 2px;">km</div>
+            <div style="font-size: 11px; font-weight: bold; color: #fff; margin-top: 4px;">Distance</div>
+          </div>
+          <!-- Avg Speed -->
+          <div style="background: #1a1a1a; padding: 10px 4px; border-radius: 8px; text-align: center; border: 1px solid #2a2a2a;">
+            <div style="font-size: 18px; font-weight: bold; color: #00ff66;" id="liveAvgSpeed">0</div>
+            <div style="font-size: 10px; color: #888; margin-top: 2px;">km/h</div>
+            <div style="font-size: 11px; font-weight: bold; color: #fff; margin-top: 4px;">Avg. Speed</div>
+          </div>
+          <!-- Max Speed -->
+          <div style="background: #1a1a1a; padding: 10px 4px; border-radius: 8px; text-align: center; border: 1px solid #2a2a2a;">
+            <div style="font-size: 18px; font-weight: bold; color: #00ff66;" id="liveMaxSpeed">0</div>
+            <div style="font-size: 10px; color: #888; margin-top: 2px;">km/h</div>
+            <div style="font-size: 11px; font-weight: bold; color: #fff; margin-top: 4px;">Max. Speed</div>
+          </div>
+        </div>
+
+        <!-- End Ride Button -->
+        <button class="mission-btn btn-complete" id="endRideBtn" style="background: #ef4444; color: white; font-weight: bold; padding: 12px; border-radius: 8px; border: none; width: 100%; cursor: pointer;">ခရီးစဉ် ပြီးဆုံးမည် (Complete Ride)</button>
       </div>
-
 
       <h3 style="font-size: 14px; margin: 10px 0 8px 0; color: #374151;">🚕 သင်လက်ခံထားသော ခရီးစဉ်များ (Active Missions)</h3>
       <div id="myActiveRideList">
@@ -1049,12 +1069,17 @@
     }
   };
 
-    let activeMap = null;
+     let activeMap = null;
   let activeMarker = null;
   let watchId = null;
   let lastLat = null;
   let lastLng = null;
+  let lastTimestamp = null;
   let totalDistanceKm = 0;
+  let maxSpeed = 0;
+  let speedSamples = [];
+  let timerInterval = null;
+  let secondsElapsed = 0;
 
   function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371;
@@ -1067,27 +1092,47 @@
     return R * c;
   }
 
+  function formatTime(totalSecs) {
+    const hrs = Math.floor(totalSecs / 3600).toString().padStart(2, '0');
+    const mins = Math.floor((totalSecs % 3600) / 60).toString().padStart(2, '0');
+    const secs = (totalSecs % 60).toString().padStart(2, '0');
+    return `${hrs}:${mins}:${secs}`;
+  }
+
   function startActiveNavigation(rideId, pickup, destination, basePrice) {
     document.getElementById('myActiveRideList').classList.add('hidden');
     const navCard = document.getElementById('activeNavigationCard');
     navCard.classList.remove('hidden');
-    document.getElementById('navRouteTitle').textContent = `လမ်းကြောင်း: ${pickup} ➔ ${destination}`;
+    document.getElementById('navRouteTitle').textContent = `${pickup} ➔ ${destination}`;
     
     document.getElementById('endRideBtn').setAttribute('onclick', `updateRideStatus('${rideId}', 'completed')`);
 
     if (!activeMap) {
       activeMap = L.map('activeMap').setView([16.8661, 96.1951], 15);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(activeMap);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}inspect/{x}/{y}.png', { maxZoom: 19 }).addTo(activeMap);
     }
 
+    // Reset variables
     totalDistanceKm = 0;
+    maxSpeed = 0;
+    speedSamples = [];
     lastLat = null;
     lastLng = null;
+    lastTimestamp = null;
+    secondsElapsed = 0;
+
+    // Timer စတင်ရန်
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      secondsElapsed++;
+      document.getElementById('liveTimer').textContent = formatTime(secondsElapsed);
+    }, 1000);
 
     if (navigator.geolocation) {
       watchId = navigator.geolocation.watchPosition((pos) => {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
+        const currentTimestamp = pos.timestamp || Date.now();
 
         activeMap.setView([lat, lng], 16);
         if (!activeMarker) {
@@ -1096,28 +1141,41 @@
           activeMarker.setLatLng([lat, lng]);
         }
 
-        if (lastLat !== null && lastLng !== null) {
-          const dist = calculateDistance(lastLat, lastLng, lat, lng);
-          if (dist > 0.002) {
-            totalDistanceKm += dist;
-            lastLat = lat;
-            lastLng = lng;
+        if (lastLat !== null && lastLng !== null && lastTimestamp !== null) {
+          const distKm = calculateDistance(lastLat, lastLng, lat, lng);
+          const timeDiffHours = (currentTimestamp - lastTimestamp) / 3600000; // ms to hours
+
+          if (distKm > 0.001 && timeDiffHours > 0) {
+            totalDistanceKm += distKm;
+            const currentSpeedKmh = distKm / timeDiffHours; // km/h
+
+            // မြန်နှုန်း ဆင်ခြင်တိုတရားစစ်ဆေးခြင်း (GPS ခုန်တက်မှုကို ကာကွယ်ရန် 150 km/h ထက်ကျော်က မယူပါ)
+            if (currentSpeedKmh < 150) {
+              document.getElementById('liveCurrentSpeed').textContent = Math.round(currentSpeedKmh);
+              
+              if (currentSpeedKmh > maxSpeed) {
+                maxSpeed = currentSpeedKmh;
+                document.getElementById('liveMaxSpeed').textContent = Math.round(maxSpeed);
+              }
+
+              speedSamples.push(currentSpeedKmh);
+              const avg = speedSamples.reduce((a, b) => a + b, 0) / speedSamples.length;
+              document.getElementById('liveAvgSpeed').textContent = Math.round(avg);
+            }
           }
-        } else {
-          lastLat = lat;
-          lastLng = lng;
         }
 
-        document.getElementById('liveDistance').textContent = `${totalDistanceKm.toFixed(2)} ကီလိုမီတာ`;
-        const calculatedFare = Number(basePrice) + Math.floor(totalDistanceKm * 500);
-        document.getElementById('liveFare').textContent = `${calculatedFare} KS`;
+        lastLat = lat;
+        lastLng = lng;
+        lastTimestamp = currentTimestamp;
+
+        document.getElementById('liveDistance').textContent = totalDistanceKm.toFixed(2);
       }, (err) => {
         console.error(err);
       }, { enableHighAccuracy: true });
     }
   }
 
-  // 2 & 3. Update Ride Status (started -> completed) - Update Version
   window.updateRideStatus = async function (rideId, newStatus, pickup, destination, price) {
     try {
       const rideRef = doc(db, "rideRequests", rideId);
@@ -1126,9 +1184,8 @@
       if (newStatus === "started") {
         startActiveNavigation(rideId, pickup, destination, price);
       } else if (newStatus === "completed") {
-        if (watchId !== null) {
-          navigator.geolocation.clearWatch(watchId);
-        }
+        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+        if (timerInterval) clearInterval(timerInterval);
         document.getElementById('activeNavigationCard').classList.add('hidden');
         document.getElementById('myActiveRideList').classList.remove('hidden');
       }
