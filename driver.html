@@ -369,7 +369,7 @@
       justify-content: space-around;
       align-items: center;
       border-top: 1px solid #e5e7eb;
-      box-shadow: -2px 8px rgba(0,0,0,0.05);
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
       z-index: 1000;
     }
     .nav-item {
@@ -526,7 +526,7 @@
           <div style="background: #222; padding: 4px 10px; border-radius: 20px; font-size: 15px; font-weight: bold; font-family: monospace; color: #fff;" id="liveTimer">00:00:00</div>
         </div>
 
-        <!-- Live Amount Badge (Speedometer အပေါ်မှာ ဈေးနှုန်းပြရန်) -->
+        <!-- Live Amount Badge (Speedometer အပေါ်တွင် အချိန်နဲ့တပြေးညီ ဈေးပြရန်) -->
         <div style="display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 10px 14px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #333;">
           <span style="font-size: 12px; color: #aaa;">ခန့်မှန်း ဝင်ငွေ (Amount):</span>
           <span style="font-size: 18px; font-weight: bold; color: #00ff66;" id="liveCalculatedAmount">2000 KS</span>
@@ -641,7 +641,7 @@
     let currentDriverUid = null;
     let map, driverMarker;
     let totalEarnings = 0;
-    let hasActiveMission = false; // Active mission ရှိမရှိ စစ်ဆေးရန်
+    let hasActiveMission = false;
 
     let activeMap = null;
     let activeMarker = null;
@@ -666,7 +666,7 @@
       }
     };
 
-    // Fullscreen Toggle (ချဲ့ခြင်း/ပြန်ကြုံ့ခြင်း)
+    // Fullscreen Toggle
     window.toggleMapFullscreen = function() {
       const wrapper = document.getElementById("mapWrapper");
       wrapper.classList.toggle("fullscreen");
@@ -1032,8 +1032,9 @@
 
           document.getElementById('liveDistance').textContent = totalDistanceKm.toFixed(2);
 
-          // ဈေးနှုန်းတွက်ချက်မှု: Base 2000 + (Persons * 1000) + (DistanceKm * 1000)
-          const currentAmount = 2000 + (basePersons * 1000) + Math.floor(totalDistanceKm * 1000);
+          // ဈေးနှုန်းသစ် တွက်ချက်ခြင်း: 2000 + ((persons - 1) * 1000) + (distanceKm * 1000)
+          const extraPersons = Math.max(0, basePersons - 1);
+          const currentAmount = 2000 + (extraPersons * 1000) + Math.floor(totalDistanceKm * 1000);
           document.getElementById('liveCalculatedAmount').textContent = `${currentAmount} KS`;
         }, (err) => {
           console.error(err);
@@ -1062,7 +1063,6 @@
           return;
         }
 
-        // ပထမအဆင့် - ယာဉ်မောင်းမှာ Active Mission ရှိမရှိ စစ်ဆေးရန်
         snapshot.forEach((docSnap) => {
           const ride = docSnap.data();
           const driverUid = ride.driverUid || null;
@@ -1078,13 +1078,13 @@
           const status = ride.status || "pending";
           const driverUid = ride.driverUid || null;
           const persons = Number(ride.persons) || 1; 
-          const calculatedPrice = 2000 + (persons * 1000); // ယာယီပြသရန် မူလဈေး
+          const extraP = Math.max(0, persons - 1);
+          const baseEstimatedPrice = 2000 + (extraP * 1000); // ယာယီအခြေခံဈေး (0 km စစချင်းအတွက်)
 
           if (driverUid === currentDriverUid && status === "completed") {
-            totalEarnings += Number(ride.price || calculatedPrice);
+            totalEarnings += Number(ride.price || baseEstimatedPrice);
           }
 
-          // Order အသစ် (Pending) - Active Mission ရှိနေရင် Order အသစ်လက်ခံခွင့်မပေးပါ
           if (status === "pending" && isOnDuty) {
             let acceptBtnHtml = `<button class="mission-btn btn-accept" onclick="acceptRide('${rideId}')">ခရီးစဉ် လက်ခံမည် (Accept)</button>`;
             if (hasActiveMission) {
@@ -1095,7 +1095,7 @@
               <div class="yg-ride-card">
                 <div class="card-top">
                   <span class="service-type">🛺 YG Express</span>
-                  <span style="font-size: 11px; color: #00b14f; font-weight: bold;">~ ${calculatedPrice} KS (စတင်ရန်)</span>
+                  <span style="font-size: 11px; color: #00b14f; font-weight: bold;">လူဦးရေ: ${persons} ဦး (အစပြုဈေး ~ ${baseEstimatedPrice} KS)</span>
                 </div>
                 <div class="route-timeline">
                   <div class="route-point">
@@ -1114,7 +1114,6 @@
             `;
           }
 
-          // လက်ခံထားသော ခရီးစဉ် (Active Missions)
           if (driverUid === currentDriverUid && status !== "completed") {
             let missionBtnHtml = "";
             let statusText = "";
@@ -1124,7 +1123,7 @@
               missionBtnHtml = `<button class="mission-btn btn-start" onclick="updateRideStatus('${rideId}', 'started', '${ride.pickup}', '${ride.destination}', ${persons})">ခရီးစဉ် စတင်မည် (Start Ride)</button>`;
             } else if (status === "started") {
               statusText = "ခရီးစဉ် စတင်နေပြီ (In Progress)";
-              missionBtnHtml = `<button class="mission-btn btn-complete" onclick="updateRideStatus('${rideId}', 'completed')">ခရီးစဉ် ပြီးဆုံးမည် (Complete Ride)</button>`;
+              missionBtnHtml = `<button class="mission-btn btn-complete" onclick="updateRideStatus('${rideId}', 'completed', '${ride.pickup}', '${ride.destination}', ${persons})">ခရီးစဉ် ပြီးဆုံးမည် (Complete Ride)</button>`;
             }
 
             activeMissionsHtml += `
@@ -1189,8 +1188,8 @@
         const rideRef = doc(db, "rideRequests", rideId);
         
         if (newStatus === "completed") {
-          // ပြီးဆုံးချိန်တွင် စုစုပေါင်း အကွာအဝေး (totalDistanceKm) ကို တွက်၍ final price သိမ်းမည်
-          const finalPrice = 2000 + (persons * 1000) + Math.floor(totalDistanceKm * 1000);
+          const extraP = Math.max(0, persons - 1);
+          const finalPrice = 2000 + (extraP * 1000) + Math.floor(totalDistanceKm * 1000);
           await updateDoc(rideRef, { status: newStatus, price: finalPrice });
         } else {
           await updateDoc(rideRef, { status: newStatus });
