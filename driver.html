@@ -516,6 +516,31 @@
           <h1 style="margin:4px 0 0 0; color: #00b14f;" id="todayEarnings">0 KS</h1>
         </div>
       </div>
+      <!-- Live Navigation Dashboard (ခရီးစဉ်စတင်နေစဉ် ပေါ်မည့် ဒိုင်ခွက်) -->
+      <div id="activeNavigationCard" class="card hidden" style="border: 2px solid #00b14f; background: #f9fafb;">
+        <h2 style="color: #00b14f; margin-bottom: 4px;">🚗 ခရီးစဉ် မောင်းနှင်နေပါသည်</h2>
+        <p class="sub-title" id="navRouteTitle">လမ်းကြောင်း:</p>
+
+        <!-- Driving Map -->
+        <div style="position: relative; width: 100%; height: 180px; margin-bottom: 12px; border-radius: 8px; overflow: hidden;">
+          <div id="activeMap" style="width: 100%; height: 100%;"></div>
+        </div>
+
+        <!-- Kilometer & Fare Dashboard -->
+        <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+          <div style="flex: 1; background: white; padding: 10px; border-radius: 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <span style="font-size: 11px; color: #6b7280;">ခရီးအကွာအဝေး</span>
+            <h3 style="margin: 4px 0 0 0; color: #111827; font-size: 16px;" id="liveDistance">0.00 ကီလိုမီတာ</h3>
+          </div>
+          <div style="flex: 1; background: white; padding: 10px; border-radius: 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <span style="font-size: 11px; color: #6b7280;">ခန့်မှန်း ဈေးနှုန်း</span>
+            <h3 style="margin: 4px 0 0 0; color: #00b14f; font-size: 16px;" id="liveFare">0 KS</h3>
+          </div>
+        </div>
+
+        <button class="mission-btn btn-complete" id="endRideBtn">ခရီးစဉ် ပြီးဆုံးမည် (Complete Ride)</button>
+      </div>
+
 
       <h3 style="font-size: 14px; margin: 10px 0 8px 0; color: #374151;">🚕 သင်လက်ခံထားသော ခရီးစဉ်များ (Active Missions)</h3>
       <div id="myActiveRideList">
@@ -957,10 +982,14 @@
           let missionBtnHtml = "";
           let statusText = "";
 
-          if (status === "accepted") {
+                    if (status === "accepted") {
             statusText = "လက်ခံပြီး (Accepted)";
-            missionBtnHtml = `<button class="mission-btn btn-start" onclick="updateRideStatus('${rideId}', 'started')">ခရီးစဉ် စတင်မည် (Start Ride)</button>`;
+            missionBtnHtml = `<button class="mission-btn btn-start" onclick="updateRideStatus('${rideId}', 'started', '${ride.pickup}', '${ride.destination}', ${price})">ခရီးစဉ် စတင်မည် (Start Ride)</button>`;
           } else if (status === "started") {
+            statusText = "ခရီးစဉ် စတင်နေပြီ (In Progress)";
+            missionBtnHtml = `<button class="mission-btn btn-complete" onclick="updateRideStatus('${rideId}', 'completed')">ခရီးစဉ် ပြီးဆုံးမည် (Complete Ride)</button>`;
+          }
+ else if (status === "started") {
             statusText = "ခရီးစဉ် စတင်နေပြီ (In Progress)";
             missionBtnHtml = `<button class="mission-btn btn-complete" onclick="updateRideStatus('${rideId}', 'completed')">ခရီးစဉ် ပြီးဆုံးမည် (Complete Ride)</button>`;
           }
@@ -1020,21 +1049,94 @@
     }
   };
 
-  // 2 & 3. Update Ride Status (started -> completed)
-  window.updateRideStatus = async function (rideId, newStatus) {
+    let activeMap = null;
+  let activeMarker = null;
+  let watchId = null;
+  let lastLat = null;
+  let lastLng = null;
+  let totalDistanceKm = 0;
+
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  function startActiveNavigation(rideId, pickup, destination, basePrice) {
+    document.getElementById('myActiveRideList').classList.add('hidden');
+    const navCard = document.getElementById('activeNavigationCard');
+    navCard.classList.remove('hidden');
+    document.getElementById('navRouteTitle').textContent = `လမ်းကြောင်း: ${pickup} ➔ ${destination}`;
+    
+    document.getElementById('endRideBtn').setAttribute('onclick', `updateRideStatus('${rideId}', 'completed')`);
+
+    if (!activeMap) {
+      activeMap = L.map('activeMap').setView([16.8661, 96.1951], 15);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(activeMap);
+    }
+
+    totalDistanceKm = 0;
+    lastLat = null;
+    lastLng = null;
+
+    if (navigator.geolocation) {
+      watchId = navigator.geolocation.watchPosition((pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+
+        activeMap.setView([lat, lng], 16);
+        if (!activeMarker) {
+          activeMarker = L.marker([lat, lng]).addTo(activeMap);
+        } else {
+          activeMarker.setLatLng([lat, lng]);
+        }
+
+        if (lastLat !== null && lastLng !== null) {
+          const dist = calculateDistance(lastLat, lastLng, lat, lng);
+          if (dist > 0.002) {
+            totalDistanceKm += dist;
+            lastLat = lat;
+            lastLng = lng;
+          }
+        } else {
+          lastLat = lat;
+          lastLng = lng;
+        }
+
+        document.getElementById('liveDistance').textContent = `${totalDistanceKm.toFixed(2)} ကီလိုမီတာ`;
+        const calculatedFare = Number(basePrice) + Math.floor(totalDistanceKm * 500);
+        document.getElementById('liveFare').textContent = `${calculatedFare} KS`;
+      }, (err) => {
+        console.error(err);
+      }, { enableHighAccuracy: true });
+    }
+  }
+
+  // 2 & 3. Update Ride Status (started -> completed) - Update Version
+  window.updateRideStatus = async function (rideId, newStatus, pickup, destination, price) {
     try {
       const rideRef = doc(db, "rideRequests", rideId);
       await updateDoc(rideRef, { status: newStatus });
+
       if (newStatus === "started") {
-        alert("ခရီးစဉ် စတင်လိုက်ပါပြီ။");
+        startActiveNavigation(rideId, pickup, destination, price);
       } else if (newStatus === "completed") {
-        alert("ခရီးစဉ် အောင်မြင်စွာ ပြီးဆုံးပါပြီ။ ဝင်ငွေ ပေါင်းထည့်ပြီးပါပြီ။");
+        if (watchId !== null) {
+          navigator.geolocation.clearWatch(watchId);
+        }
+        document.getElementById('activeNavigationCard').classList.add('hidden');
+        document.getElementById('myActiveRideList').classList.remove('hidden');
       }
     } catch (error) {
       console.error(error);
-      alert("အခြေအနေ ပြောင်းလဲရာတွင် အမှားအယွင်း ရှိနေပါသည်။");
     }
   };
+
 </script>
 </body>
 </html>
