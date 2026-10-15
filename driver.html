@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mini Oway - Grab Driver Portal</title>
+  <title>YG - Driver Portal</title>
   <!-- Leaflet CSS for Map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
@@ -21,7 +21,7 @@
       padding-bottom: 60px;
     }
     header {
-      background: #00b14f; /* Grab Green */
+      background: #00b14f; /* YG Green */
       color: white;
       padding: 14px 16px;
       text-align: center;
@@ -148,7 +148,7 @@
       display: none !important;
     }
 
-    /* Grab Map & Fullscreen Toggle */
+    /* Map & Fullscreen Toggle */
     .map-wrapper {
       position: relative;
       width: 100%;
@@ -162,14 +162,21 @@
       z-index: 1;
       transition: all 0.3s ease;
     }
-    .map-wrapper.fullscreen #map {
+    .map-wrapper.fullscreen {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      border-radius: 0;
       z-index: 9999;
+      background: #000;
+      padding: 0;
+      margin: 0;
+    }
+    .map-wrapper.fullscreen #map {
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
     }
     .fullscreen-btn {
       position: absolute;
@@ -251,8 +258,8 @@
       transform: translateX(22px);
     }
 
-    /* Grab Ride Cards & Mission Buttons */
-    .grab-ride-card {
+    /* Ride Cards & Mission Buttons */
+    .yg-ride-card {
       background: #ffffff;
       border-radius: 12px;
       padding: 14px;
@@ -326,7 +333,7 @@
       border-radius: 8px;
       margin-bottom: 10px;
     }
-    .grab-call-btn {
+    .yg-call-btn {
       background: #00b14f;
       color: white;
       text-decoration: none;
@@ -362,7 +369,7 @@
       justify-content: space-around;
       align-items: center;
       border-top: 1px solid #e5e7eb;
-      box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+      box-shadow: -2px 8px rgba(0,0,0,0.05);
       z-index: 1000;
     }
     .nav-item {
@@ -388,8 +395,8 @@
 </head>
 <body>
   <header>
-    <h1>🛺 Mini Oway</h1>
-    <p>GrabDriver Portal</p>
+    <h1>🛺 YG</h1>
+    <p>Driver Portal</p>
   </header>
 
   <main class="container">
@@ -512,36 +519,42 @@
         </div>
       </div>
 
-      <!-- Live Navigation Dashboard (GPS Speedometer Style) -->
+      <!-- Live Navigation Dashboard (GPS Speedometer Style with Amount) -->
       <div id="activeNavigationCard" class="card hidden" style="background: #121212; color: #ffffff; border-radius: 12px; padding: 12px; border: 1px solid #333;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
           <span style="font-size: 13px; color: #00ff66; font-weight: bold;" id="navRouteTitle">လမ်းကြောင်း</span>
-          <div style="background: #222; padding: 4px 10px; border-radius: 20px; font-size: 16px; font-weight: bold; font-family: monospace; color: #fff;" id="liveTimer">00:00:00</div>
+          <div style="background: #222; padding: 4px 10px; border-radius: 20px; font-size: 15px; font-weight: bold; font-family: monospace; color: #fff;" id="liveTimer">00:00:00</div>
         </div>
 
-        <div style="position: relative; width: 100%; height: 220px; margin-bottom: 12px; border-radius: 8px; overflow: hidden;">
+        <!-- Live Amount Badge (Speedometer အပေါ်မှာ ဈေးနှုန်းပြရန်) -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 10px 14px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #333;">
+          <span style="font-size: 12px; color: #aaa;">ခန့်မှန်း ဝင်ငွေ (Amount):</span>
+          <span style="font-size: 18px; font-weight: bold; color: #00ff66;" id="liveCalculatedAmount">2000 KS</span>
+        </div>
+
+        <div style="position: relative; width: 100%; height: 200px; margin-bottom: 12px; border-radius: 8px; overflow: hidden;">
           <div id="activeMap" style="width: 100%; height: 100%;"></div>
-          <div style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); border: 2px solid #333; padding: 8px 14px; border-radius: 10px; text-align: center; z-index: 1000;">
-            <div style="font-size: 24px; font-weight: bold; color: #ffffff; line-height: 1;" id="liveCurrentSpeed">0</div>
+          <div style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); border: 2px solid #333; padding: 6px 12px; border-radius: 8px; text-align: center; z-index: 1000;">
+            <div style="font-size: 22px; font-weight: bold; color: #ffffff; line-height: 1;" id="liveCurrentSpeed">0</div>
             <div style="font-size: 9px; color: #aaa; text-transform: uppercase;">km/h</div>
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px;">
           <div style="background: #1a1a1a; padding: 10px 4px; border-radius: 8px; text-align: center; border: 1px solid #2a2a2a;">
-            <div style="font-size: 18px; font-weight: bold; color: #00ff66;" id="liveDistance">0.00</div>
-            <div style="font-size: 10px; color: #888; margin-top: 2px;">km</div>
-            <div style="font-size: 11px; font-weight: bold; color: #fff; margin-top: 4px;">Distance</div>
+            <div style="font-size: 16px; font-weight: bold; color: #00ff66;" id="liveDistance">0.00</div>
+            <div style="font-size: 9px; color: #888; margin-top: 2px;">km</div>
+            <div style="font-size: 10px; font-weight: bold; color: #fff; margin-top: 4px;">Distance</div>
           </div>
           <div style="background: #1a1a1a; padding: 10px 4px; border-radius: 8px; text-align: center; border: 1px solid #2a2a2a;">
-            <div style="font-size: 18px; font-weight: bold; color: #00ff66;" id="liveAvgSpeed">0</div>
-            <div style="font-size: 10px; color: #888; margin-top: 2px;">km/h</div>
-            <div style="font-size: 11px; font-weight: bold; color: #fff; margin-top: 4px;">Avg. Speed</div>
+            <div style="font-size: 16px; font-weight: bold; color: #00ff66;" id="liveAvgSpeed">0</div>
+            <div style="font-size: 9px; color: #888; margin-top: 2px;">km/h</div>
+            <div style="font-size: 10px; font-weight: bold; color: #fff; margin-top: 4px;">Avg. Speed</div>
           </div>
           <div style="background: #1a1a1a; padding: 10px 4px; border-radius: 8px; text-align: center; border: 1px solid #2a2a2a;">
-            <div style="font-size: 18px; font-weight: bold; color: #00ff66;" id="liveMaxSpeed">0</div>
-            <div style="font-size: 10px; color: #888; margin-top: 2px;">km/h</div>
-            <div style="font-size: 11px; font-weight: bold; color: #fff; margin-top: 4px;">Max. Speed</div>
+            <div style="font-size: 16px; font-weight: bold; color: #00ff66;" id="liveMaxSpeed">0</div>
+            <div style="font-size: 9px; color: #888; margin-top: 2px;">km/h</div>
+            <div style="font-size: 10px; font-weight: bold; color: #fff; margin-top: 4px;">Max. Speed</div>
           </div>
         </div>
 
@@ -628,6 +641,7 @@
     let currentDriverUid = null;
     let map, driverMarker;
     let totalEarnings = 0;
+    let hasActiveMission = false; // Active mission ရှိမရှိ စစ်ဆေးရန်
 
     let activeMap = null;
     let activeMarker = null;
@@ -652,9 +666,12 @@
       }
     };
 
+    // Fullscreen Toggle (ချဲ့ခြင်း/ပြန်ကြုံ့ခြင်း)
     window.toggleMapFullscreen = function() {
       const wrapper = document.getElementById("mapWrapper");
       wrapper.classList.toggle("fullscreen");
+      const isFull = wrapper.classList.contains("fullscreen");
+      document.querySelector(".fullscreen-btn").textContent = isFull ? "✕ ပုံမှန်အတိုင်း" : "ᛝ Fullscreen";
       setTimeout(() => {
         if (map) map.invalidateSize();
       }, 300);
@@ -946,7 +963,7 @@
       return `${hrs}:${mins}:${secs}`;
     }
 
-    function startActiveNavigation(rideId, pickup, destination) {
+    function startActiveNavigation(rideId, pickup, destination, basePersons = 1) {
       document.getElementById('myActiveRideList').classList.add('hidden');
       const navCard = document.getElementById('activeNavigationCard');
       navCard.classList.remove('hidden');
@@ -1014,6 +1031,10 @@
           lastTimestamp = currentTimestamp;
 
           document.getElementById('liveDistance').textContent = totalDistanceKm.toFixed(2);
+
+          // ဈေးနှုန်းတွက်ချက်မှု: Base 2000 + (Persons * 1000) + (DistanceKm * 1000)
+          const currentAmount = 2000 + (basePersons * 1000) + Math.floor(totalDistanceKm * 1000);
+          document.getElementById('liveCalculatedAmount').textContent = `${currentAmount} KS`;
         }, (err) => {
           console.error(err);
         }, { enableHighAccuracy: true });
@@ -1030,6 +1051,7 @@
         let homeAvailableHtml = "";
         let activeMissionsHtml = "";
         totalEarnings = 0;
+        hasActiveMission = false;
 
         const isOnDuty = document.getElementById("dutyToggle").checked;
 
@@ -1040,24 +1062,40 @@
           return;
         }
 
+        // ပထမအဆင့် - ယာဉ်မောင်းမှာ Active Mission ရှိမရှိ စစ်ဆေးရန်
+        snapshot.forEach((docSnap) => {
+          const ride = docSnap.data();
+          const driverUid = ride.driverUid || null;
+          const status = ride.status || "pending";
+          if (driverUid === currentDriverUid && (status === "accepted" || status === "started")) {
+            hasActiveMission = true;
+          }
+        });
+
         snapshot.forEach((docSnap) => {
           const ride = docSnap.data();
           const rideId = docSnap.id;
           const status = ride.status || "pending";
           const driverUid = ride.driverUid || null;
-          const price = ride.price || 3000;
+          const persons = Number(ride.persons) || 1; 
+          const calculatedPrice = 2000 + (persons * 1000); // ယာယီပြသရန် မူလဈေး
 
           if (driverUid === currentDriverUid && status === "completed") {
-            totalEarnings += Number(price);
+            totalEarnings += Number(ride.price || calculatedPrice);
           }
 
-          // ၁။ Order အသစ် (Pending) - ဖုန်းနံပါတ် လုံးဝမပြပါ
+          // Order အသစ် (Pending) - Active Mission ရှိနေရင် Order အသစ်လက်ခံခွင့်မပေးပါ
           if (status === "pending" && isOnDuty) {
+            let acceptBtnHtml = `<button class="mission-btn btn-accept" onclick="acceptRide('${rideId}')">ခရီးစဉ် လက်ခံမည် (Accept)</button>`;
+            if (hasActiveMission) {
+              acceptBtnHtml = `<button class="mission-btn" style="background: #9ca3af; cursor: not-allowed;" disabled>မစ်ရှင်တစ်ခု ပြီးဆုံးမှသာ အသစ်လက်ခံနိုင်မည်</button>`;
+            }
+
             homeAvailableHtml += `
-              <div class="grab-ride-card">
+              <div class="yg-ride-card">
                 <div class="card-top">
-                  <span class="service-type">🛺 Mini Oway Express</span>
-                  <span style="font-size: 11px; color: #00b14f; font-weight: bold;">${price} KS</span>
+                  <span class="service-type">🛺 YG Express</span>
+                  <span style="font-size: 11px; color: #00b14f; font-weight: bold;">~ ${calculatedPrice} KS (စတင်ရန်)</span>
                 </div>
                 <div class="route-timeline">
                   <div class="route-point">
@@ -1071,29 +1109,29 @@
                     <div class="point-name">${ride.destination}</div>
                   </div>
                 </div>
-                <button class="mission-btn btn-accept" onclick="acceptRide('${rideId}')">ခရီးစဉ် လက်ခံမည် (Accept)</button>
+                ${acceptBtnHtml}
               </div>
             `;
           }
 
-          // ၂။ လက်ခံထားသော ခရီးစဉ် (Active Missions) - ဖုန်းနံပါတ် ပေါ်စေရန်
+          // လက်ခံထားသော ခရီးစဉ် (Active Missions)
           if (driverUid === currentDriverUid && status !== "completed") {
             let missionBtnHtml = "";
             let statusText = "";
 
             if (status === "accepted") {
               statusText = "လက်ခံပြီး (Accepted)";
-              missionBtnHtml = `<button class="mission-btn btn-start" onclick="updateRideStatus('${rideId}', 'started', '${ride.pickup}', '${ride.destination}')">ခရီးစဉ် စတင်မည် (Start Ride)</button>`;
+              missionBtnHtml = `<button class="mission-btn btn-start" onclick="updateRideStatus('${rideId}', 'started', '${ride.pickup}', '${ride.destination}', ${persons})">ခရီးစဉ် စတင်မည် (Start Ride)</button>`;
             } else if (status === "started") {
               statusText = "ခရီးစဉ် စတင်နေပြီ (In Progress)";
               missionBtnHtml = `<button class="mission-btn btn-complete" onclick="updateRideStatus('${rideId}', 'completed')">ခရီးစဉ် ပြီးဆုံးမည် (Complete Ride)</button>`;
             }
 
             activeMissionsHtml += `
-              <div class="grab-ride-card" style="border: 1.5px solid #00b14f;">
+              <div class="yg-ride-card" style="border: 1.5px solid #00b14f;">
                 <div class="card-top">
                   <span class="service-type">${statusText}</span>
-                  <span style="font-size: 11px; color: #00b14f; font-weight: bold;">${price} KS</span>
+                  <span style="font-size: 11px; color: #00b14f; font-weight: bold;">လူဦးရေ: ${persons} ဦး</span>
                 </div>
                 <div class="route-timeline">
                   <div class="route-point">
@@ -1109,7 +1147,7 @@
                 </div>
                 <div class="passenger-bar">
                   <span style="font-size: 12px; font-weight: 600; color: #374151;">👤 ခရီးသည် ဖုန်း</span>
-                  <a href="tel:${ride.phone}" class="grab-call-btn">📞 ${ride.phone}</a>
+                  <a href="tel:${ride.phone}" class="yg-call-btn">📞 ${ride.phone}</a>
                 </div>
                 ${missionBtnHtml}
               </div>
@@ -1129,6 +1167,10 @@
     }
 
     window.acceptRide = async function (rideId) {
+      if (hasActiveMission) {
+        alert("သင့်တွင် လက်ရှိဆောင်ရွက်ဆဲ မစ်ရှင်တစ်ခု ရှိနေပါသည်!");
+        return;
+      }
       try {
         const rideRef = doc(db, "rideRequests", rideId);
         await updateDoc(rideRef, {
@@ -1142,13 +1184,20 @@
       }
     };
 
-    window.updateRideStatus = async function (rideId, newStatus, pickup, destination) {
+    window.updateRideStatus = async function (rideId, newStatus, pickup, destination, persons = 1) {
       try {
         const rideRef = doc(db, "rideRequests", rideId);
-        await updateDoc(rideRef, { status: newStatus });
+        
+        if (newStatus === "completed") {
+          // ပြီးဆုံးချိန်တွင် စုစုပေါင်း အကွာအဝေး (totalDistanceKm) ကို တွက်၍ final price သိမ်းမည်
+          const finalPrice = 2000 + (persons * 1000) + Math.floor(totalDistanceKm * 1000);
+          await updateDoc(rideRef, { status: newStatus, price: finalPrice });
+        } else {
+          await updateDoc(rideRef, { status: newStatus });
+        }
 
         if (newStatus === "started") {
-          startActiveNavigation(rideId, pickup, destination);
+          startActiveNavigation(rideId, pickup, destination, persons);
         } else if (newStatus === "completed") {
           if (watchId !== null) navigator.geolocation.clearWatch(watchId);
           if (timerInterval) clearInterval(timerInterval);
