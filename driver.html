@@ -643,11 +643,24 @@
     }
   };
 
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
+    onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      // User ဝင်ထားပြီးသား ဆိုရင် Refresh လုပ်လိုက်လည်း Dashboard ဆီ တန်းရောက်သွားစေရန်
+      currentDriverUid = user.uid;
+      const docRef = doc(db, "drivers", user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        showDashboard(docSnap.data());
+      } else {
+        showDashboard({ fullName: user.email, phone: "-", email: user.email, nrc: "-" });
+      }
+    } else {
+      // User မရှိမှသာ အကောင့်ဝင်ရန် စာမျက်နှာကို ပြပါ
       document.getElementById('bottomNav').classList.add('hidden');
+      switchView('signInCard');
     }
   });
+
 
   window.switchView = function(viewId) {
     document.getElementById('signInCard').classList.add('hidden');
