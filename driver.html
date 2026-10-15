@@ -1020,7 +1020,6 @@
         }, { enableHighAccuracy: true });
       }
     }
-
            function loadRideRequests() {
       const rideListEl = document.getElementById("rideList");
       const myActiveRideListEl = document.getElementById("myActiveRideList");
@@ -1133,7 +1132,6 @@
         document.getElementById("todayEarnings").textContent = `${totalEarnings} KS`;
       });
     }
-
     window.acceptRide = async function (rideId) {
       try {
         const rideRef = doc(db, "rideRequests", rideId);
