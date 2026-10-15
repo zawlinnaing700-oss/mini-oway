@@ -5,84 +5,155 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mini Oway - Driver Portal</title>
   <style>
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f3f5f9;
-      color: #172033;
+      background-color: #f0f2f5;
+      color: #1c1e21;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
     header {
-      background: #1e3a8a;
+      background: #1877f2;
       color: white;
-      padding: 22px 16px;
-      text-align: center;
-    }
-    header h1 { margin: 0; }
-    .container {
-      max-width: 600px;
-      margin: 22px auto;
       padding: 16px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    header p {
+      margin: 4px 0 0 0;
+      font-size: 13px;
+      opacity: 0.9;
+    }
+    .container {
+      max-width: 430px;
+      width: 100%;
+      margin: 20px auto;
+      padding: 0 16px;
     }
     .card {
-      background: white;
+      background: #ffffff;
       padding: 20px;
-      border-radius: 14px;
-      margin-bottom: 16px;
-      box-shadow: 0 3px 12px #00000010;
-    }
-    input, button, select {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 13px;
-      margin-top: 10px;
       border-radius: 8px;
-      font-size: 16px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+      text-align: center;
     }
-    input, select { border: 1px solid #ccd2dc; }
+    .card h2 {
+      font-size: 20px;
+      margin-top: 0;
+      margin-bottom: 12px;
+      color: #1c1e21;
+    }
+    .sub-title {
+      font-size: 14px;
+      color: #606770;
+      margin-bottom: 16px;
+    }
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      border: 1px solid #dddfe2;
+      border-radius: 6px;
+      font-size: 15px;
+      outline: none;
+      background: #f5f6f7;
+    }
+    input:focus {
+      border-color: #1877f2;
+      background: #ffffff;
+    }
     .password-container {
       position: relative;
       width: 100%;
     }
     .password-container input {
-      width: 100%;
-      padding-right: 45px;
+      padding-right: 48px;
     }
     .toggle-eye {
       position: absolute;
       right: 12px;
-      top: 50%;
+      top: 42%;
       transform: translateY(-50%);
       background: none;
       border: none;
       cursor: pointer;
       font-size: 18px;
+      color: #606770;
       padding: 0;
-      width: auto;
-      margin: 0;
-      color: #667085;
     }
-    button {
-      background: #087f5b;
+    button.btn-primary {
+      width: 100%;
+      background-color: #1877f2;
       color: white;
       border: none;
+      border-radius: 6px;
+      font-size: 17px;
       font-weight: bold;
+      padding: 12px;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    button.btn-primary:hover {
+      background-color: #166fe5;
+    }
+    button.btn-success {
+      background-color: #42b72a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      padding: 12px 16px;
+      cursor: pointer;
+      width: auto;
+      margin-top: 8px;
+    }
+    button.btn-success:hover {
+      background-color: #36a420;
+    }
+    .link-btn {
+      display: inline-block;
+      color: #1877f2;
+      font-size: 14px;
+      text-decoration: none;
+      margin-top: 14px;
+      background: none;
+      border: none;
       cursor: pointer;
     }
-    button.secondary { background: #dc2626; }
-    button.link-btn {
-      background: none;
-      color: #1e3a8a;
-      border: none;
-      padding: 5px;
-      margin-top: 8px;
-      font-weight: normal;
+    .link-btn:hover {
       text-decoration: underline;
-      cursor: pointer;
+    }
+    .divider {
+      align-items: center;
+      border-bottom: 1px solid #dadde1;
+      display: flex;
+      margin: 20px 0;
+    }
+    .note {
+      font-size: 13px;
+      color: #e41e3f;
+      margin-top: 10px;
+      word-break: break-all;
+    }
+    .hidden {
+      display: none;
     }
     .ride-item {
-      border-bottom: 1px solid #e2e8f0;
-      padding-bottom: 15px;
-      margin-bottom: 15px;
+      border-bottom: 1px solid #dadde1;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      text-align: left;
     }
     .badge {
       display: inline-block;
@@ -91,22 +162,20 @@
       font-size: 12px;
       font-weight: bold;
     }
-    .badge.pending { background: #fef08a; color: #854d0e; }
-    .badge.accepted { background: #bbf7d0; color: #166534; }
-    .note { color: #667085; font-size: 14px; word-break: break-all; }
-    .hidden { display: none; }
+    .badge.pending { background: #fff3cd; color: #856404; }
+    .badge.accepted { background: #d4edda; color: #155724; }
   </style>
 </head>
 <body>
   <header>
-    <h1>🛺 ယာဉ်မောင်း ဒက်ရှ်ဘုတ်</h1>
-    <p>Mini Oway Driver Portal</p>
+    <h1>🛺 Mini Oway</h1>
+    <p>Driver Portal</p>
   </header>
 
   <main class="container">
-    <!-- 1. Sign In Card -->
+    <!-- 1. Sign In View -->
     <section id="signInCard" class="card">
-      <h2>👤 ယာဉ်မောင်း အကောင့်ဝင်ရန်</h2>
+      <h2>အကောင့်ဝင်ရန်</h2>
       <input id="signinEmail" type="email" placeholder="Gmail လိပ်စာ">
       
       <div class="password-container">
@@ -114,35 +183,45 @@
         <button type="button" class="toggle-eye" onclick="togglePassword('signinPassword', this)">👁️</button>
       </div>
 
-      <button onclick="handleSignIn()">အကောင့်ဝင်မည်</button>
+      <button class="btn-primary" onclick="handleSignIn()">အကောင့်ဝင်မည်</button>
       
-      <button onclick="switchView('resetPasswordCard')" class="link-btn">စကားဝှက် မေ့နေပါသလား? (Recovery)</button>
-      <hr style="margin: 15px 0; border:0; border-top:1px solid #eee;">
-      <button onclick="switchView('signupStep1')" class="secondary" style="background:none; color:#1e3a8a; border:1px solid #1e3a8a;">အကောင့်အသစ်ဖွင့်ရန် (Sign Up)</button>
+      <div>
+        <button onclick="switchView('resetPasswordCard')" class="link-btn">စကားဝှက် မေ့နေပါသလား?</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <button class="btn-success" onclick="switchView('signupStep1')">အကောင့်အသစ်ဖွင့်ရန် (Sign Up)</button>
       <p id="signinMsg" class="note"></p>
     </section>
 
-    <!-- 2. Password Recovery Card -->
+    <!-- 2. Account Recovery / Password Reset View -->
     <section id="resetPasswordCard" class="card hidden">
-      <h2>🔑 အကောင့်ဟောင်း စကားဝှက် ပြန်လည်ရယူရန်</h2>
-      <p class="note">သင့်အကောင့်၏ Gmail နှင့် ဖုန်းနံပါတ် မှန်ကန်စွာဖြည့်ပါက စကားဝှက်အသစ်ဖြင့် ဒက်ရှ်ဘုတ်သို့ တန်းဝင်နိုင်မည်ဖြစ်သည်။</p>
-      <input id="recoveryEmail" type="email" placeholder="သင့် Gmail လိပ်စာ">
-      <input id="recoveryPhone" type="tel" placeholder="သင့် ဖုန်းနံပါတ်">
+      <h2>စကားဝှက် ပြန်လည်ရယူရန်</h2>
+      <p class="sub-title">သင့်အကောင့်၏ Gmail နှင့် ဖုန်းနံပါတ်ကို စစ်ဆေး၍ စကားဝှက်အသစ် ပြောင်းပါမည်။</p>
+      
+      <input id="recoveryEmail" type="email" placeholder="Gmail လိပ်စာ">
+      <input id="recoveryPhone" type="tel" placeholder="ဖုန်းနံပါတ်">
       
       <div class="password-container">
         <input id="recoveryNewPass" type="password" placeholder="စကားဝှက်အသစ် (အနည်းဆုံး ၆ လုံး)">
         <button type="button" class="toggle-eye" onclick="togglePassword('recoveryNewPass', this)">👁️</button>
       </div>
 
-      <button onclick="handleAccountRecovery()">စကားဝှက်အသစ် ပြောင်းလဲပြီး ဝင်မည်</button>
-      <button onclick="switchView('signInCard')" class="secondary" style="background:none; color:#dc2626; border:1px solid #dc2626; margin-top:5px;">အကောင့်ဝင်သည့် စာမျက်နှာသို့ ပြန်သွားရန်</button>
+      <button class="btn-primary" onclick="handleAccountRecovery()">စကားဝှက်အသစ် ပြောင်းမည်</button>
+      
+      <div>
+        <button onclick="switchView('signInCard')" class="link-btn" style="color: #606770;">မလုပ်ဆောင်တော့ပါ (နောက်သို့)</button>
+      </div>
       <p id="recoveryMsg" class="note"></p>
     </section>
 
-    <!-- 3. Sign Up Step 1: Basic Info & NRC -->
+    <!-- 3. Sign Up Step 1 View -->
     <section id="signupStep1" class="card hidden">
-      <h2>📝 အကောင့်အသစ်ဖွင့်ခြင်း (အဆင့် ၁/၂)</h2>
-      <input id="signupFullName" placeholder="နာမည်အပြည့်အစုံ (Full Name)">
+      <h2>အကောင့်အသစ်ဖွင့်ခြင်း</h2>
+      <p class="sub-title">အဆင့် ၁/၂ - အခြေခံအချက်အလက်များ</p>
+      
+      <input id="signupFullName" placeholder="နာမည်အပြည့်အစုံ">
       <input id="signupPhone" type="tel" placeholder="ဖုန်းနံပါတ် (ဥပမာ - 09123456789)">
       <input id="signupNrc" placeholder="NRC နံပါတ် (ဥပမာ - ၁၂/မဂတ(နိုင်)၁၂၃၄၅၆)">
       <input id="signupAge" type="number" placeholder="အသက်">
@@ -158,33 +237,37 @@
         <button type="button" class="toggle-eye" onclick="togglePassword('signupConfirmPassword', this)">👁️</button>
       </div>
 
-      <button onclick="goToNrcVerifyStep()">ရှေ့သို့ (NRC အတည်ပြုရန်)</button>
-      <button onclick="switchView('signInCard')" class="secondary" style="background:none; color:#dc2626; border:1px solid #dc2626; margin-top:5px;">ရှိပြီးသားအကောင့်သို့ ပြန်သွားရန်</button>
+      <button class="btn-primary" onclick="goToNrcVerifyStep()">ရှေ့သို့ (NRC အတည်ပြုရန်)</button>
+      <div>
+        <button onclick="switchView('signInCard')" class="link-btn">ရှိပြီးသားအကောင့်သို့ ပြန်သွားရန်</button>
+      </div>
       <p id="signupStep1Msg" class="note"></p>
     </section>
 
-    <!-- 4. Sign Up Step 2: NRC Last 6 Digits Verification -->
+    <!-- 4. Sign Up Step 2 View -->
     <section id="nrcVerifyStepCard" class="card hidden">
-      <h2>🪪 NRC အတည်ပြုခြင်း (အဆင့် ၂/၂)</h2>
-      <p class="note" id="nrcInstruction">အပေါ်တွင် ဖြည့်ခဲ့သော NRC နံပါတ်၏ <strong>နောက်ဆုံး ဂဏန်း (၆) လုံး</strong> ကို ရိုက်ထည့်၍ အတည်ပြုပါ -</p>
+      <h2>NRC အတည်ပြုခြင်း</h2>
+      <p class="sub-title" id="nrcInstruction">NRC နံပါတ်၏ <strong>နောက်ဆုံး ဂဏန်း (၆) လုံး</strong> ကို ရိုက်ထည့်ပါ -</p>
       
-      <input id="nrcLast6Digits" type="text" maxlength="6" placeholder="ဥပမာ - 123456" style="text-align: center; font-size: 20px; letter-spacing: 4px;">
+      <input id="nrcLast6Digits" type="text" maxlength="6" placeholder="123456" style="text-align: center; font-size: 22px; letter-spacing: 6px; font-weight: bold;">
 
-      <button onclick="verifyNrcAndSignUp()">အတည်ပြုပြီး အကောင့်ဖွင့်မည်</button>
-      <button onclick="switchView('signupStep1')" class="secondary" style="background:none; color:#664d0e; border:1px solid #854d0e; margin-top:5px;">နောက်သို့</button>
+      <button class="btn-primary" onclick="verifyNrcAndSignUp()">အတည်ပြုပြီး အကောင့်ဖွင့်မည်</button>
+      <div>
+        <button onclick="switchView('signupStep1')" class="link-btn" style="color: #606770;">နောက်သို့ ပြန်သွားရန်</button>
+      </div>
       <p id="nrcVerifyMsg" class="note"></p>
     </section>
 
-    <!-- 5. Driver Dashboard Card -->
+    <!-- 5. Driver Dashboard View -->
     <section id="dashboardCard" class="card hidden">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3 id="welcomeDriver" style="margin:0;">ကြိုဆိုပါတယ်</h3>
-        <button onclick="driverLogout()" style="width: auto; padding: 6px 12px; background: #dc2626; font-size: 12px;">ထွက်ရန်</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 id="welcomeDriver" style="margin:0; font-size: 16px;">ကြိုဆိုပါတယ်</h3>
+        <button onclick="driverLogout()" style="background: #e41e3f; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">ထွက်ရန်</button>
       </div>
-      <hr style="margin: 15px 0; border:0; border-top:1px solid #eee;">
-      <h2>📥 တောင်းဆိုထားသော ခရီးစဉ်များ</h2>
+      <div class="divider"></div>
+      <h2 style="font-size: 18px; text-align: left;">📥 တောင်းဆိုထားသော ခရီးစဉ်များ</h2>
       <div id="rideList">
-        <p class="note">ခရီးစဉ်များကို ရှာဖွေနေပါသည်...</p>
+        <p class="sub-title">ခရီးစဉ်များကို ရှာဖွေနေပါသည်...</p>
       </div>
     </section>
   </main>
@@ -240,7 +323,7 @@
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      // Keep on login screen
+      // Stay on login page
     }
   });
 
@@ -263,6 +346,7 @@
       return;
     }
 
+    msg.style.color = "#1877f2";
     msg.textContent = "အကောင့်ဝင်နေပါသည်...";
     try {
       const cred = await signInWithEmailAndPassword(auth, email, pass);
@@ -275,11 +359,12 @@
       }
     } catch (error) {
       console.error(error);
-      msg.textContent = "အကောင့်ဝင်ရောက်၍ မရပါ။ Gmail သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်။";
+      msg.style.color = "#e41e3f";
+      msg.textContent = "Gmail သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်။";
     }
   };
 
-  // Recovery: Check Firestore data, update password/credential and log in directly
+  // Account Recovery
   window.handleAccountRecovery = async function() {
     const email = document.getElementById('recoveryEmail').value.trim();
     const phone = document.getElementById('recoveryPhone').value.trim();
@@ -287,27 +372,26 @@
     const msg = document.getElementById('recoveryMsg');
 
     if (!email || !phone || !newPass) {
-      msg.style.color = "red";
+      msg.style.color = "#e41e3f";
       msg.textContent = "အချက်အလက်အားလုံး ပြည့်စုံစွာ ဖြည့်ပါ။";
       return;
     }
     if (newPass.length < 6) {
-      msg.style.color = "red";
+      msg.style.color = "#e41e3f";
       msg.textContent = "စကားဝှက်အသစ်သည် အနည်းဆုံး ၆ လုံး ရှိရပါမည်။";
       return;
     }
 
-    msg.style.color = "#1e3a8a";
+    msg.style.color = "#1877f2";
     msg.textContent = "အကောင့်အချက်အလက်များကို စစ်ဆေးနေပါသည်...";
 
     try {
-      // Check if driver exists in Firestore with this email and phone
       const q = query(collection(db, "drivers"), where("email", "==", email), where("phone", "==", phone));
       const querySnapshot = await getDocs(q);
 
       if (querySnapshot.empty) {
-        msg.style.color = "red";
-        msg.textContent = "ဤ Gmail နှင့် ဖုန်းနံပါတ်ဖြင့် မှတ်ပုံတင်ထားသော အကောင့်ဟောင်း မရှိပါ။";
+        msg.style.color = "#e41e3f";
+        msg.textContent = "ဤ Gmail နှင့် ဖုန်းနံပါတ်ဖြင့် မှတ်ပုံတင်ထားသော အကောင့်မရှိပါ။";
         return;
       }
 
@@ -316,19 +400,16 @@
         driverData = docSnap.data();
       });
 
-      msg.textContent = "စကားဝှက်အသစ်ဖြင့် အကောင့်ကို ချိတ်ဆက်နေပါသည်...";
+      msg.textContent = "စကားဝှက်အသစ် ပြင်ဆင်ပေးနေပါသည်...";
 
       let cred;
       try {
-        // Try to create auth user if it was deleted or lost
         cred = await createUserWithEmailAndPassword(auth, email, newPass);
       } catch (err) {
-        // If already exists in Auth, sign in with new password isn't directly allowed without old password,
-        // so we sign in or update via resetting/re-creating account mapping
         try {
           cred = await signInWithEmailAndPassword(auth, email, newPass);
         } catch (e) {
-          msg.style.color = "red";
+          msg.style.color = "#e41e3f";
           msg.textContent = "အကောင့်စနစ် အမှားအယွင်းရှိပါသည်။ ကျေးဇူးပြု၍ အကောင့်အသစ်ပြန်ဖွင့်ပါ သို့မဟုတ် Admin သို့ ဆက်သွယ်ပါ။";
           return;
         }
@@ -338,14 +419,14 @@
       driverData.uid = uid;
       await setDoc(doc(db, "drivers", uid), driverData);
 
-      msg.style.color = "green";
+      msg.style.color = "#42b72a";
       msg.textContent = "အောင်မြင်ပါသည်။ ဒက်ရှ်ဘုတ်သို့ ဝင်ရောက်နေပါပြီ...";
       setTimeout(() => {
         showDashboard(driverData);
-      }, 1500);
+      }, 1200);
     } catch (error) {
       console.error(error);
-      msg.style.color = "red";
+      msg.style.color = "#e41e3f";
       msg.textContent = "အမှားအယွင်းရှိပါသည်၊ ထပ်မံကြိုးစားပါ။";
     }
   };
@@ -396,10 +477,11 @@
     }
 
     if (enteredLast6 !== tempSignupData.expectedLast6) {
-      msg.textContent = "ရိုက်ထည့်ထားသော ဂဏန်း ၆ လုံးသည် အဆင့် ၁ တွင်ဖြည့်ခဲ့သည့် NRC နောက်ဆုံး ၆ လုံးနှင့် မတူပါ။";
+      msg.textContent = "ရိုက်ထည့်ထားသော ဂဏန်း ၆ လုံးသည် NRC နောက်ဆုံး ၆ လုံးနှင့် မတူပါ။";
       return;
     }
 
+    msg.style.color = "#1877f2";
     msg.textContent = "အကောင့်ဖွင့်နေပါသည် (ခဏစောင့်ပါ)...";
     try {
       const cred = await createUserWithEmailAndPassword(auth, tempSignupData.email, tempSignupData.pass);
@@ -420,6 +502,7 @@
       showDashboard(driverProfile);
     } catch (error) {
       console.error(error);
+      msg.style.color = "#e41e3f";
       msg.textContent = "အကောင့်ဖွင့်၍ မရပါ။ (ဤ Gmail ဖြင့် အကောင့်ရှိပြီးသား ဖြစ်နေနိုင်သည်)";
     }
   };
@@ -441,7 +524,7 @@
 
     onSnapshot(q, (snapshot) => {
       if (snapshot.empty) {
-        rideListEl.innerHTML = `<p class="note">ယခုလက်ရှိ ခရီးစဉ် တောင်းဆိုမှု မရှိသေးပါ။</p>`;
+        rideListEl.innerHTML = `<p class="sub-title">ယခုလက်ရှိ ခရီးစဉ် တောင်းဆိုမှု မရှိသေးပါ။</p>`;
         return;
       }
 
@@ -456,15 +539,15 @@
           : `<span class="badge accepted">လက်ခံပြီး</span>`;
 
         let actionButton = status === "pending"
-          ? `<button onclick="acceptRide('${rideId}')">ခရီးစဉ် လက်ခံမည်</button>`
-          : `<button disabled>လက်ခံပြီးပါပြီ</button>`;
+          ? `<button class="btn-primary" style="padding: 8px 12px; font-size: 14px;" onclick="acceptRide('${rideId}')">ခရီးစဉ် လက်ခံမည်</button>`
+          : `<button disabled style="padding: 8px 12px; font-size: 14px;">လက်ခံပြီးပါပြီ</button>`;
 
         html += `
           <div class="ride-item">
-            <p><strong>အစမှတ်:</strong> ${ride.pickup}</p>
-            <p><strong>ဆုံးမှတ်:</strong> ${ride.destination}</p>
-            <p><strong>ဖုန်းနံပါတ်:</strong> <a href="tel:${ride.phone}">${ride.phone}</a></p>
-            <p><strong>အခြေအနေ:</strong> ${statusBadge}</p>
+            <p style="margin: 4px 0;"><strong>အစမှတ်:</strong> ${ride.pickup}</p>
+            <p style="margin: 4px 0;"><strong>ဆုံးမှတ်:</strong> ${ride.destination}</p>
+            <p style="margin: 4px 0;"><strong>ဖုန်းနံပါတ်:</strong> <a href="tel:${ride.phone}" style="color:#1877f2;">${ride.phone}</a></p>
+            <p style="margin: 4px 0 8px 0;"><strong>အခြေအနေ:</strong> ${statusBadge}</p>
             ${actionButton}
           </div>
         `;
