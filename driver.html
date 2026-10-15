@@ -660,7 +660,7 @@
       }, 300);
     };
 
-    window.toggleDutyStatus = function(checkbox) {
+        window.toggleDutyStatus = function(checkbox) {
       const statusText = document.getElementById("statusText");
       const statusDot = document.getElementById("statusDot");
       if (checkbox.checked) {
@@ -672,6 +672,8 @@
         statusText.style.color = "#6b7280";
         statusDot.classList.add("offline");
       }
+      // Status ပြောင်းလိုက်တာနဲ့ Order များကို အသစ်တစ်ဖန် စစ်ဆေးပေါ်ပြရန်
+      loadRideRequests();
     };
 
     window.switchTab = function(tabId, btn) {
@@ -1019,7 +1021,7 @@
       }
     }
 
-    function loadRideRequests() {
+       function loadRideRequests() {
       const rideListEl = document.getElementById("rideList");
       const myActiveRideListEl = document.getElementById("myActiveRideList");
 
@@ -1029,6 +1031,9 @@
         let homeAvailableHtml = "";
         let activeMissionsHtml = "";
         totalEarnings = 0;
+
+        // ယာဉ်မောင်း On Duty ဟုတ်မဟုတ် စစ်ဆေးရန် (Toggle Switch ရဲ့ checked အခြေအနေ)
+        const isOnDuty = document.getElementById("dutyToggle").checked;
 
         if (snapshot.empty) {
           rideListEl.innerHTML = `<p class="sub-title">ယခုလက်ရှိ ခရီးစဉ် တောင်းဆိုမှု မရှိသေးပါ။</p>`;
@@ -1048,7 +1053,8 @@
             totalEarnings += Number(price);
           }
 
-          if (status === "pending") {
+          // Offline ဖြစ်နေလျှင် Home Tab တွင် order အသစ်များ မပြပါ
+          if (status === "pending" && isOnDuty) {
             homeAvailableHtml += `
               <div class="grab-ride-card">
                 <div class="card-top">
@@ -1116,7 +1122,13 @@
           }
         });
 
-        rideListEl.innerHTML = homeAvailableHtml || `<p class="sub-title">ယခုလက်ရှိ တောင်းဆိုထားသော ခရီးစဉ် မရှိသေးပါ။</p>`;
+        // အကယ်၍ Offline ဖြစ်နေပါက Home တွင် Order မရှိကြောင်း ပြမည်
+        if (!isOnDuty) {
+          rideListEl.innerHTML = `<p class="sub-title" style="color: #ef4444;">အလုပ်စတင်ရန် (On Duty) ကို ဖွင့်ပါမှ ခရီးစဉ်များ ပေါ်လာပါမည်။</p>`;
+        } else {
+          rideListEl.innerHTML = homeAvailableHtml || `<p class="sub-title">ယခုလက်ရှိ တောင်းဆိုထားသော ခရီးစဉ် မရှိသေးပါ။</p>`;
+        }
+
         myActiveRideListEl.innerHTML = activeMissionsHtml || `<p class="sub-title">လက်ခံထားသော ခရီးစဉ် မရှိသေးပါ။</p>`;
         document.getElementById("todayEarnings").textContent = `${totalEarnings} KS`;
       });
