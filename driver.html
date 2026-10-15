@@ -660,7 +660,7 @@
       }, 300);
     };
 
-        window.toggleDutyStatus = function(checkbox) {
+    window.toggleDutyStatus = function(checkbox) {
       const statusText = document.getElementById("statusText");
       const statusDot = document.getElementById("statusDot");
       if (checkbox.checked) {
@@ -672,7 +672,6 @@
         statusText.style.color = "#6b7280";
         statusDot.classList.add("offline");
       }
-      // Status ပြောင်းလိုက်တာနဲ့ Order များကို အသစ်တစ်ဖန် စစ်ဆေးပေါ်ပြရန်
       loadRideRequests();
     };
 
@@ -1020,7 +1019,8 @@
         }, { enableHighAccuracy: true });
       }
     }
-           function loadRideRequests() {
+
+    function loadRideRequests() {
       const rideListEl = document.getElementById("rideList");
       const myActiveRideListEl = document.getElementById("myActiveRideList");
 
@@ -1128,10 +1128,6 @@
       });
     }
 
-        myActiveRideListEl.innerHTML = activeMissionsHtml || `<p class="sub-title">လက်ခံထားသော ခရီးစဉ် မရှိသေးပါ။</p>`;
-        document.getElementById("todayEarnings").textContent = `${totalEarnings} KS`;
-      });
-    }
     window.acceptRide = async function (rideId) {
       try {
         const rideRef = doc(db, "rideRequests", rideId);
