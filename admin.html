@@ -397,7 +397,13 @@
         document.getElementById("reportCommission").textContent = netProfit.toLocaleString();
         document.getElementById("reportDriverPayouts").textContent = (totalRev - netProfit).toLocaleString();
 
-        document.getElementById("allRidesTableBody").innerHTML = ridesHtml;
+                document.getElementById("allRidesTableBody").innerHTML =
+          ridesHtml || '<tr><td colspan="5" style="text-align:center;">ခရီးစဉ် မရှိသေးပါ။</td></tr>';
+
+      },
+      (error) => {
+        console.error("Rides Firebase Error:", error);
+        alert("Rides Data Error: " + error.message);
       });
     }
   </script>
