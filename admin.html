@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>YG - Enterprise Admin Portal (Grab Style)</title>
+
+  <!-- Leaflet CSS for Live Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
   <style>
     :root {
       --primary: #00b14f;
@@ -71,6 +75,8 @@
     .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
     .data-table th, .data-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
     .data-table th { background: #f9fafb; color: var(--text-main); font-weight: bold; }
+    .clickable-row { cursor: pointer; transition: background 0.2s; }
+    .clickable-row:hover { background-color: #f0fdf4; }
 
     /* Badges & Buttons */
     .status-tag { padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
@@ -86,9 +92,13 @@
 
     /* Modals */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(17,24,39,0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 16px; }
-    .modal-card { background: white; padding: 24px; border-radius: 12px; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .modal-card { background: white; padding: 24px; border-radius: 12px; width: 100%; max-width: 460px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
     .modal-card input, .modal-card select { width: 100%; padding: 10px; margin: 6px 0 12px 0; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; }
     .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 11px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+    /* Driver Detail Specific CSS */
+    .driver-info-box { background: #f9fafb; padding: 12px; border-radius: 8px; border: 1px solid #e5e7eb; font-size: 13px; margin-bottom: 12px; line-height: 1.6; }
+    #driverMap { width: 100%; height: 220px; border-radius: 8px; margin-top: 10px; border: 1px solid #d1d5db; }
 
     .hidden { display: none !important; }
   </style>
@@ -132,6 +142,40 @@
 
       <button class="btn-submit" onclick="saveSystemSettings()">သိမ်းဆည်းမည်</button>
       <button class="btn-submit" style="background: var(--text-muted); margin-top: 6px;" onclick="closeAdminSettings()">မလုပ်ဆောင်တော့ပါ</button>
+    </div>
+  </div>
+
+  <!-- DRIVER DETAIL MODAL (With Live Map & Daily Activity) -->
+  <div id="driverDetailModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h3 style="margin: 0; font-size: 16px;">👤 Driver Profile & Live Track</h3>
+        <button onclick="closeDriverDetailModal()" style="border:none; background:none; font-size: 18px; cursor:pointer;">✕</button>
+      </div>
+
+      <!-- Driver Info Box -->
+      <div class="driver-info-box">
+        <div><strong>နာမည်:</strong> <span id="mDriverName">-</span></div>
+        <div><strong>ဖုန်း:</strong> <span id="mDriverPhone">-</span></div>
+        <div><strong>Email / NRC:</strong> <span id="mDriverNrc">-</span></div>
+        <div><strong>ယာဉ်အမျိုးအစား/နံပါတ်:</strong> <span id="mDriverVehicle">-</span></div>
+        <div><strong>Wallet Balance:</strong> <span id="mDriverWallet">0 KS</span></div>
+        <div><strong>အခြေအနေ:</strong> <span id="mDriverStatus" class="status-tag status-completed">Online Active</span></div>
+      </div>
+
+      <!-- Daily Activity Summary -->
+      <div style="font-size: 13px; font-weight: bold; margin-bottom: 6px; color: var(--text-main);">📊 ဒီနေ့ လှုပ်ရှားမှု မှတ်တမ်း (Daily Activity)</div>
+      <div class="driver-info-box" style="background: #f0fdf4; border-color: #bbf7d0;">
+        <div>• ဒီနေ့ လက်ခံခဲ့သော ခရီးစဉ်: <strong><span id="mTodayTrips">0</span> ခရီးစဉ်</strong></div>
+        <div>• ဒီနေ့ ရရှိခဲ့သော စုစုပေါင်း ခရီးစဉ်ခ: <strong><span id="mTodayRevenue">0</span> KS</strong></div>
+      </div>
+
+      <!-- Live GPS Map Location -->
+      <div style="font-size: 13px; font-weight: bold; margin: 10px 0 4px 0;">📍 Live GPS Location (Real-time Track)</div>
+      <div id="driverMap"></div>
+      <p id="mapStatusMsg" style="font-size: 11px; color: var(--text-muted); margin-top: 4px; text-align: center;">Driver သည် Duty Off ထားပါက GPS Location ရမည်မဟုတ်ပါ။</p>
+
+      <button class="btn-submit" style="background: var(--text-muted); margin-top: 12px;" onclick="closeDriverDetailModal()">ပိတ်မည်</button>
     </div>
   </div>
 
@@ -185,7 +229,7 @@
 
     <!-- Tab 2: Driver Approval & Wallet Management -->
     <section id="tabDrivers" class="card hidden">
-      <h2 style="font-size: 15px; margin-top:0;">👤 Drivers Verification & Wallet Controls</h2>
+      <h2 style="font-size: 15px; margin-top:0;">👤 Drivers Verification & Wallet Controls (Driver အား နှိပ်၍ အသေးစိတ်ကြည့်ပါ)</h2>
       <input type="text" class="search-box" placeholder="🔍 ယာဉ်မောင်း ရှာဖွေရန်..." onkeyup="filterTable('allDriversTableBody', this.value)">
       <div style="overflow-x: auto;">
         <table class="data-table">
@@ -240,6 +284,9 @@
 
   </main>
 
+  <!-- Leaflet JS for Map -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
     import {
@@ -259,6 +306,10 @@
     const db = getFirestore(app);
 
     let adminPassword = localStorage.getItem("yg_admin_custom_pass") || "admin123";
+    let allDriversCache = {};
+    let allRidesCache = [];
+    let mapInstance = null;
+    let driverMarker = null;
 
     window.toggleHeaderMenu = () => document.getElementById("dropdownMenu").classList.toggle("hidden");
     window.openAdminSettings = () => { document.getElementById("dropdownMenu").classList.add("hidden"); document.getElementById("adminSettingsModal").classList.remove("hidden"); };
@@ -288,14 +339,80 @@
       if (btn) btn.classList.add('active');
     };
 
-    window.toggleDriverBlock = (driverId, currentStatus) => {
+    window.toggleDriverBlock = (event, driverId, currentStatus) => {
+      event.stopPropagation(); // Row click မဖြစ်အောင် တားဆီးရန်
       const newStatus = currentStatus === 'suspended' ? 'active' : 'suspended';
       updateDoc(doc(db, "drivers", driverId), { status: newStatus });
     };
 
-    window.topUpWallet = (driverId) => {
+    window.topUpWallet = (event, driverId) => {
+      event.stopPropagation(); // Row click မဖြစ်အောင် တားဆီးရန်
       const amount = prompt("Top-up ပြုလုပ်လိုသည့် ပမာဏထည့်ပါ (KS):", "5000");
       if (amount) alert(`${amount} KS Top-up အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ။`);
+    };
+
+    // Open Driver Detail Modal & Live Track Location
+    window.openDriverDetail = (driverId) => {
+      const d = allDriversCache[driverId];
+      if (!d) return;
+
+      document.getElementById("mDriverName").textContent = d.fullName || '-';
+      document.getElementById("mDriverPhone").textContent = d.phone || '-';
+      document.getElementById("mDriverNrc").textContent = `${d.email || '-'} / ${d.nrc || '-'}`;
+      document.getElementById("mDriverVehicle").textContent = `${d.vehicleType || '-'} (${d.vehicleNo || '-'})`;
+      document.getElementById("mDriverWallet").textContent = `${d.walletBalance || 0} KS`;
+      
+      const isOnline = d.isOnline === true;
+      document.getElementById("mDriverStatus").className = `status-tag ${isOnline ? 'status-completed' : 'status-suspended'}`;
+      document.getElementById("mDriverStatus").textContent = isOnline ? 'Online (Duty On)' : 'Offline (Duty Off)';
+
+      // Calculate Daily Activity (This Driver)
+      let todayTrips = 0;
+      let todayRevenue = 0;
+      allRidesCache.forEach(r => {
+        if (r.driverPhone === d.phone && r.status === "completed") {
+          todayTrips++;
+          todayRevenue += Number(r.price) || 2000;
+        }
+      });
+
+      document.getElementById("mTodayTrips").textContent = todayTrips;
+      document.getElementById("mTodayRevenue").textContent = todayRevenue.toLocaleString();
+
+      // Open Modal
+      document.getElementById("driverDetailModal").classList.remove("hidden");
+
+      // Initialize or Update Leaflet Map
+      setTimeout(() => {
+        // Default Coordinates (Yangon: 16.8409, 96.1735) or Driver Location
+        const lat = d.lat || 16.8409;
+        const lng = d.lng || 96.1735;
+
+        if (!mapInstance) {
+          mapInstance = L.map('driverMap').setView([lat, lng], 14);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+          }).addTo(mapInstance);
+        } else {
+          mapInstance.setView([lat, lng], 14);
+          mapInstance.invalidateSize();
+        }
+
+        if (driverMarker) mapInstance.removeLayer(driverMarker);
+
+        if (isOnline) {
+          driverMarker = L.marker([lat, lng]).addTo(mapInstance)
+            .bindPopup(`🛺 <strong>${d.fullName}</strong><br>Status: Online Live Location`)
+            .openPopup();
+          document.getElementById("mapStatusMsg").textContent = "📍 Driver ၏ လက်ရှိ Live တည်နေရာဖြစ်ပါသည်။";
+        } else {
+          document.getElementById("mapStatusMsg").textContent = "⚠️ Driver သည် Offline ဖြစ်နေသဖြင့် Live GPS ကို မြင်တွေ့နိုင်မည်မဟုတ်ပါ။";
+        }
+      }, 300);
+    };
+
+    window.closeDriverDetailModal = () => {
+      document.getElementById("driverDetailModal").classList.add("hidden");
     };
 
     window.createPromoCode = () => {
@@ -326,21 +443,24 @@
       onSnapshot(query(collection(db, "drivers")), (snapshot) => {
         document.getElementById("statTotalDrivers").textContent = snapshot.size;
         let driversHtml = "", onlineHtml = "", onlineCount = 0;
+        allDriversCache = {};
 
         snapshot.forEach((docSnap) => {
           const d = docSnap.data();
           const driverId = docSnap.id;
+          allDriversCache[driverId] = d;
+
           const status = d.status || 'active';
           const wallet = d.walletBalance || 0;
 
           driversHtml += `
-            <tr>
+            <tr class="clickable-row" onclick="openDriverDetail('${driverId}')">
               <td><strong>${d.fullName || '-'}</strong><br><a href="tel:${d.phone}" style="color:var(--primary);">${d.phone || '-'}</a></td>
               <td>${d.email || '-'}<br><small>NRC: ${d.nrc || '-'}</small></td>
               <td>${d.vehicleType || '-'} (${d.vehicleNo || '-'})</td>
-              <td><strong>${wallet} KS</strong> <button class="action-btn btn-blue" onclick="topUpWallet('${driverId}')">+ Topup</button></td>
+              <td><strong>${wallet} KS</strong> <button class="action-btn btn-blue" onclick="topUpWallet(event, '${driverId}')">+ Topup</button></td>
               <td>
-                <button class="action-btn ${status === 'suspended' ? 'btn-green' : 'btn-red'}" onclick="toggleDriverBlock('${driverId}', '${status}')">
+                <button class="action-btn ${status === 'suspended' ? 'btn-green' : 'btn-red'}" onclick="toggleDriverBlock(event, '${driverId}', '${status}')">
                   ${status === 'suspended' ? 'Unblock' : 'Block'}
                 </button>
               </td>
@@ -349,7 +469,7 @@
 
           if (d.isOnline) {
             onlineCount++;
-            onlineHtml += `<tr><td>${d.fullName}</td><td>${d.phone}</td><td>${d.vehicleNo}</td><td><span class="status-tag status-completed">Online</span></td></tr>`;
+            onlineHtml += `<tr class="clickable-row" onclick="openDriverDetail('${driverId}')"><td>${d.fullName}</td><td>${d.phone}</td><td>${d.vehicleNo}</td><td><span class="status-tag status-completed">Online</span></td></tr>`;
           }
         });
 
@@ -362,9 +482,12 @@
       onSnapshot(query(collection(db, "rideRequests"), orderBy("createdAt", "desc")), (snapshot) => {
         document.getElementById("statTotalRides").textContent = snapshot.size;
         let ridesHtml = "", totalRev = 0, completedCount = 0, hasSos = false;
+        allRidesCache = [];
 
         snapshot.forEach((docSnap) => {
           const r = docSnap.data();
+          allRidesCache.push(r);
+
           const price = Number(r.price) || 2000;
           if (r.status === "completed") { completedCount++; totalRev += price; }
           if (r.isSos) { hasSos = true; document.getElementById("sosDetails").textContent = `${r.phone} ထံမှ SOS အကူအညီတောင်းထားသည်။`; }
