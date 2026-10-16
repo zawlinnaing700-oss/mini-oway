@@ -47,7 +47,6 @@
       padding: 16px;
     }
     
-    /* Login Overlay Card */
     .login-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -88,7 +87,6 @@
       cursor: pointer;
     }
 
-    /* Top Navigation Bar */
     .navbar {
       display: flex;
       gap: 8px;
@@ -156,7 +154,6 @@
   </style>
 </head>
 <body>
-  <!-- Admin Login Overlay -->
   <div id="adminLoginModal" class="login-overlay">
     <div class="login-card">
       <h2>🔐 Admin Login</h2>
@@ -176,7 +173,6 @@
   </header>
 
   <main class="container">
-    <!-- Top Navigation Bar (Requested Tabs) -->
     <nav class="navbar">
       <button class="nav-tab-btn active" onclick="switchAdminTab('tabRides', this)">📊 ခရီးစဉ်များ</button>
       <button class="nav-tab-btn" onclick="switchAdminTab('tabDrivers', this)">👤 ယာဉ်မောင်းများ</button>
@@ -184,7 +180,6 @@
       <button class="nav-tab-btn" onclick="switchAdminTab('tabIncompleteRides', this)">⏳ မပြီးပြတ်သေးတဲ့ ခရီးစဉ်များ</button>
     </nav>
 
-    <!-- 1. All Rides Tab -->
     <section id="tabRides" class="card">
       <h2 style="font-size: 16px; margin-top:0; color:#374151;">📊 ခရီးစဉ်များ စာရင်းအားလုံး</h2>
       <div style="overflow-x: auto;">
@@ -205,7 +200,6 @@
       </div>
     </section>
 
-    <!-- 2. All Drivers Tab -->
     <section id="tabDrivers" class="card hidden">
       <h2 style="font-size: 16px; margin-top:0; color:#374151;">👤 မှတ်ပုံတင်ထားသော ယာဉ်မောင်းများ</h2>
       <div style="overflow-x: auto;">
@@ -226,9 +220,8 @@
       </div>
     </section>
 
-    <!-- 3. Online Active Drivers Tab -->
     <section id="tabOnlineDrivers" class="card hidden">
-      <h2 style="font-size: 16px; margin-top:0; color:#374151;">🟢 Online Active ယာဉ်မောင်းများ</h2>
+      <h2 style="font-size: 16px; margin-top:0; color:#374151;">🟢 Online Active ယာဉ်မောင်းများ (Duty On ထားသူများ)</h2>
       <div style="overflow-x: auto;">
         <table class="data-table">
           <thead>
@@ -240,13 +233,12 @@
             </tr>
           </thead>
           <tbody id="onlineDriversTableBody">
-            <tr><td colspan="4" style="text-align:center;">အချက်အလက် ရယူနေပါသည်...</td></tr>
+            <tr><td colspan="4" style="text-align:center;">Online ယာဉ်မောင်း မရှိသေးပါ။</td></tr>
           </tbody>
         </table>
       </div>
     </section>
 
-    <!-- 4. Incomplete / Active Missions Tab -->
     <section id="tabIncompleteRides" class="card hidden">
       <h2 style="font-size: 16px; margin-top:0; color:#374151;">⏳ မပြီးပြတ်သေးတဲ့ ခရီးစဉ်များ (Pending / In Progress)</h2>
       <div style="overflow-x: auto;">
@@ -328,7 +320,6 @@
     };
 
     function loadAllData() {
-      // 1. Load Drivers & Online Drivers
       const driversQuery = query(collection(db, "drivers"));
       onSnapshot(driversQuery, (snapshot) => {
         const driversTableBody = document.getElementById("allDriversTableBody");
@@ -336,7 +327,7 @@
 
         if (snapshot.empty) {
           driversTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">ယာဉ်မောင်း အကောင့် မရှိသေးပါ။</td></tr>`;
-          onlineDriversTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Online ယာဉ်မောင်း မရှိသေးပါ။</td></tr>`;
+          onlineDriversTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Online Active ယာဉ်မောင်း မရှိပါ။</td></tr>`;
           return;
         }
 
@@ -356,23 +347,24 @@
             </tr>
           `;
 
-          // Note: Driver app တွင် အလုပ်လုပ်နေချိန် On Duty အနေအထားကို ပြသရန်
-          onlineCount++;
-          onlineHtml += `
-            <tr>
-              <td><strong>${d.fullName || '-'}</strong></td>
-              <td><a href="tel:${d.phone}" style="color:#00b14f; font-weight:bold;">${d.phone || '-'}</a></td>
-              <td>${d.vehicleType || '-'} (${d.vehicleNo || '-'})</td>
-              <td><span class="status-tag status-online">Online (On Duty)</span></td>
-            </tr>
-          `;
+          // Duty On (isOnline: true) ဖြစ်နေသူများကိုသာ Filter လုပ်ပြီးပြသရန်
+          if (d.isOnline === true) {
+            onlineCount++;
+            onlineHtml += `
+              <tr>
+                <td><strong>${d.fullName || '-'}</strong></td>
+                <td><a href="tel:${d.phone}" style="color:#00b14f; font-weight:bold;">${d.phone || '-'}</a></td>
+                <td>${d.vehicleType || '-'} (${d.vehicleNo || '-'})</td>
+                <td><span class="status-tag status-online">Online (On Duty)</span></td>
+              </tr>
+            `;
+          }
         });
 
         driversTableBody.innerHTML = driversHtml;
-        onlineDriversTableBody.innerHTML = onlineHtml;
+        onlineDriversTableBody.innerHTML = onlineHtml || `<tr><td colspan="4" style="text-align:center;">ယခုလက်ရှိ Online (On Duty) ထارသူ ယာဉ်မောင်း မရှိပါ။</td></tr>`;
       });
 
-      // 2. Load Rides & Incomplete Rides
       const ridesQuery = query(collection(db, "rideRequests"), orderBy("createdAt", "desc"));
       onSnapshot(ridesQuery, (snapshot) => {
         const allRidesBody = document.getElementById("allRidesTableBody");
@@ -408,7 +400,6 @@
             </tr>
           `;
 
-          // မပြီးပြတ်သေးတဲ့ ခရီးစဉ်များ (pending, accepted, started)
           if (status !== "completed") {
             incompleteHtml += `
               <tr>
