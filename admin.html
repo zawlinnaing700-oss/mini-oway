@@ -3,247 +3,618 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YG - Enterprise Admin Portal (Grab Style)</title>
+  <title>Mini Oway - Admin Dashboard</title>
+
   <style>
     :root {
       --primary: #00b14f;
       --primary-dark: #008f3f;
       --bg-dark: #111827;
-      --bg-card: #ffffff;
       --text-main: #1f2937;
       --text-muted: #6b7280;
       --danger: #ef4444;
       --warning: #f59e0b;
       --info: #3b82f6;
     }
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { margin: 0; background-color: #f3f4f6; color: var(--text-main); min-height: 100vh; padding-bottom: 40px; }
 
-    /* SOS Alert Banner */
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f3f4f6;
+      color: var(--text-main);
+      min-height: 100vh;
+      padding-bottom: 40px;
+    }
+
     #sosBanner {
-      background: #fee2e2; color: #991b1b; padding: 12px 20px; text-align: center;
-      font-weight: bold; border-bottom: 2px solid var(--danger); display: none; animation: pulse 1.5s infinite;
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 12px 20px;
+      text-align: center;
+      font-weight: bold;
+      border-bottom: 2px solid var(--danger);
+      display: none;
+      animation: pulse 1.5s infinite;
     }
-    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
-    /* Header */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
     header {
-      background: var(--bg-dark); color: white; padding: 14px 20px; display: flex;
-      justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      background: var(--bg-dark);
+      color: white;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    header h1 { margin: 0; font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-    header span.badge { background: var(--primary); color: white; font-size: 10px; padding: 2px 8px; border-radius: 12px; }
 
-    /* Dropdown */
+    header h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    header span.badge {
+      background: var(--primary);
+      color: white;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
     .menu-container { position: relative; }
-    .menu-btn { background: #1f2937; color: white; border: 1px solid #374151; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+
+    .menu-btn {
+      background: #1f2937;
+      color: white;
+      border: 1px solid #374151;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
     .dropdown-menu {
-      position: absolute; right: 0; top: 42px; background: white; border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15); width: 220px; z-index: 1000; border: 1px solid #e5e7eb; overflow: hidden;
+      position: absolute;
+      right: 0;
+      top: 42px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      width: 220px;
+      z-index: 1000;
+      border: 1px solid #e5e7eb;
+      overflow: hidden;
     }
+
     .dropdown-item {
-      display: block; width: 100%; padding: 10px 14px; text-align: left; background: none;
-      border: none; font-size: 13px; color: var(--text-main); cursor: pointer; font-weight: 600;
+      display: block;
+      width: 100%;
+      padding: 10px 14px;
+      text-align: left;
+      background: none;
+      border: none;
+      font-size: 13px;
+      color: var(--text-main);
+      cursor: pointer;
+      font-weight: 600;
     }
+
     .dropdown-item:hover { background: #f3f4f6; }
-    .dropdown-item.logout { color: var(--danger); border-top: 1px solid #f3f4f6; }
 
-    .container { max-width: 1100px; margin: 0 auto; padding: 16px; }
-
-    /* Dashboard Stats Grid */
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
-    .stat-card { background: white; padding: 14px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); text-align: center; }
-    .stat-card h3 { margin: 0; font-size: 12px; color: var(--text-muted); }
-    .stat-card p { margin: 6px 0 0 0; font-size: 18px; font-weight: bold; color: var(--bg-dark); }
-
-    /* Navbar Tabs */
-    .navbar { display: flex; background: white; padding: 6px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 16px; gap: 4px; overflow-x: auto; }
-    .nav-tab-btn {
-      background: #f3f4f6; border: none; padding: 8px 14px; font-size: 13px; font-weight: 600;
-      cursor: pointer; border-radius: 8px; transition: all 0.2s; white-space: nowrap;
+    .dropdown-item.logout {
+      color: var(--danger);
+      border-top: 1px solid #f3f4f6;
     }
-    .nav-tab-btn.active { background: var(--primary); color: white; }
 
-    .search-box { width: 100%; padding: 10px 14px; margin-bottom: 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; outline: none; }
-    .card { background: white; padding: 16px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 16px; }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 16px;
+    }
 
-    /* Tables */
-    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .data-table th, .data-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
-    .data-table th { background: #f9fafb; color: var(--text-main); font-weight: bold; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
 
-    /* Badges & Buttons */
-    .status-tag { padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
-    .status-pending { background: #fef3c7; color: #d97706; }
-    .status-accepted { background: #dbeafe; color: #2563eb; }
-    .status-completed { background: #d1fae5; color: #059669; }
-    .status-suspended { background: #fee2e2; color: #dc2626; }
-    
-    .action-btn { padding: 4px 8px; font-size: 11px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; margin-right: 2px; }
+    .stat-card {
+      background: white;
+      padding: 14px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      text-align: center;
+    }
+
+    .stat-card h3 {
+      margin: 0;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .stat-card p {
+      margin: 6px 0 0;
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--bg-dark);
+      overflow-wrap: anywhere;
+    }
+
+    .navbar {
+      display: flex;
+      background: white;
+      padding: 6px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      margin-bottom: 16px;
+      gap: 4px;
+      overflow-x: auto;
+    }
+
+    .nav-tab-btn {
+      background: #f3f4f6;
+      border: none;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    .nav-tab-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .search-box {
+      width: 100%;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .card {
+      background: white;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      margin-bottom: 16px;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+      white-space: normal;
+    }
+
+    .data-table th {
+      background: #f9fafb;
+      color: var(--text-main);
+      font-weight: bold;
+    }
+
+    .status-tag {
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+      display: inline-block;
+    }
+
+    .status-pending {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .status-accepted {
+      background: #dbeafe;
+      color: #2563eb;
+    }
+
+    .status-completed {
+      background: #d1fae5;
+      color: #059669;
+    }
+
+    .status-suspended {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .action-btn {
+      padding: 5px 8px;
+      font-size: 11px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      margin: 2px;
+    }
+
     .btn-green { background: #d1fae5; color: #059669; }
     .btn-red { background: #fee2e2; color: #dc2626; }
     .btn-blue { background: #dbeafe; color: #2563eb; }
 
-    /* Modals */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(17,24,39,0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 16px; }
-    .modal-card { background: white; padding: 24px; border-radius: 12px; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-    .modal-card input, .modal-card select { width: 100%; padding: 10px; margin: 6px 0 12px 0; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; }
-    .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 11px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(17,24,39,0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      padding: 16px;
+    }
+
+    .modal-card {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 420px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .modal-card input,
+    .modal-card select {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 11px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
 
     .hidden { display: none !important; }
+
+    .notice {
+      padding: 10px;
+      background: #fffbeb;
+      color: #92400e;
+      border-radius: 8px;
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 480px) {
+      header { padding: 12px; }
+      header h1 { font-size: 15px; }
+      .container { padding: 10px; }
+      .card { padding: 12px; }
+      .stat-card { padding: 10px; }
+      .stat-card p { font-size: 16px; }
+      .data-table th,
+      .data-table td { padding: 8px; }
+    }
   </style>
 </head>
+
 <body>
 
-  <!-- SOS Emergency Banner -->
-  <div id="sosBanner">🚨 အရေးပေါ် SOS သတိပေးချက်! ခရီးသည် သို့မဟုတ် ယာဉ်မောင်းထံမှ အကူအညီတောင်းခံထားပါသည်။ (<span id="sosDetails">-</span>)</div>
+  <div id="sosBanner">
+    🚨 SOS သတိပေးချက်!
+    <span id="sosDetails">-</span>
+  </div>
 
-  <!-- Admin Login Modal -->
+  <!-- Admin Login -->
   <div id="adminLoginModal" class="modal-overlay">
-    <div class="modal-card" style="text-align: center;">
-      <h2>🔐 Grab-Style Admin Portal</h2>
-      <p style="font-size: 13px; color: var(--text-muted);">Admin Password ထည့်ပါ</p>
-      <input type="password" id="adminPassInput" placeholder="Password (ဥပမာ - admin123)">
-      <button class="btn-submit" onclick="verifyAdminPassword()">ဝင်ရောက်မည်</button>
-      <p id="loginErrorMsg" style="color: var(--danger); font-size: 12px; margin-top: 8px;"></p>
+    <div class="modal-card" style="text-align:center;">
+      <h2>🔐 Mini Oway Admin</h2>
+      <p style="font-size:13px;color:var(--text-muted);">
+        Admin Password ထည့်ပါ
+      </p>
+
+      <input
+        type="password"
+        id="adminPassInput"
+        placeholder="Admin Password"
+        autocomplete="current-password"
+      >
+
+      <button class="btn-submit" id="loginButton" onclick="verifyAdminPassword()">
+        ဝင်ရောက်မည်
+      </button>
+
+      <p id="loginErrorMsg" style="color:var(--danger);font-size:12px;"></p>
     </div>
   </div>
 
-  <!-- Dynamic Pricing & System Config Modal -->
+  <!-- Settings -->
   <div id="adminSettingsModal" class="modal-overlay hidden">
     <div class="modal-card">
-      <h2 style="margin-top: 0;">⚙️ Fare & System Configuration</h2>
-      
-      <label style="font-size: 12px; font-weight: bold;">အခြေခံခရီးစရိတ် (Base Fare - KS)</label>
-      <input type="number" id="baseFareInput" value="2000">
+      <h2 style="margin-top:0;">⚙️ Fare & System Settings</h2>
 
-      <label style="font-size: 12px; font-weight: bold;">တစ်ကီလိုမီတာနှုန်း (Per KM - KS)</label>
-      <input type="number" id="perKmRateInput" value="600">
+      <div class="notice">
+        ဒီ Settings များကို လက်ရှိ Version မှာ Firebase ထဲသို့
+        မသိမ်းရသေးပါ။ သိမ်းဆည်းမှုကို နောက်တစ်ဆင့်တွင် ချိတ်ဆက်ရပါမည်။
+      </div>
 
-      <label style="font-size: 12px; font-weight: bold;">Surge Pricing Multiplier (မိုးရွာ/ယာဉ်ကြောပိတ်)</label>
+      <label>Base Fare (KS)</label>
+      <input type="number" id="baseFareInput" value="2000" min="0">
+
+      <label>Per KM (KS)</label>
+      <input type="number" id="perKmRateInput" value="600" min="0">
+
+      <label>Surge Pricing</label>
       <select id="surgeInput">
-        <option value="1.0">Normal (1.0x)</option>
+        <option value="1">Normal (1.0x)</option>
         <option value="1.2">Rain / Peak (1.2x)</option>
         <option value="1.5">High Demand (1.5x)</option>
       </select>
 
-      <label style="font-size: 12px; font-weight: bold;">Platform Commission (%)</label>
-      <input type="number" id="commissionRateInput" value="10">
+      <label>Platform Commission (%)</label>
+      <input type="number" id="commissionRateInput" value="10" min="0" max="100">
 
-      <button class="btn-submit" onclick="saveSystemSettings()">သိမ်းဆည်းမည်</button>
-      <button class="btn-submit" style="background: var(--text-muted); margin-top: 6px;" onclick="closeAdminSettings()">မလုပ်ဆောင်တော့ပါ</button>
+      <button class="btn-submit" onclick="saveSystemSettings()">
+        စစ်ဆေးမည်
+      </button>
+
+      <button
+        class="btn-submit"
+        style="background:var(--text-muted);margin-top:6px;"
+        onclick="closeAdminSettings()"
+      >
+        ပိတ်မည်
+      </button>
     </div>
   </div>
 
-  <!-- Top Header -->
+  <!-- Header -->
   <header>
-    <h1>🛺 Grab Admin <span class="badge">Enterprise</span></h1>
+    <h1>🛺 Mini Oway <span class="badge">Admin</span></h1>
+
     <div class="menu-container">
       <button class="menu-btn" onclick="toggleHeaderMenu()">☰ Menu</button>
+
       <div id="dropdownMenu" class="dropdown-menu hidden">
-        <button class="dropdown-item" onclick="openAdminSettings()">⚙️ Pricing & Surge Settings</button>
-        <button class="dropdown-item logout" onclick="adminLogout()">🚪 Logout</button>
+        <button class="dropdown-item" onclick="openAdminSettings()">
+          ⚙️ Pricing Settings
+        </button>
+        <button class="dropdown-item logout" onclick="adminLogout()">
+          🚪 Logout
+        </button>
       </div>
     </div>
   </header>
 
   <main class="container">
-    
-    <!-- Real-time Dashboard Summary -->
+
+    <!-- Dashboard Summary -->
     <div class="stats-grid">
-      <div class="stat-card"><h3>စုစုပေါင်း ခရီးစဉ်</h3><p id="statTotalRides">0</p></div>
-      <div class="stat-card"><h3>မှတ်ပုံတင်ထားသူ</h3><p id="statTotalDrivers">0</p></div>
-      <div class="stat-card"><h3>Online Active Drivers</h3><p id="statOnlineDrivers">0</p></div>
-      <div class="stat-card"><h3>Gross Revenue</h3><p id="statTotalRevenue">0 KS</p></div>
-      <div class="stat-card"><h3>Net Commission</h3><p id="statNetCommission">0 KS</p></div>
+      <div class="stat-card">
+        <h3>စုစုပေါင်း ခရီးစဉ်</h3>
+        <p id="statTotalRides">0</p>
+      </div>
+
+      <div class="stat-card">
+        <h3>ယာဉ်မောင်း စုစုပေါင်း</h3>
+        <p id="statTotalDrivers">0</p>
+      </div>
+
+      <div class="stat-card">
+        <h3>Online Drivers</h3>
+        <p id="statOnlineDrivers">0</p>
+      </div>
+
+      <div class="stat-card">
+        <h3>Gross Revenue</h3>
+        <p id="statTotalRevenue">0 KS</p>
+      </div>
+
+      <div class="stat-card">
+        <h3>Net Commission</h3>
+        <p id="statNetCommission">0 KS</p>
+      </div>
     </div>
 
-    <!-- Navigation Bar -->
+    <!-- Navigation -->
     <nav class="navbar">
-      <button class="nav-tab-btn active" id="btn-tabRides" onclick="switchAdminTab('tabRides', this)">📊 All Rides</button>
-      <button class="nav-tab-btn" id="btn-tabDrivers" onclick="switchAdminTab('tabDrivers', this)">👤 Drivers & Verification</button>
-      <button class="nav-tab-btn" id="btn-tabOnlineDrivers" onclick="switchAdminTab('tabOnlineDrivers', this)">🟢 Active Fleet</button>
-      <button class="nav-tab-btn" id="btn-tabPromos" onclick="switchAdminTab('tabPromos', this)">🎟️ Promo Codes</button>
-      <button class="nav-tab-btn" id="btn-tabReports" onclick="switchAdminTab('tabReports', this)">📈 Financial Ledger</button>
+      <button class="nav-tab-btn active" id="btn-tabRides"
+        onclick="switchAdminTab('tabRides', this)">📊 All Rides</button>
+
+      <button class="nav-tab-btn" id="btn-tabDrivers"
+        onclick="switchAdminTab('tabDrivers', this)">👤 Drivers</button>
+
+      <button class="nav-tab-btn" id="btn-tabOnlineDrivers"
+        onclick="switchAdminTab('tabOnlineDrivers', this)">🟢 Active Fleet</button>
+
+      <button class="nav-tab-btn" id="btn-tabPromos"
+        onclick="switchAdminTab('tabPromos', this)">🎟️ Promo Codes</button>
+
+      <button class="nav-tab-btn" id="btn-tabReports"
+        onclick="switchAdminTab('tabReports', this)">📈 Financial Ledger</button>
     </nav>
 
-    <!-- Tab 1: Rides Management -->
+    <!-- All Rides -->
     <section id="tabRides" class="card">
-      <h2 style="font-size: 15px; margin-top:0;">📊 Ride Operations & Manual Dispatch</h2>
-      <input type="text" class="search-box" placeholder="🔍 ခရီးစဉ်များ ရှာဖွေရန်..." onkeyup="filterTable('allRidesTableBody', this.value)">
-      <div style="overflow-x: auto;">
+      <h2 style="font-size:15px;margin-top:0;">📊 Ride Operations</h2>
+
+      <input
+        type="text"
+        class="search-box"
+        placeholder="🔍 ခရီးစဉ် ရှာဖွေရန်..."
+        oninput="filterTable('allRidesTableBody', this.value)"
+      >
+
+      <div style="overflow-x:auto;">
         <table class="data-table">
           <thead>
-            <tr><th>အစ/အဆုံးမှတ်</th><th>ဖုန်း</th><th>လူဦးရေ</th><th>ကျသင့်ငွေ</th><th>အခြေအနေ</th></tr>
+            <tr>
+              <th>အစ/အဆုံး</th>
+              <th>ဖုန်း</th>
+              <th>လူဦးရေ</th>
+              <th>ကျသင့်ငွေ</th>
+              <th>အခြေအနေ</th>
+            </tr>
           </thead>
+
           <tbody id="allRidesTableBody">
-            <tr><td colspan="5" style="text-align:center;">အချက်အလက် ရယူနေပါသည်...</td></tr>
+            <tr><td colspan="5" style="text-align:center;">ဒေတာ ရယူနေပါသည်...</td></tr>
           </tbody>
         </table>
       </div>
     </section>
 
-    <!-- Tab 2: Driver Approval & Wallet Management -->
+    <!-- Drivers -->
     <section id="tabDrivers" class="card hidden">
-      <h2 style="font-size: 15px; margin-top:0;">👤 Drivers Verification & Wallet Controls</h2>
-      <input type="text" class="search-box" placeholder="🔍 ယာဉ်မောင်း ရှာဖွေရန်..." onkeyup="filterTable('allDriversTableBody', this.value)">
-      <div style="overflow-x: auto;">
+      <h2 style="font-size:15px;margin-top:0;">👤 Drivers & Verification</h2>
+
+      <input
+        type="text"
+        class="search-box"
+        placeholder="🔍 ယာဉ်မောင်း ရှာဖွေရန်..."
+        oninput="filterTable('allDriversTableBody', this.value)"
+      >
+
+      <div style="overflow-x:auto;">
         <table class="data-table">
           <thead>
-            <tr><th>နာမည်/ဖုန်း</th><th>NRC / Email</th><th>ယာဉ်အမျိုးအစား/နံပါတ်</th><th>Wallet Balance</th><th>Actions</th></tr>
+            <tr>
+              <th>အမည် / ဖုန်း</th>
+              <th>Email / NRC</th>
+              <th>ယာဉ်အမျိုးအစား / နံပါတ်</th>
+              <th>Wallet</th>
+              <th>လုပ်ဆောင်ချက်</th>
+            </tr>
           </thead>
+
           <tbody id="allDriversTableBody">
-            <tr><td colspan="5" style="text-align:center;">အချက်အလက် ရယူနေပါသည်...</td></tr>
+            <tr><td colspan="5" style="text-align:center;">ဒေတာ ရယူနေပါသည်...</td></tr>
           </tbody>
         </table>
       </div>
     </section>
 
-    <!-- Tab 3: Active Fleet -->
+    <!-- Active Fleet -->
     <section id="tabOnlineDrivers" class="card hidden">
-      <h2 style="font-size: 15px; margin-top:0;">🟢 Online Duty Active Drivers</h2>
-      <div style="overflow-x: auto;">
+      <h2 style="font-size:15px;margin-top:0;">🟢 Online Active Drivers</h2>
+
+      <div style="overflow-x:auto;">
         <table class="data-table">
           <thead>
-            <tr><th>နာမည်</th><th>ဖုန်းနံပါတ်</th><th>ယာဉ်နံပါတ်</th><th>Status</th></tr>
+            <tr>
+              <th>အမည်</th>
+              <th>ဖုန်း</th>
+              <th>ယာဉ်နံပါတ်</th>
+              <th>Status</th>
+            </tr>
           </thead>
+
           <tbody id="onlineDriversTableBody">
-            <tr><td colspan="4" style="text-align:center;">Online Active ယာဉ်မောင်း မရှိပါ။</td></tr>
+            <tr><td colspan="4" style="text-align:center;">Online ယာဉ်မောင်း မရှိသေးပါ။</td></tr>
           </tbody>
         </table>
       </div>
     </section>
 
-    <!-- Tab 4: Promo Codes -->
+    <!-- Promo Codes -->
     <section id="tabPromos" class="card hidden">
-      <h2 style="font-size: 15px; margin-top:0;">🎟️ Promo Code Campaign Engine</h2>
-      <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-        <input type="text" id="promoCodeInput" placeholder="PROMO CODE (eg. MOWAY50)" style="margin:0; width:60%;">
-        <input type="number" id="promoDiscountInput" placeholder="Discount KS (eg. 500)" style="margin:0; width:40%;">
-        <button class="action-btn btn-green" onclick="createPromoCode()">Create Promo</button>
+      <h2 style="font-size:15px;margin-top:0;">🎟️ Promo Codes</h2>
+
+      <div class="notice">
+        Promo Code ကို လက်ရှိတွင် စာမျက်နှာပေါ်၌သာ ယာယီပြသနိုင်ပါသည်။
+        Firebase ထဲသို့ မသိမ်းရသေးပါ။
       </div>
-      <ul id="promoList" style="font-size: 13px; color: var(--text-muted); padding-left: 20px;">
-        <li>MOWAY500 - 500 KS Discount Active</li>
+
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <input
+          type="text"
+          id="promoCodeInput"
+          placeholder="PROMO CODE"
+          style="margin:0;flex:1;min-width:120px;"
+        >
+
+        <input
+          type="number"
+          id="promoDiscountInput"
+          placeholder="Discount KS"
+          min="1"
+          style="margin:0;flex:1;min-width:100px;"
+        >
+
+        <button class="action-btn btn-green" onclick="createPromoCode()">
+          Add Promo
+        </button>
+      </div>
+
+      <ul id="promoList" style="font-size:13px;color:var(--text-muted);padding-left:20px;">
+        <li>Promo Code မထည့်ရသေးပါ။</li>
       </ul>
     </section>
 
-    <!-- Tab 5: Financial Ledger -->
+    <!-- Financial Reports -->
     <section id="tabReports" class="card hidden">
-      <h2 style="font-size: 15px; margin-top:0;">📈 Financial Payout Ledger</h2>
-      <div style="padding: 12px; background: #f9fafb; border-radius: 8px; font-size: 13px; line-height: 1.8;">
-        <p><strong>Total Completed Rides:</strong> <span id="reportCompletedRides">0</span></p>
-        <p><strong>Gross Ride Revenue:</strong> <span id="reportGrossRevenue">0</span> KS</p>
-        <p><strong>Platform Net Profit (Commission):</strong> <span id="reportCommission">0</span> KS</p>
-        <p><strong>Driver Net Payouts:</strong> <span id="reportDriverPayouts">0</span> KS</p>
+      <h2 style="font-size:15px;margin-top:0;">📈 Financial Ledger</h2>
+
+      <div style="padding:12px;background:#f9fafb;border-radius:8px;font-size:13px;line-height:1.8;">
+        <p><strong>Completed Rides:</strong> <span id="reportCompletedRides">0</span></p>
+        <p><strong>Gross Revenue:</strong> <span id="reportGrossRevenue">0</span> KS</p>
+        <p><strong>Platform Commission:</strong> <span id="reportCommission">0</span> KS</p>
+        <p><strong>Driver Payouts:</strong> <span id="reportDriverPayouts">0</span> KS</p>
       </div>
+
+      <p style="font-size:12px;color:var(--text-muted);">
+        မှတ်ချက် - လက်ရှိ Commission တွက်ချက်မှုသည် 10% ကို အခြေခံထားပါသည်။
+      </p>
     </section>
 
   </main>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+    import { initializeApp } from
+      "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+
     import {
-      getFirestore, collection, query, orderBy, onSnapshot, doc, updateDoc
+      getFirestore,
+      collection,
+      query,
+      orderBy,
+      onSnapshot,
+      doc,
+      updateDoc
     } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -258,171 +629,435 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    let adminPassword = localStorage.getItem("yg_admin_custom_pass") || "admin123";
+    const TAB_IDS = [
+      "tabRides",
+      "tabDrivers",
+      "tabOnlineDrivers",
+      "tabPromos",
+      "tabReports"
+    ];
 
-    window.toggleHeaderMenu = () => document.getElementById("dropdownMenu").classList.toggle("hidden");
-    window.openAdminSettings = () => { document.getElementById("dropdownMenu").classList.add("hidden"); document.getElementById("adminSettingsModal").classList.remove("hidden"); };
-    window.closeAdminSettings = () => document.getElementById("adminSettingsModal").classList.add("hidden");
+    let adminPassword =
+      localStorage.getItem("yg_admin_custom_pass") || "admin123";
+
+    let dataListenersStarted = false;
+
+    // Escape database text before displaying it in HTML.
+    function escapeHTML(value) {
+      return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[character]);
+    }
+
+    function formatMoney(value) {
+      return Number(value || 0).toLocaleString();
+    }
+
+    function showError(title, error) {
+      console.error(title, error);
+      alert(title + "\n" + (error?.message || "မသိရှိသော Error"));
+    }
+
+    // Header menu
+    window.toggleHeaderMenu = () => {
+      document.getElementById("dropdownMenu").classList.toggle("hidden");
+    };
+
+    window.openAdminSettings = () => {
+      document.getElementById("dropdownMenu").classList.add("hidden");
+      document.getElementById("adminSettingsModal").classList.remove("hidden");
+    };
+
+    window.closeAdminSettings = () => {
+      document.getElementById("adminSettingsModal").classList.add("hidden");
+    };
 
     window.saveSystemSettings = () => {
-      alert("Grab-Style Dynamic Pricing & Surge Settings Updated!");
-      closeAdminSettings();
+      const baseFare = Number(document.getElementById("baseFareInput").value);
+      const perKm = Number(document.getElementById("perKmRateInput").value);
+      const commission = Number(document.getElementById("commissionRateInput").value);
+
+      if (
+        !Number.isFinite(baseFare) || baseFare < 0 ||
+        !Number.isFinite(perKm) || perKm < 0 ||
+        !Number.isFinite(commission) || commission < 0 || commission > 100
+      ) {
+        alert("ထည့်သွင်းထားသော တန်ဖိုးများကို ပြန်စစ်ပါ။");
+        return;
+      }
+
+      alert(
+        "တန်ဖိုးများ မှန်ကန်ပါသည်။\n\n" +
+        "သို့သော် Firebase တွင် Settings မသိမ်းရသေးပါ။"
+      );
     };
 
+    // Login
     window.verifyAdminPassword = () => {
-      if (document.getElementById("adminPassInput").value.trim() === adminPassword) {
+      const enteredPassword =
+        document.getElementById("adminPassInput").value.trim();
+
+      if (enteredPassword === adminPassword) {
         sessionStorage.setItem("yg_admin_logged", "true");
+
+        document.getElementById("loginErrorMsg").textContent = "";
         document.getElementById("adminLoginModal").classList.add("hidden");
+
+        restoreAdminTab();
         loadAllData();
       } else {
-        document.getElementById("loginErrorMsg").textContent = "စကားဝှက် မှားယွင်းနေပါသည်။";
+        document.getElementById("loginErrorMsg").textContent =
+          "စကားဝှက် မှားယွင်းနေပါသည်။";
       }
     };
 
-    window.adminLogout = () => { sessionStorage.clear(); location.reload(); };
-
-    window.switchAdminTab = (tabId, btn) => {
-      ['tabRides', 'tabDrivers', 'tabOnlineDrivers', 'tabPromos', 'tabReports'].forEach(id => document.getElementById(id).classList.add('hidden'));
-      document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById(tabId).classList.remove('hidden');
-      if (btn) btn.classList.add('active');
-    };
-
-     
-window.toggleDriverBlock = async (driverId, currentStatus) => {
-  const newStatus =
-    currentStatus === "suspended" ? "active" : "suspended";
-
-  try {
-    await updateDoc(doc(db, "drivers", driverId), {
-      status: newStatus
+    document.getElementById("adminPassInput").addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        window.verifyAdminPassword();
+      }
     });
 
-    alert(
-      newStatus === "suspended"
-        ? "ယာဉ်မောင်းကို Block လုပ်ပြီးပါပြီ။"
-        : "ယာဉ်မောင်းကို Unblock လုပ်ပြီးပါပြီ။"
-    );
-  } catch (error) {
-    console.error("Driver Status Update Error:", error);
-    alert("Status ပြောင်းမရပါ။ Error: " + error.message);
-  }
-};
-
-
-    window.topUpWallet = (driverId) => {
-      const amount = prompt("Top-up ပြုလုပ်လိုသည့် ပမာဏထည့်ပါ (KS):", "5000");
-      if (amount) alert(`${amount} KS Top-up အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ။`);
+    window.adminLogout = () => {
+      sessionStorage.removeItem("yg_admin_logged");
+      sessionStorage.removeItem("yg_admin_active_tab");
+      location.reload();
     };
 
-    window.createPromoCode = () => {
-      const code = document.getElementById("promoCodeInput").value.toUpperCase();
-      const discount = document.getElementById("promoDiscountInput").value;
-      if (code && discount) {
-        document.getElementById("promoList").innerHTML += `<li>${code} - ${discount} KS Discount Active</li>`;
-        alert("Promo Code ဖန်တီးပြီးပါပြီ။");
+    // Tab switching: save the selected tab.
+    window.switchAdminTab = (tabId, btn) => {
+      if (!TAB_IDS.includes(tabId)) return;
+
+      TAB_IDS.forEach(id => {
+        document.getElementById(id).classList.add("hidden");
+      });
+
+      document.querySelectorAll(".nav-tab-btn").forEach(button => {
+        button.classList.remove("active");
+      });
+
+      document.getElementById(tabId).classList.remove("hidden");
+
+      const activeButton =
+        btn || document.getElementById("btn-" + tabId);
+
+      if (activeButton) {
+        activeButton.classList.add("active");
+      }
+
+      sessionStorage.setItem("yg_admin_active_tab", tabId);
+    };
+
+    // Restore the last tab after refresh.
+    function restoreAdminTab() {
+      const savedTab = sessionStorage.getItem("yg_admin_active_tab");
+      const tabToOpen = TAB_IDS.includes(savedTab) ? savedTab : "tabRides";
+
+      window.switchAdminTab(
+        tabToOpen,
+        document.getElementById("btn-" + tabToOpen)
+      );
+    }
+
+    // Driver Block / Unblock
+    window.toggleDriverBlock = async (driverId, currentStatus) => {
+      const newStatus =
+        currentStatus === "suspended" ? "active" : "suspended";
+
+      const confirmText = newStatus === "suspended"
+        ? "ဒီယာဉ်မောင်းကို Block လုပ်မှာ သေချာပါသလား?"
+        : "ဒီယာဉ်မောင်းကို Unblock လုပ်မှာ သေချာပါသလား?";
+
+      if (!confirm(confirmText)) return;
+
+      try {
+        await updateDoc(doc(db, "drivers", driverId), {
+          status: newStatus
+        });
+
+        alert(
+          newStatus === "suspended"
+            ? "ယာဉ်မောင်းကို Block လုပ်ပြီးပါပြီ။"
+            : "ယာဉ်မောင်းကို Unblock လုပ်ပြီးပါပြီ။"
+        );
+      } catch (error) {
+        showError(
+          "Status ပြောင်းမရပါ။ Firebase Rules သို့မဟုတ် ဒေတာကို စစ်ဆေးပါ။",
+          error
+        );
       }
     };
 
+    // Wallet Top-up: do not claim a database update.
+    window.topUpWallet = driverId => {
+      alert(
+        "Wallet Top-up ကို Firebase နှင့် မချိတ်ဆက်ရသေးပါ။\n" +
+        "ငွေလက်ကျန် အမှန်တကယ် မပြောင်းလဲသေးပါ။"
+      );
+    };
+
+    // Promo codes: temporary display only.
+    window.createPromoCode = () => {
+      const code = document.getElementById("promoCodeInput")
+        .value.trim().toUpperCase();
+
+      const discount = Number(
+        document.getElementById("promoDiscountInput").value
+      );
+
+      if (!/^[A-Z0-9_-]{3,30}$/.test(code)) {
+        alert("Promo Code ကို အင်္ဂလိပ်အက္ခရာ၊ နံပါတ်တို့ဖြင့် မှန်ကန်စွာ ထည့်ပါ။");
+        return;
+      }
+
+      if (!Number.isFinite(discount) || discount <= 0) {
+        alert("Discount ပမာဏကို မှန်ကန်စွာ ထည့်ပါ။");
+        return;
+      }
+
+      const list = document.getElementById("promoList");
+
+      if (list.textContent.includes(code)) {
+        alert("ဒီ Promo Code ကို လက်ရှိစာမျက်နှာမှာ ထည့်ပြီးသားဖြစ်နိုင်ပါတယ်။");
+        return;
+      }
+
+      if (list.querySelector("li")?.textContent.includes("မထည့်ရသေးပါ")) {
+        list.innerHTML = "";
+      }
+
+      const item = document.createElement("li");
+      item.textContent =
+        `${code} - ${formatMoney(discount)} KS Discount (ယာယီ)`;
+
+      list.appendChild(item);
+
+      document.getElementById("promoCodeInput").value = "";
+      document.getElementById("promoDiscountInput").value = "";
+
+      alert(
+        "စာမျက်နှာပေါ်တွင် ယာယီပြသထားပါပြီ။\n" +
+        "Firebase တွင် မသိမ်းရသေးသောကြောင့် Refresh လုပ်လျှင် ပျောက်သွားပါမည်။"
+      );
+    };
+
+    // Table search
     window.filterTable = (tbodyId, queryText) => {
-      const filter = queryText.toLowerCase();
+      const filter = String(queryText || "").toLowerCase();
+
       document.querySelectorAll(`#${tbodyId} tr`).forEach(row => {
-        row.style.display = row.textContent.toLowerCase().includes(filter) ? "" : "none";
+        row.style.display =
+          row.textContent.toLowerCase().includes(filter) ? "" : "none";
       });
     };
 
-    window.onload = () => {
+    // Start Firestore listeners once.
+    function loadAllData() {
+      if (dataListenersStarted) return;
+      dataListenersStarted = true;
+
+      // Drivers collection
+      onSnapshot(
+        collection(db, "drivers"),
+        snapshot => {
+          const driversBody = document.getElementById("allDriversTableBody");
+          const onlineBody = document.getElementById("onlineDriversTableBody");
+
+          document.getElementById("statTotalDrivers").textContent = snapshot.size;
+
+          let driversHtml = "";
+          let onlineHtml = "";
+          let onlineCount = 0;
+
+          snapshot.forEach(docSnap => {
+            const d = docSnap.data();
+            const driverId = docSnap.id;
+            const status = d.status || "active";
+            const wallet = Number(d.walletBalance || 0);
+
+            const safeId = escapeHTML(driverId);
+            const safeStatus = escapeHTML(status);
+            const safeName = escapeHTML(d.fullName || "-");
+            const safePhone = escapeHTML(d.phone || "-");
+            const safeEmail = escapeHTML(d.email || "-");
+            const safeNrc = escapeHTML(d.nrc || "-");
+            const safeVehicleType = escapeHTML(d.vehicleType || "-");
+            const safeVehicleNo = escapeHTML(d.vehicleNo || "-");
+
+            driversHtml += `
+              <tr>
+                <td>
+                  <strong>${safeName}</strong><br>
+                  <a href="tel:${safePhone}" style="color:var(--primary);">
+                    ${safePhone}
+                  </a>
+                </td>
+                <td>
+                  ${safeEmail}<br>
+                  <small>NRC: ${safeNrc}</small>
+                </td>
+                <td>${safeVehicleType} (${safeVehicleNo})</td>
+                <td>
+                  <strong>${formatMoney(wallet)} KS</strong><br>
+                  <button
+                    class="action-btn btn-blue"
+                    onclick="topUpWallet('${safeId}')"
+                  >+ Top-up</button>
+                </td>
+                <td>
+                  <button
+                    class="action-btn ${status === "suspended" ? "btn-green" : "btn-red"}"
+                    onclick="toggleDriverBlock('${safeId}', '${safeStatus}')"
+                  >
+                    ${status === "suspended" ? "Unblock" : "Block"}
+                  </button>
+                </td>
+              </tr>
+            `;
+
+            if (d.isOnline === true && status !== "suspended") {
+              onlineCount++;
+
+              onlineHtml += `
+                <tr>
+                  <td>${safeName}</td>
+                  <td>${safePhone}</td>
+                  <td>${safeVehicleNo}</td>
+                  <td>
+                    <span class="status-tag status-completed">Online</span>
+                  </td>
+                </tr>
+              `;
+            }
+          });
+
+          driversBody.innerHTML = driversHtml ||
+            '<tr><td colspan="5" style="text-align:center;">ယာဉ်မောင်း မရှိသေးပါ။</td></tr>';
+
+          onlineBody.innerHTML = onlineHtml ||
+            '<tr><td colspan="4" style="text-align:center;">Online ယာဉ်မောင်း မရှိသေးပါ။</td></tr>';
+
+          document.getElementById("statOnlineDrivers").textContent = onlineCount;
+        },
+        error => {
+          dataListenersStarted = false;
+          showError("Drivers Data Error", error);
+        }
+      );
+
+      // Ride requests collection
+      onSnapshot(
+        query(
+          collection(db, "rideRequests"),
+          orderBy("createdAt", "desc")
+        ),
+        snapshot => {
+          let ridesHtml = "";
+          let totalRevenue = 0;
+          let completedCount = 0;
+          let hasSos = false;
+          let sosText = "";
+
+          document.getElementById("statTotalRides").textContent = snapshot.size;
+
+          snapshot.forEach(docSnap => {
+            const r = docSnap.data();
+            const price = Number(r.price) || 2000;
+            const status = String(r.status || "pending").toLowerCase();
+
+            if (status === "completed") {
+              completedCount++;
+              totalRevenue += price;
+            }
+
+            if (r.isSos === true) {
+              hasSos = true;
+              sosText = `${r.phone || "ဖုန်းနံပါတ်မရှိ"} ထံမှ SOS တောင်းခံမှု ရှိပါသည်။`;
+            }
+
+            const pickup = escapeHTML(r.pickup || "-");
+            const destination = escapeHTML(r.destination || "-");
+            const phone = escapeHTML(r.phone || "-");
+            const persons = Number(r.persons) || 1;
+
+            const knownStatuses = [
+              "pending",
+              "accepted",
+              "completed",
+              "suspended"
+            ];
+
+            const statusClass = knownStatuses.includes(status)
+              ? status
+              : "pending";
+
+            ridesHtml += `
+              <tr>
+                <td>
+                  <strong>${pickup}</strong>
+                  ➔
+                  <strong>${destination}</strong>
+                </td>
+                <td><a href="tel:${phone}">${phone}</a></td>
+                <td>${persons} ဦး</td>
+                <td><strong>${formatMoney(price)} KS</strong></td>
+                <td>
+                  <span class="status-tag status-${statusClass}">
+                    ${escapeHTML(status)}
+                  </span>
+                </td>
+              </tr>
+            `;
+          });
+
+          document.getElementById("allRidesTableBody").innerHTML =
+            ridesHtml ||
+            '<tr><td colspan="5" style="text-align:center;">ခရီးစဉ် မရှိသေးပါ။</td></tr>';
+
+          document.getElementById("sosBanner").style.display =
+            hasSos ? "block" : "none";
+
+          document.getElementById("sosDetails").textContent =
+            hasSos ? sosText : "-";
+
+          const commission = totalRevenue * 0.10;
+          const driverPayout = totalRevenue - commission;
+
+          document.getElementById("statTotalRevenue").textContent =
+            formatMoney(totalRevenue) + " KS";
+
+          document.getElementById("statNetCommission").textContent =
+            formatMoney(commission) + " KS";
+
+          document.getElementById("reportCompletedRides").textContent =
+            completedCount;
+
+          document.getElementById("reportGrossRevenue").textContent =
+            formatMoney(totalRevenue);
+
+          document.getElementById("reportCommission").textContent =
+            formatMoney(commission);
+
+          document.getElementById("reportDriverPayouts").textContent =
+            formatMoney(driverPayout);
+        },
+        error => {
+          showError("Rides Data Error", error);
+        }
+      );
+    }
+
+    // Restore the last selected tab after page refresh.
+    window.addEventListener("load", () => {
       if (sessionStorage.getItem("yg_admin_logged") === "true") {
         document.getElementById("adminLoginModal").classList.add("hidden");
+        restoreAdminTab();
         loadAllData();
       }
-    };
-
-    function loadAllData() {
-      // Drivers Monitor
-      onSnapshot(
-        query(collection(db, "drivers")), 
-        (snapshot) => {
-        document.getElementById("statTotalDrivers").textContent = snapshot.size;
-        let driversHtml = "", onlineHtml = "", onlineCount = 0;
-
-        snapshot.forEach((docSnap) => {
-          const d = docSnap.data();
-          const driverId = docSnap.id;
-          const status = d.status || 'active';
-          const wallet = d.walletBalance || 0;
-
-          driversHtml += `
-            <tr>
-              <td><strong>${d.fullName || '-'}</strong><br><a href="tel:${d.phone}" style="color:var(--primary);">${d.phone || '-'}</a></td>
-              <td>${d.email || '-'}<br><small>NRC: ${d.nrc || '-'}</small></td>
-              <td>${d.vehicleType || '-'} (${d.vehicleNo || '-'})</td>
-              <td><strong>${wallet} KS</strong> <button class="action-btn btn-blue" onclick="topUpWallet('${driverId}')">+ Topup</button></td>
-              <td>
-                <button class="action-btn ${status === 'suspended' ? 'btn-green' : 'btn-red'}" onclick="toggleDriverBlock('${driverId}', '${status}')">
-                  ${status === 'suspended' ? 'Unblock' : 'Block'}
-                </button>
-              </td>
-            </tr>
-          `;
-
-          if (d.isOnline) {
-            onlineCount++;
-            onlineHtml += `<tr><td>${d.fullName}</td><td>${d.phone}</td><td>${d.vehicleNo}</td><td><span class="status-tag status-completed">Online</span></td></tr>`;
-          }
-        });
-
-        document.getElementById("statOnlineDrivers").textContent = onlineCount;
-        document.getElementById("allDriversTableBody").innerHTML = driversHtml;
-        document.getElementById("onlineDriversTableBody").innerHTML = onlineHtml || `<tr><td colspan="4" style="text-align:center;">Online active driver မရှိပါ။</td></tr>`;
-            }, (error) => {
-        console.error("Drivers Firebase Error:", error);
-        alert("Drivers Data Error: " + error.message);
-      });
-
-      // Rides Monitor
-      onSnapshot(
-  query(collection(db, "rideRequests"), orderBy("createdAt", "desc")),
-  (snapshot) => {
-        document.getElementById("statTotalRides").textContent = snapshot.size;
-        let ridesHtml = "", totalRev = 0, completedCount = 0, hasSos = false;
-
-        snapshot.forEach((docSnap) => {
-          const r = docSnap.data();
-          const price = Number(r.price) || 2000;
-          if (r.status === "completed") { completedCount++; totalRev += price; }
-          if (r.isSos) { hasSos = true; document.getElementById("sosDetails").textContent = `${r.phone} ထံမှ SOS အကူအညီတောင်းထားသည်။`; }
-
-          ridesHtml += `
-            <tr>
-              <td><strong>${r.pickup}</strong> ➔ <strong>${r.destination}</strong></td>
-              <td><a href="tel:${r.phone}">${r.phone || '-'}</a></td>
-              <td>${r.persons || 1} ဦး</td>
-              <td><strong>${price} KS</strong></td>
-              <td><span class="status-tag status-${r.status || 'pending'}">${r.status || 'Pending'}</span></td>
-            </tr>
-          `;
-        });
-
-        document.getElementById("sosBanner").style.display = hasSos ? "block" : "none";
-        document.getElementById("statTotalRevenue").textContent = totalRev.toLocaleString() + " KS";
-        const netProfit = totalRev * 0.1;
-        document.getElementById("statNetCommission").textContent = netProfit.toLocaleString() + " KS";
-
-        document.getElementById("reportCompletedRides").textContent = completedCount;
-        document.getElementById("reportGrossRevenue").textContent = totalRev.toLocaleString();
-        document.getElementById("reportCommission").textContent = netProfit.toLocaleString();
-        document.getElementById("reportDriverPayouts").textContent = (totalRev - netProfit).toLocaleString();
-
-       document.getElementById("allRidesTableBody").innerHTML =
-       ridesHtml || '<tr><td colspan="5" style="text-align:center;">ခရီးစဉ် မရှိသေးပါ။</td></tr>';
-
-      },
-      (error) => {
-        console.error("Rides Firebase Error:", error);
-        alert("Rides Data Error: " + error.message);
-      });
-    }
+    });
   </script>
 </body>
 </html>
