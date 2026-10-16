@@ -16,102 +16,128 @@
       min-height: 100vh;
       padding-bottom: 40px;
     }
+
+    /* Centered Header with Right Menu */
     header {
       background: #111827;
       color: white;
-      padding: 16px 20px;
+      padding: 14px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+    .header-dummy {
+      width: 40px; /* Balance for center alignment */
     }
     header h1 {
       margin: 0;
       font-size: 18px;
       font-weight: 800;
+      text-align: center;
+      flex-grow: 1;
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      gap: 6px;
     }
     header span.badge {
       background: #00b14f;
       color: white;
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-weight: bold;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 10px;
     }
+
+    /* Hamburger Menu & Dropdown */
+    .menu-container {
+      position: relative;
+    }
+    .menu-btn {
+      background: #1f2937;
+      color: white;
+      border: 1px solid #374151;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .dropdown-menu {
+      position: absolute;
+      right: 0;
+      top: 42px;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      width: 180px;
+      z-index: 1000;
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+    }
+    .dropdown-item {
+      display: block;
+      width: 100%;
+      padding: 10px 14px;
+      text-align: left;
+      background: none;
+      border: none;
+      font-size: 13px;
+      color: #374151;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .dropdown-item:hover {
+      background: #f3f4f6;
+    }
+    .dropdown-item.logout {
+      color: #ef4444;
+      border-top: 1px solid #f3f4f6;
+    }
+
     .container {
       max-width: 960px;
       margin: 0 auto;
       padding: 16px;
     }
-    
-    .login-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: #111827;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      padding: 16px;
-    }
-    .login-card {
-      background: #ffffff;
-      padding: 24px;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 360px;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-    .login-card input {
-      width: 100%;
-      padding: 12px;
-      margin: 12px 0;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      font-size: 15px;
-      outline: none;
-    }
-    .login-card button {
-      width: 100%;
-      background: #00b14f;
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 15px;
-      cursor: pointer;
-    }
 
+    /* Icon-Only Compact Navbar */
     .navbar {
       display: flex;
-      gap: 8px;
+      justify-content: space-around;
       background: #ffffff;
-      padding: 10px;
+      padding: 8px;
       border-radius: 12px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
       margin-bottom: 16px;
-      overflow-x: auto;
     }
     .nav-tab-btn {
       background: #f3f4f6;
       border: none;
-      padding: 10px 16px;
-      font-size: 13px;
-      font-weight: bold;
-      color: #4b5563;
+      padding: 10px 20px;
+      font-size: 18px;
       cursor: pointer;
       border-radius: 8px;
-      white-space: nowrap;
       transition: all 0.2s;
+      position: relative;
     }
     .nav-tab-btn.active {
       background: #00b14f;
       color: white;
+    }
+
+    /* Search Bar Styling */
+    .search-box {
+      width: 100%;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+    }
+    .search-box:focus {
+      border-color: #00b14f;
     }
 
     .card {
@@ -137,7 +163,7 @@
       color: #374151;
       font-weight: bold;
     }
-    
+
     .status-tag {
       padding: 3px 8px;
       border-radius: 12px;
@@ -150,38 +176,101 @@
     .status-completed { background: #d1fae5; color: #059669; }
     .status-online { background: #d1fae5; color: #059669; }
 
+    /* Login & Settings Overlay Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(17, 24, 39, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      padding: 16px;
+    }
+    .modal-card {
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .modal-card input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+    }
+    .modal-card button.btn-submit {
+      width: 100%;
+      background: #00b14f;
+      color: white;
+      border: none;
+      padding: 11px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <div id="adminLoginModal" class="login-overlay">
-    <div class="login-card">
+
+  <!-- Admin Login Overlay -->
+  <div id="adminLoginModal" class="modal-overlay">
+    <div class="modal-card">
       <h2>🔐 Admin Login</h2>
-      <p style="font-size: 13px; color: #6b7280; margin-bottom: 10px;">Admin စကားဝှက်ကို ထည့်ပါ</p>
+      <p style="font-size: 13px; color: #6b7280;">Admin စကားဝှက်ကို ထည့်ပါ</p>
       <input type="password" id="adminPassInput" placeholder="Password (ဥပမာ - admin123)">
-      <button onclick="verifyAdminPassword()">ဝင်ရောက်မည်</button>
-      <p id="loginErrorMsg" style="color: #ef4444; font-size: 12px; margin-top: 10px;"></p>
+      <button class="btn-submit" onclick="verifyAdminPassword()">ဝင်ရောက်မည်</button>
+      <p id="loginErrorMsg" style="color: #ef4444; font-size: 12px; margin-top: 8px;"></p>
     </div>
   </div>
 
+  <!-- Admin Account Settings Modal -->
+  <div id="adminSettingsModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h2>⚙️ Admin Settings</h2>
+      <p style="font-size: 12px; color: #6b7280; margin-bottom: 12px;">Admin Password ပြောင်းလဲရန်</p>
+      <input type="password" id="newAdminPassInput" placeholder="စကားဝှက်အသစ်">
+      <button class="btn-submit" onclick="saveNewAdminPassword()">သိမ်းဆည်းမည်</button>
+      <button class="btn-submit" style="background: #6b7280; margin-top: 6px;" onclick="closeAdminSettings()">မလုပ်ဆောင်တော့ပါ</button>
+    </div>
+  </div>
+
+  <!-- Header Section -->
   <header>
+    <div class="header-dummy"></div>
     <h1>🛺 YG Driver Admin <span class="badge">Portal</span></h1>
-    <div style="font-size: 12px; opacity: 0.8; display:flex; align-items:center; gap: 10px;">
-      <span>Admin Center</span>
-      <button onclick="adminLogout()" style="background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer;">Logout</button>
+    <div class="menu-container">
+      <button class="menu-btn" onclick="toggleHeaderMenu()">☰</button>
+      <div id="dropdownMenu" class="dropdown-menu hidden">
+        <button class="dropdown-item" onclick="openAdminSettings()">⚙️ Admin Settings</button>
+        <button class="dropdown-item logout" onclick="adminLogout()">🚪 Logout</button>
+      </div>
     </div>
   </header>
 
   <main class="container">
+    <!-- Icon-Only Compact Navigation Bar -->
     <nav class="navbar">
-      <button class="nav-tab-btn active" onclick="switchAdminTab('tabRides', this)">📊 ခရီးစဉ်များ</button>
-      <button class="nav-tab-btn" onclick="switchAdminTab('tabDrivers', this)">👤 ယာဉ်မောင်းများ</button>
-      <button class="nav-tab-btn" onclick="switchAdminTab('tabOnlineDrivers', this)">🟢 Online Active ယာဉ်မောင်း</button>
-      <button class="nav-tab-btn" onclick="switchAdminTab('tabIncompleteRides', this)">⏳ မပြီးပြတ်သေးတဲ့ ခရီးစဉ်များ</button>
+      <button class="nav-tab-btn active" id="btn-tabRides" onclick="switchAdminTab('tabRides', this)" title="ခရီးစဉ်များ">📊</button>
+      <button class="nav-tab-btn" id="btn-tabDrivers" onclick="switchAdminTab('tabDrivers', this)" title="ယာဉ်မောင်းများ">👤</button>
+      <button class="nav-tab-btn" id="btn-tabOnlineDrivers" onclick="switchAdminTab('tabOnlineDrivers', this)" title="Online Active ယာဉ်မောင်းများ">🟢</button>
+      <button class="nav-tab-btn" id="btn-tabIncompleteRides" onclick="switchAdminTab('tabIncompleteRides', this)" title="မပြီးပြတ်သေးသော ခရီးစဉ်များ">⏳</button>
     </nav>
 
+    <!-- 1. All Rides Tab -->
     <section id="tabRides" class="card">
-      <h2 style="font-size: 16px; margin-top:0; color:#374151;">📊 ခရီးစဉ်များ စာရင်းအားလုံး</h2>
+      <h2 style="font-size: 15px; margin-top:0; color:#374151;">📊 ခရီးစဉ်များ စာရင်းအားလုံး</h2>
+      <input type="text" class="search-box" placeholder="🔍 ခရီးစဉ်များ ရှာဖွေရန် (အစမှတ်/အဆုံးမှတ်/ဖုန်း)..." onkeyup="filterTable('allRidesTableBody', this.value)">
       <div style="overflow-x: auto;">
         <table class="data-table">
           <thead>
@@ -200,8 +289,10 @@
       </div>
     </section>
 
+    <!-- 2. All Drivers Tab -->
     <section id="tabDrivers" class="card hidden">
-      <h2 style="font-size: 16px; margin-top:0; color:#374151;">👤 မှတ်ပုံတင်ထားသော ယာဉ်မောင်းများ</h2>
+      <h2 style="font-size: 15px; margin-top:0; color:#374151;">👤 မှတ်ပုံတင်ထားသော ယာဉ်မောင်းများ</h2>
+      <input type="text" class="search-box" placeholder="🔍 ယာဉ်မောင်း ရှာဖွေရန် (နာမည်/ဖုန်း/NRC/ယာဉ်နံပါတ်)..." onkeyup="filterTable('allDriversTableBody', this.value)">
       <div style="overflow-x: auto;">
         <table class="data-table">
           <thead>
@@ -220,8 +311,10 @@
       </div>
     </section>
 
+    <!-- 3. Online Active Drivers Tab -->
     <section id="tabOnlineDrivers" class="card hidden">
-      <h2 style="font-size: 16px; margin-top:0; color:#374151;">🟢 Online Active ယာဉ်မောင်းများ (Duty On ထားသူများ)</h2>
+      <h2 style="font-size: 15px; margin-top:0; color:#374151;">🟢 Online Active ယာဉ်မောင်းများ (Duty On ထားသူများ)</h2>
+      <input type="text" class="search-box" placeholder="🔍 Online ယာဉ်မောင်း ရှာဖွေရန် (နာမည်/ဖုန်း/ယာဉ်နံပါတ်)..." onkeyup="filterTable('onlineDriversTableBody', this.value)">
       <div style="overflow-x: auto;">
         <table class="data-table">
           <thead>
@@ -233,14 +326,16 @@
             </tr>
           </thead>
           <tbody id="onlineDriversTableBody">
-            <tr><td colspan="4" style="text-align:center;">Online ယာဉ်မောင်း မရှိသေးပါ။</td></tr>
+            <tr><td colspan="4" style="text-align:center;">Online Active ယာဉ်မောင်း မရှိပါ။</td></tr>
           </tbody>
         </table>
       </div>
     </section>
 
+    <!-- 4. Incomplete Rides Tab -->
     <section id="tabIncompleteRides" class="card hidden">
-      <h2 style="font-size: 16px; margin-top:0; color:#374151;">⏳ မပြီးပြတ်သေးတဲ့ ခရီးစဉ်များ (Pending / In Progress)</h2>
+      <h2 style="font-size: 15px; margin-top:0; color:#374151;">⏳ မပြီးပြတ်သေးသော ခရီးစဉ်များ (Pending / In Progress)</h2>
+      <input type="text" class="search-box" placeholder="🔍 မပြီးပြတ်သေးသော ခရီးစဉ် ရှာဖွေရန်..." onkeyup="filterTable('incompleteRidesTableBody', this.value)">
       <div style="overflow-x: auto;">
         <table class="data-table">
           <thead>
@@ -281,16 +376,42 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const ADMIN_PASSWORD = "admin123";
+    let adminPassword = localStorage.getItem("yg_admin_custom_pass") || "admin123";
+
+    // Header Menu Toggle
+    window.toggleHeaderMenu = function() {
+      document.getElementById("dropdownMenu").classList.toggle("hidden");
+    };
+
+    window.openAdminSettings = function() {
+      document.getElementById("dropdownMenu").classList.add("hidden");
+      document.getElementById("adminSettingsModal").classList.remove("hidden");
+    };
+
+    window.closeAdminSettings = function() {
+      document.getElementById("adminSettingsModal").classList.add("hidden");
+    };
+
+    window.saveNewAdminPassword = function() {
+      const newPass = document.getElementById("newAdminPassInput").value.trim();
+      if (newPass.length < 4) {
+        alert("စကားဝှက်သည် အနည်းဆုံး ၄ လုံး ရှိရပါမည်။");
+        return;
+      }
+      localStorage.setItem("yg_admin_custom_pass", newPass);
+      adminPassword = newPass;
+      alert("Admin စကားဝှက် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ။");
+      closeAdminSettings();
+    };
 
     window.verifyAdminPassword = function() {
       const pass = document.getElementById("adminPassInput").value.trim();
       const errEl = document.getElementById("loginErrorMsg");
 
-      if (pass === ADMIN_PASSWORD) {
+      if (pass === adminPassword) {
         sessionStorage.setItem("yg_admin_logged", "true");
         document.getElementById("adminLoginModal").classList.add("hidden");
-        loadAllData();
+        restoreTabAndLoadData();
       } else {
         errEl.textContent = "စကားဝှက် မှားယွင်းနေပါသည်။";
       }
@@ -298,16 +419,26 @@
 
     window.adminLogout = function() {
       sessionStorage.removeItem("yg_admin_logged");
+      sessionStorage.removeItem("active_admin_tab");
       location.reload();
     };
+
+    // Restore Selected Tab on Refresh
+    function restoreTabAndLoadData() {
+      const savedTab = sessionStorage.getItem("active_admin_tab") || "tabRides";
+      const targetBtn = document.getElementById(`btn-${savedTab}`);
+      switchAdminTab(savedTab, targetBtn);
+      loadAllData();
+    }
 
     window.onload = function() {
       if (sessionStorage.getItem("yg_admin_logged") === "true") {
         document.getElementById("adminLoginModal").classList.add("hidden");
-        loadAllData();
+        restoreTabAndLoadData();
       }
     };
 
+    // Switch Tab & Save Selected Tab to Session Storage
     window.switchAdminTab = function(tabId, btn) {
       document.getElementById('tabRides').classList.add('hidden');
       document.getElementById('tabDrivers').classList.add('hidden');
@@ -317,9 +448,26 @@
 
       document.getElementById(tabId).classList.remove('hidden');
       if (btn) btn.classList.add('active');
+
+      // Save tab to keep state after refresh
+      sessionStorage.setItem("active_admin_tab", tabId);
     };
 
-        function loadAllData() {
+    // Universal Table Search Filter
+    window.filterTable = function(tbodyId, queryText) {
+      const filter = queryText.toLowerCase();
+      const rows = document.querySelectorAll(`#${tbodyId} tr`);
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(filter)) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
+    };
+
+    function loadAllData() {
       const driversQuery = query(collection(db, "drivers"));
       onSnapshot(driversQuery, (snapshot) => {
         const driversTableBody = document.getElementById("allDriversTableBody");
@@ -333,7 +481,6 @@
 
         let driversHtml = "";
         let onlineHtml = "";
-        let onlineCount = 0;
 
         snapshot.forEach((docSnap) => {
           const d = docSnap.data();
@@ -347,9 +494,7 @@
             </tr>
           `;
 
-          // isOnline က true ဖြစ်နေလျှင် (သို့မဟုတ်) status က 'online' / 'on' ဖြစ်နေလျှင် ပြသမည်
-          if (d.isOnline === true || d.status === 'online' || d.dutyStatus === true) {
-            onlineCount++;
+          if (d.isOnline === true) {
             onlineHtml += `
               <tr>
                 <td><strong>${d.fullName || '-'}</strong></td>
@@ -416,7 +561,6 @@
         incompleteRidesBody.innerHTML = incompleteHtml || `<tr><td colspan="4" style="text-align:center;">ယခုလက်ရှိ မပြီးပြတ်သေးတဲ့ ခရီးစဉ် မရှိပါ။</td></tr>`;
       });
     }
-
   </script>
 </body>
 </html>
