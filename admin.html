@@ -364,7 +364,9 @@
       });
 
       // Rides Monitor
-      onSnapshot(query(collection(db, "rideRequests"), orderBy("createdAt", "desc")), (snapshot) => {
+      onSnapshot(
+  query(collection(db, "rideRequests"), orderBy("createdAt", "desc")),
+  (snapshot) => {
         document.getElementById("statTotalRides").textContent = snapshot.size;
         let ridesHtml = "", totalRev = 0, completedCount = 0, hasSos = false;
 
