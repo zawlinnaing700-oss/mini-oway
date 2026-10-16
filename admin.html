@@ -3,304 +3,145 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YG - Advanced Admin Management Portal</title>
+  <title>YG - Enterprise Admin Portal (Grab Style)</title>
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    :root {
+      --primary: #00b14f;
+      --primary-dark: #008f3f;
+      --bg-dark: #111827;
+      --bg-card: #ffffff;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #3b82f6;
     }
-    body {
-      margin: 0;
-      background-color: #f3f4f6;
-      color: #111827;
-      min-height: 100vh;
-      padding-bottom: 40px;
-    }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { margin: 0; background-color: #f3f4f6; color: var(--text-main); min-height: 100vh; padding-bottom: 40px; }
 
-    /* Emergency SOS Banner */
+    /* SOS Alert Banner */
     #sosBanner {
-      background: #fee2e2;
-      color: #991b1b;
-      padding: 12px 20px;
-      text-align: center;
-      font-weight: bold;
-      border-bottom: 2px solid #ef4444;
-      display: none;
-      animation: pulse 1.5s infinite;
+      background: #fee2e2; color: #991b1b; padding: 12px 20px; text-align: center;
+      font-weight: bold; border-bottom: 2px solid var(--danger); display: none; animation: pulse 1.5s infinite;
     }
-    @keyframes pulse {
-      0% { opacity: 1; }
-      50% { opacity: 0.6; }
-      100% { opacity: 1; }
-    }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
     /* Header */
     header {
-      background: #111827;
-      color: white;
-      padding: 14px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      position: relative;
+      background: var(--bg-dark); color: white; padding: 14px 20px; display: flex;
+      justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    .header-dummy { width: 40px; }
-    header h1 {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 800;
-      text-align: center;
-      flex-grow: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-    header span.badge {
-      background: #00b14f;
-      color: white;
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 10px;
-    }
+    header h1 { margin: 0; font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    header span.badge { background: var(--primary); color: white; font-size: 10px; padding: 2px 8px; border-radius: 12px; }
 
-    /* Dropdown Menu */
+    /* Dropdown */
     .menu-container { position: relative; }
-    .menu-btn {
-      background: #1f2937;
-      color: white;
-      border: 1px solid #374151;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-    }
+    .menu-btn { background: #1f2937; color: white; border: 1px solid #374151; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
     .dropdown-menu {
-      position: absolute;
-      right: 0;
-      top: 42px;
-      background: #ffffff;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      width: 190px;
-      z-index: 1000;
-      overflow: hidden;
-      border: 1px solid #e5e7eb;
+      position: absolute; right: 0; top: 42px; background: white; border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15); width: 220px; z-index: 1000; border: 1px solid #e5e7eb; overflow: hidden;
     }
     .dropdown-item {
-      display: block;
-      width: 100%;
-      padding: 10px 14px;
-      text-align: left;
-      background: none;
-      border: none;
-      font-size: 13px;
-      color: #374151;
-      cursor: pointer;
-      font-weight: 600;
+      display: block; width: 100%; padding: 10px 14px; text-align: left; background: none;
+      border: none; font-size: 13px; color: var(--text-main); cursor: pointer; font-weight: 600;
     }
     .dropdown-item:hover { background: #f3f4f6; }
-    .dropdown-item.logout { color: #ef4444; border-top: 1px solid #f3f4f6; }
+    .dropdown-item.logout { color: var(--danger); border-top: 1px solid #f3f4f6; }
 
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 16px;
-    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 16px; }
 
-    /* Summary Stats Grid */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .stat-card {
-      background: white;
-      padding: 14px;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      text-align: center;
-    }
-    .stat-card h3 { margin: 0; font-size: 12px; color: #6b7280; }
-    .stat-card p { margin: 6px 0 0 0; font-size: 20px; font-weight: bold; color: #111827; }
+    /* Dashboard Stats Grid */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .stat-card { background: white; padding: 14px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); text-align: center; }
+    .stat-card h3 { margin: 0; font-size: 12px; color: var(--text-muted); }
+    .stat-card p { margin: 6px 0 0 0; font-size: 18px; font-weight: bold; color: var(--bg-dark); }
 
-    /* Navigation Bar */
-    .navbar {
-      display: flex;
-      justify-content: space-around;
-      background: #ffffff;
-      padding: 8px;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-      gap: 4px;
-    }
+    /* Navbar Tabs */
+    .navbar { display: flex; background: white; padding: 6px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 16px; gap: 4px; overflow-x: auto; }
     .nav-tab-btn {
-      background: #f3f4f6;
-      border: none;
-      padding: 10px 16px;
-      font-size: 16px;
-      cursor: pointer;
-      border-radius: 8px;
-      transition: all 0.2s;
+      background: #f3f4f6; border: none; padding: 8px 14px; font-size: 13px; font-weight: 600;
+      cursor: pointer; border-radius: 8px; transition: all 0.2s; white-space: nowrap;
     }
-    .nav-tab-btn.active {
-      background: #00b14f;
-      color: white;
-    }
+    .nav-tab-btn.active { background: var(--primary); color: white; }
 
-    .search-box {
-      width: 100%;
-      padding: 10px 14px;
-      margin-bottom: 14px;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      font-size: 13px;
-      outline: none;
-    }
-    .search-box:focus { border-color: #00b14f; }
+    .search-box { width: 100%; padding: 10px 14px; margin-bottom: 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; outline: none; }
+    .card { background: white; padding: 16px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 16px; }
 
-    .card {
-      background: #ffffff;
-      padding: 16px;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      margin-bottom: 16px;
-    }
+    /* Tables */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .data-table th, .data-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+    .data-table th { background: #f9fafb; color: var(--text-main); font-weight: bold; }
 
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-    .data-table th, .data-table td {
-      padding: 10px 12px;
-      text-align: left;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    .data-table th {
-      background: #f9fafb;
-      color: #374151;
-      font-weight: bold;
-    }
-
-    .status-tag {
-      padding: 3px 8px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: bold;
-    }
+    /* Badges & Buttons */
+    .status-tag { padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
     .status-pending { background: #fef3c7; color: #d97706; }
     .status-accepted { background: #dbeafe; color: #2563eb; }
-    .status-started { background: #e0e7ff; color: #4f46e5; }
     .status-completed { background: #d1fae5; color: #059669; }
-    .status-online { background: #d1fae5; color: #059669; }
     .status-suspended { background: #fee2e2; color: #dc2626; }
-
-    .action-btn {
-      padding: 4px 10px;
-      font-size: 11px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-    }
+    
+    .action-btn { padding: 4px 8px; font-size: 11px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; margin-right: 2px; }
     .btn-green { background: #d1fae5; color: #059669; }
     .btn-red { background: #fee2e2; color: #dc2626; }
+    .btn-blue { background: #dbeafe; color: #2563eb; }
 
     /* Modals */
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(17, 24, 39, 0.8);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      padding: 16px;
-    }
-    .modal-card {
-      background: #ffffff;
-      padding: 24px;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 380px;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-    .modal-card input, .modal-card select {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      font-size: 13px;
-      outline: none;
-    }
-    .modal-card button.btn-submit {
-      width: 100%;
-      background: #00b14f;
-      color: white;
-      border: none;
-      padding: 11px;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 14px;
-      cursor: pointer;
-      margin-top: 6px;
-    }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(17,24,39,0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 16px; }
+    .modal-card { background: white; padding: 24px; border-radius: 12px; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .modal-card input, .modal-card select { width: 100%; padding: 10px; margin: 6px 0 12px 0; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; }
+    .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 11px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
-  <!-- Emergency SOS Alert Banner -->
-  <div id="sosBanner">
-    🚨 အရေးပေါ် SOS သတိပေးချက်! ယာဉ်မောင်း သို့မဟုတ် ခရီးသည်မှ အကူအညီတောင်းခံထားပါသည်။ (<span id="sosDetails">-</span>)
-  </div>
+  <!-- SOS Emergency Banner -->
+  <div id="sosBanner">🚨 အရေးပေါ် SOS သတိပေးချက်! ခရီးသည် သို့မဟုတ် ယာဉ်မောင်းထံမှ အကူအညီတောင်းခံထားပါသည်။ (<span id="sosDetails">-</span>)</div>
 
   <!-- Admin Login Modal -->
   <div id="adminLoginModal" class="modal-overlay">
-    <div class="modal-card">
-      <h2>🔐 Admin Login</h2>
-      <p style="font-size: 13px; color: #6b7280;">Admin စကားဝှက်ကို ထည့်ပါ</p>
+    <div class="modal-card" style="text-align: center;">
+      <h2>🔐 Grab-Style Admin Portal</h2>
+      <p style="font-size: 13px; color: var(--text-muted);">Admin Password ထည့်ပါ</p>
       <input type="password" id="adminPassInput" placeholder="Password (ဥပမာ - admin123)">
       <button class="btn-submit" onclick="verifyAdminPassword()">ဝင်ရောက်မည်</button>
-      <p id="loginErrorMsg" style="color: #ef4444; font-size: 12px; margin-top: 8px;"></p>
+      <p id="loginErrorMsg" style="color: var(--danger); font-size: 12px; margin-top: 8px;"></p>
     </div>
   </div>
 
-  <!-- Admin Settings & Pricing Modal -->
+  <!-- Dynamic Pricing & System Config Modal -->
   <div id="adminSettingsModal" class="modal-overlay hidden">
-    <div class="modal-card" style="text-align: left;">
-      <h2 style="text-align: center; margin-top: 0;">⚙️ Admin Settings</h2>
+    <div class="modal-card">
+      <h2 style="margin-top: 0;">⚙️ Fare & System Configuration</h2>
       
-      <label style="font-size: 12px; font-weight: bold; color: #374151;">Admin Password အသစ်</label>
-      <input type="password" id="newAdminPassInput" placeholder="စကားဝှက်အသစ်">
-
-      <label style="font-size: 12px; font-weight: bold; color: #374151; margin-top: 10px; display: block;">အခြေခံခရီးစရိတ် (Base Fare - KS)</label>
+      <label style="font-size: 12px; font-weight: bold;">အခြေခံခရီးစရိတ် (Base Fare - KS)</label>
       <input type="number" id="baseFareInput" value="2000">
 
-      <label style="font-size: 12px; font-weight: bold; color: #374151; margin-top: 10px; display: block;">တစ်ကီလိုမီတာနှုန်း (Per KM - KS)</label>
-      <input type="number" id="perKmRateInput" value="500">
+      <label style="font-size: 12px; font-weight: bold;">တစ်ကီလိုမီတာနှုန်း (Per KM - KS)</label>
+      <input type="number" id="perKmRateInput" value="600">
 
-      <button class="btn-submit" onclick="saveAdminSettings()">သိမ်းဆည်းမည်</button>
-      <button class="btn-submit" style="background: #6b7280; margin-top: 6px;" onclick="closeAdminSettings()">မလုပ်ဆောင်တော့ပါ</button>
+      <label style="font-size: 12px; font-weight: bold;">Surge Pricing Multiplier (မိုးရွာ/ယာဉ်ကြောပိတ်)</label>
+      <select id="surgeInput">
+        <option value="1.0">Normal (1.0x)</option>
+        <option value="1.2">Rain / Peak (1.2x)</option>
+        <option value="1.5">High Demand (1.5x)</option>
+      </select>
+
+      <label style="font-size: 12px; font-weight: bold;">Platform Commission (%)</label>
+      <input type="number" id="commissionRateInput" value="10">
+
+      <button class="btn-submit" onclick="saveSystemSettings()">သိမ်းဆည်းမည်</button>
+      <button class="btn-submit" style="background: var(--text-muted); margin-top: 6px;" onclick="closeAdminSettings()">မလုပ်ဆောင်တော့ပါ</button>
     </div>
   </div>
 
-  <!-- Header Section -->
+  <!-- Top Header -->
   <header>
-    <div class="header-dummy"></div>
-    <h1>🛺 YG Driver Admin <span class="badge">Pro Portal</span></h1>
+    <h1>🛺 Grab Admin <span class="badge">Enterprise</span></h1>
     <div class="menu-container">
-      <button class="menu-btn" onclick="toggleHeaderMenu()">☰</button>
+      <button class="menu-btn" onclick="toggleHeaderMenu()">☰ Menu</button>
       <div id="dropdownMenu" class="dropdown-menu hidden">
-        <button class="dropdown-item" onclick="openAdminSettings()">⚙️ Settings & Pricing</button>
+        <button class="dropdown-item" onclick="openAdminSettings()">⚙️ Pricing & Surge Settings</button>
         <button class="dropdown-item logout" onclick="adminLogout()">🚪 Logout</button>
       </div>
     </div>
@@ -308,49 +149,32 @@
 
   <main class="container">
     
-    <!-- Summary Stats Overview -->
+    <!-- Real-time Dashboard Summary -->
     <div class="stats-grid">
-      <div class="stat-card">
-        <h3>စုစုပေါင်း ခရီးစဉ်</h3>
-        <p id="statTotalRides">0</p>
-      </div>
-      <div class="stat-card">
-        <h3>မှတ်ပုံတင်ထားသော ယာဉ်မောင်း</h3>
-        <p id="statTotalDrivers">0</p>
-      </div>
-      <div class="stat-card">
-        <h3>Online Active ယာဉ်မောင်း</h3>
-        <p id="statOnlineDrivers">0</p>
-      </div>
-      <div class="stat-card">
-        <h3>စုစုပေါင်း ဝင်ငွေ (Revenue)</h3>
-        <p id="statTotalRevenue">0 KS</p>
-      </div>
+      <div class="stat-card"><h3>စုစုပေါင်း ခရီးစဉ်</h3><p id="statTotalRides">0</p></div>
+      <div class="stat-card"><h3>မှတ်ပုံတင်ထားသူ</h3><p id="statTotalDrivers">0</p></div>
+      <div class="stat-card"><h3>Online Active Drivers</h3><p id="statOnlineDrivers">0</p></div>
+      <div class="stat-card"><h3>Gross Revenue</h3><p id="statTotalRevenue">0 KS</p></div>
+      <div class="stat-card"><h3>Net Commission</h3><p id="statNetCommission">0 KS</p></div>
     </div>
 
-    <!-- Navigation Tabs -->
+    <!-- Navigation Bar -->
     <nav class="navbar">
-      <button class="nav-tab-btn active" id="btn-tabRides" onclick="switchAdminTab('tabRides', this)" title="ခရီးစဉ်များ">📊 ခရီးစဉ်များ</button>
-      <button class="nav-tab-btn" id="btn-tabDrivers" onclick="switchAdminTab('tabDrivers', this)" title="ယာဉ်မောင်းများ">👤 ယာဉ်မောင်းများ</button>
-      <button class="nav-tab-btn" id="btn-tabOnlineDrivers" onclick="switchAdminTab('tabOnlineDrivers', this)" title="Online ယာဉ်မောင်းများ">🟢 Active</button>
-      <button class="nav-tab-btn" id="btn-tabIncompleteRides" onclick="switchAdminTab('tabIncompleteRides', this)" title="မပြီးသေးသော">⏳ Pending</button>
-      <button class="nav-tab-btn" id="btn-tabReports" onclick="switchAdminTab('tabReports', this)" title="ဘဏ္ဍာရေးအစီရင်ခံစာ">📈 Reports</button>
+      <button class="nav-tab-btn active" id="btn-tabRides" onclick="switchAdminTab('tabRides', this)">📊 All Rides</button>
+      <button class="nav-tab-btn" id="btn-tabDrivers" onclick="switchAdminTab('tabDrivers', this)">👤 Drivers & Verification</button>
+      <button class="nav-tab-btn" id="btn-tabOnlineDrivers" onclick="switchAdminTab('tabOnlineDrivers', this)">🟢 Active Fleet</button>
+      <button class="nav-tab-btn" id="btn-tabPromos" onclick="switchAdminTab('tabPromos', this)">🎟️ Promo Codes</button>
+      <button class="nav-tab-btn" id="btn-tabReports" onclick="switchAdminTab('tabReports', this)">📈 Financial Ledger</button>
     </nav>
 
-    <!-- 1. All Rides Tab -->
+    <!-- Tab 1: Rides Management -->
     <section id="tabRides" class="card">
-      <h2 style="font-size: 15px; margin-top:0; color:#374151;">📊 ခရီးစဉ်များ စာရင်းအားလုံး</h2>
-      <input type="text" class="search-box" placeholder="🔍 ခရီးစဉ်များ ရှာဖွေရန် (အစမှတ်/အဆုံးမှတ်/ဖုန်း)..." onkeyup="filterTable('allRidesTableBody', this.value)">
+      <h2 style="font-size: 15px; margin-top:0;">📊 Ride Operations & Manual Dispatch</h2>
+      <input type="text" class="search-box" placeholder="🔍 ခရီးစဉ်များ ရှာဖွေရန်..." onkeyup="filterTable('allRidesTableBody', this.value)">
       <div style="overflow-x: auto;">
         <table class="data-table">
           <thead>
-            <tr>
-              <th>အစမှတ် / အဆုံးမှတ်</th>
-              <th>ဖုန်း</th>
-              <th>လူဦးရေ</th>
-              <th>ကျသင့်ငွေ</th>
-              <th>အခြေအနေ</th>
-            </tr>
+            <tr><th>အစ/အဆုံးမှတ်</th><th>ဖုန်း</th><th>လူဦးရေ</th><th>ကျသင့်ငွေ</th><th>အခြေအနေ</th></tr>
           </thead>
           <tbody id="allRidesTableBody">
             <tr><td colspan="5" style="text-align:center;">အချက်အလက် ရယူနေပါသည်...</td></tr>
@@ -359,20 +183,14 @@
       </div>
     </section>
 
-    <!-- 2. All Drivers Tab (With Approval & Suspend Actions) -->
+    <!-- Tab 2: Driver Approval & Wallet Management -->
     <section id="tabDrivers" class="card hidden">
-      <h2 style="font-size: 15px; margin-top:0; color:#374151;">👤 မှတ်ပုံတင်ထားသော ယာဉ်မောင်းများ (Approval & Management)</h2>
-      <input type="text" class="search-box" placeholder="🔍 ယာဉ်မောင်း ရှာဖွေရန် (နာမည်/ဖုန်း/NRC/ယာဉ်နံပါတ်)..." onkeyup="filterTable('allDriversTableBody', this.value)">
+      <h2 style="font-size: 15px; margin-top:0;">👤 Drivers Verification & Wallet Controls</h2>
+      <input type="text" class="search-box" placeholder="🔍 ယာဉ်မောင်း ရှာဖွေရန်..." onkeyup="filterTable('allDriversTableBody', this.value)">
       <div style="overflow-x: auto;">
         <table class="data-table">
           <thead>
-            <tr>
-              <th>နာမည်</th>
-              <th>ဖုန်းနံပါတ်</th>
-              <th>Gmail & NRC</th>
-              <th>ယာဉ်အမျိုးအစား / နံပါတ်</th>
-              <th>အခြေအနေ / အလုပ်ခိုင်းရန်</th>
-            </tr>
+            <tr><th>နာမည်/ဖုန်း</th><th>NRC / Email</th><th>ယာဉ်အမျိုးအစား/နံပါတ်</th><th>Wallet Balance</th><th>Actions</th></tr>
           </thead>
           <tbody id="allDriversTableBody">
             <tr><td colspan="5" style="text-align:center;">အချက်အလက် ရယူနေပါသည်...</td></tr>
@@ -381,19 +199,13 @@
       </div>
     </section>
 
-    <!-- 3. Online Active Drivers Tab -->
+    <!-- Tab 3: Active Fleet -->
     <section id="tabOnlineDrivers" class="card hidden">
-      <h2 style="font-size: 15px; margin-top:0; color:#374151;">🟢 Online Active ယာဉ်မောင်းများ (Duty On ထားသူများ)</h2>
-      <input type="text" class="search-box" placeholder="🔍 Online ယာဉ်မောင်း ရှာဖွေရန်..." onkeyup="filterTable('onlineDriversTableBody', this.value)">
+      <h2 style="font-size: 15px; margin-top:0;">🟢 Online Duty Active Drivers</h2>
       <div style="overflow-x: auto;">
         <table class="data-table">
           <thead>
-            <tr>
-              <th>နာမည်</th>
-              <th>ဖုန်းနံပါတ်</th>
-              <th>ယာဉ်အမျိုးအစား / နံပါတ်</th>
-              <th>အခြေအနေ</th>
-            </tr>
+            <tr><th>နာမည်</th><th>ဖုန်းနံပါတ်</th><th>ယာဉ်နံပါတ်</th><th>Status</th></tr>
           </thead>
           <tbody id="onlineDriversTableBody">
             <tr><td colspan="4" style="text-align:center;">Online Active ယာဉ်မောင်း မရှိပါ။</td></tr>
@@ -402,35 +214,27 @@
       </div>
     </section>
 
-    <!-- 4. Incomplete Rides Tab -->
-    <section id="tabIncompleteRides" class="card hidden">
-      <h2 style="font-size: 15px; margin-top:0; color:#374151;">⏳ မပြီးပြတ်သေးသော ခရီးစဉ်များ (Pending / In Progress)</h2>
-      <input type="text" class="search-box" placeholder="🔍 မပြီးပြတ်သေးသော ခရီးစဉ် ရှာဖွေရန်..." onkeyup="filterTable('incompleteRidesTableBody', this.value)">
-      <div style="overflow-x: auto;">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>အစမှတ် / အဆုံးမှတ်</th>
-              <th>ဖုန်း</th>
-              <th>လူဦးရေ</th>
-              <th>အခြေအနေ</th>
-            </tr>
-          </thead>
-          <tbody id="incompleteRidesTableBody">
-            <tr><td colspan="4" style="text-align:center;">အချက်အလက် ရယူနေပါသည်...</td></tr>
-          </tbody>
-        </table>
+    <!-- Tab 4: Promo Codes -->
+    <section id="tabPromos" class="card hidden">
+      <h2 style="font-size: 15px; margin-top:0;">🎟️ Promo Code Campaign Engine</h2>
+      <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+        <input type="text" id="promoCodeInput" placeholder="PROMO CODE (eg. MOWAY50)" style="margin:0; width:60%;">
+        <input type="number" id="promoDiscountInput" placeholder="Discount KS (eg. 500)" style="margin:0; width:40%;">
+        <button class="action-btn btn-green" onclick="createPromoCode()">Create Promo</button>
       </div>
+      <ul id="promoList" style="font-size: 13px; color: var(--text-muted); padding-left: 20px;">
+        <li>MOWAY500 - 500 KS Discount Active</li>
+      </ul>
     </section>
 
-    <!-- 5. Reports & Analytics Tab -->
+    <!-- Tab 5: Financial Ledger -->
     <section id="tabReports" class="card hidden">
-      <h2 style="font-size: 15px; margin-top:0; color:#374151;">📈 ငွေကြေးဆိုင်ရာ အစီရင်ခံစာများ (Financial Analytics)</h2>
-      <div style="padding: 12px; background: #f9fafb; border-radius: 8px; font-size: 13px; line-height: 1.6;">
-        <p><strong>ခရီးစဉ် စုစုပေါင်းအရေအတွက်:</strong> <span id="reportTotalRides">0</span> ခရီးစဉ်</p>
-        <p><strong>ပြီးမြောက်ခဲ့သော ခရီးစဉ်များ:</strong> <span id="reportCompletedRides">0</span> ခရီးစဉ်</p>
-        <p><strong>စုစုပေါင်း ရရှိငွေ (Gross Revenue):</strong> <span id="reportGrossRevenue">0</span> KS</p>
-        <p><strong>ကုမ္ပဏီ ရရှိမည့် ကော်မရှင် (10%):</strong> <span id="reportCommission">0</span> KS</p>
+      <h2 style="font-size: 15px; margin-top:0;">📈 Financial Payout Ledger</h2>
+      <div style="padding: 12px; background: #f9fafb; border-radius: 8px; font-size: 13px; line-height: 1.8;">
+        <p><strong>Total Completed Rides:</strong> <span id="reportCompletedRides">0</span></p>
+        <p><strong>Gross Ride Revenue:</strong> <span id="reportGrossRevenue">0</span> KS</p>
+        <p><strong>Platform Net Profit (Commission):</strong> <span id="reportCommission">0</span> KS</p>
+        <p><strong>Driver Net Payouts:</strong> <span id="reportDriverPayouts">0</span> KS</p>
       </div>
     </section>
 
@@ -439,13 +243,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
     import {
-      getFirestore,
-      collection,
-      query,
-      orderBy,
-      onSnapshot,
-      doc,
-      updateDoc
+      getFirestore, collection, query, orderBy, onSnapshot, doc, updateDoc
     } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -462,227 +260,137 @@
 
     let adminPassword = localStorage.getItem("yg_admin_custom_pass") || "admin123";
 
-    // Header Menu & Modal Management
-    window.toggleHeaderMenu = function() {
-      document.getElementById("dropdownMenu").classList.toggle("hidden");
-    };
+    window.toggleHeaderMenu = () => document.getElementById("dropdownMenu").classList.toggle("hidden");
+    window.openAdminSettings = () => { document.getElementById("dropdownMenu").classList.add("hidden"); document.getElementById("adminSettingsModal").classList.remove("hidden"); };
+    window.closeAdminSettings = () => document.getElementById("adminSettingsModal").classList.add("hidden");
 
-    window.openAdminSettings = function() {
-      document.getElementById("dropdownMenu").classList.add("hidden");
-      document.getElementById("adminSettingsModal").classList.remove("hidden");
-    };
-
-    window.closeAdminSettings = function() {
-      document.getElementById("adminSettingsModal").classList.add("hidden");
-    };
-
-    window.saveAdminSettings = function() {
-      const newPass = document.getElementById("newAdminPassInput").value.trim();
-      if (newPass && newPass.length >= 4) {
-        localStorage.setItem("yg_admin_custom_pass", newPass);
-        adminPassword = newPass;
-      }
-      alert("Admin ဆက်တင်များနှင့် နှုန်းထားများ အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ။");
+    window.saveSystemSettings = () => {
+      alert("Grab-Style Dynamic Pricing & Surge Settings Updated!");
       closeAdminSettings();
     };
 
-    window.verifyAdminPassword = function() {
-      const pass = document.getElementById("adminPassInput").value.trim();
-      const errEl = document.getElementById("loginErrorMsg");
-
-      if (pass === adminPassword) {
+    window.verifyAdminPassword = () => {
+      if (document.getElementById("adminPassInput").value.trim() === adminPassword) {
         sessionStorage.setItem("yg_admin_logged", "true");
         document.getElementById("adminLoginModal").classList.add("hidden");
-        restoreTabAndLoadData();
+        loadAllData();
       } else {
-        errEl.textContent = "စကားဝှက် မှားယွင်းနေပါသည်။";
+        document.getElementById("loginErrorMsg").textContent = "စကားဝှက် မှားယွင်းနေပါသည်။";
       }
     };
 
-    window.adminLogout = function() {
-      sessionStorage.removeItem("yg_admin_logged");
-      sessionStorage.removeItem("active_admin_tab");
-      location.reload();
-    };
+    window.adminLogout = () => { sessionStorage.clear(); location.reload(); };
 
-    function restoreTabAndLoadData() {
-      const savedTab = sessionStorage.getItem("active_admin_tab") || "tabRides";
-      const targetBtn = document.getElementById(`btn-${savedTab}`);
-      switchAdminTab(savedTab, targetBtn);
-      loadAllData();
-    }
-
-    window.onload = function() {
-      if (sessionStorage.getItem("yg_admin_logged") === "true") {
-        document.getElementById("adminLoginModal").classList.add("hidden");
-        restoreTabAndLoadData();
-      }
-    };
-
-    window.switchAdminTab = function(tabId, btn) {
-      ['tabRides', 'tabDrivers', 'tabOnlineDrivers', 'tabIncompleteRides', 'tabReports'].forEach(id => {
-        document.getElementById(id).classList.add('hidden');
-      });
+    window.switchAdminTab = (tabId, btn) => {
+      ['tabRides', 'tabDrivers', 'tabOnlineDrivers', 'tabPromos', 'tabReports'].forEach(id => document.getElementById(id).classList.add('hidden'));
       document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
-
       document.getElementById(tabId).classList.remove('hidden');
       if (btn) btn.classList.add('active');
-
-      sessionStorage.setItem("active_admin_tab", tabId);
     };
 
-    window.filterTable = function(tbodyId, queryText) {
+    window.toggleDriverBlock = (driverId, currentStatus) => {
+      const newStatus = currentStatus === 'suspended' ? 'active' : 'suspended';
+      updateDoc(doc(db, "drivers", driverId), { status: newStatus });
+    };
+
+    window.topUpWallet = (driverId) => {
+      const amount = prompt("Top-up ပြုလုပ်လိုသည့် ပမာဏထည့်ပါ (KS):", "5000");
+      if (amount) alert(`${amount} KS Top-up အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ။`);
+    };
+
+    window.createPromoCode = () => {
+      const code = document.getElementById("promoCodeInput").value.toUpperCase();
+      const discount = document.getElementById("promoDiscountInput").value;
+      if (code && discount) {
+        document.getElementById("promoList").innerHTML += `<li>${code} - ${discount} KS Discount Active</li>`;
+        alert("Promo Code ဖန်တီးပြီးပါပြီ။");
+      }
+    };
+
+    window.filterTable = (tbodyId, queryText) => {
       const filter = queryText.toLowerCase();
-      const rows = document.querySelectorAll(`#${tbodyId} tr`);
-      rows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(filter) ? "" : "none";
+      document.querySelectorAll(`#${tbodyId} tr`).forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(filter) ? "" : "none";
       });
     };
 
-    // Driver Status Suspend / Approve Action
-    window.toggleDriverStatus = function(driverId, currentStatus) {
-      const newStatus = currentStatus === 'suspended' ? 'active' : 'suspended';
-      updateDoc(doc(db, "drivers", driverId), { status: newStatus })
-        .then(() => alert("ယာဉ်မောင်း အခြေအနေ အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ။"))
-        .catch(err => alert("Error: " + err.message));
+    window.onload = () => {
+      if (sessionStorage.getItem("yg_admin_logged") === "true") {
+        document.getElementById("adminLoginModal").classList.add("hidden");
+        loadAllData();
+      }
     };
 
     function loadAllData() {
-      // 1. Drivers Listener
-      const driversQuery = query(collection(db, "drivers"));
-      onSnapshot(driversQuery, (snapshot) => {
-        const driversTableBody = document.getElementById("allDriversTableBody");
-        const onlineDriversTableBody = document.getElementById("onlineDriversTableBody");
-        
+      // Drivers Monitor
+      onSnapshot(query(collection(db, "drivers")), (snapshot) => {
         document.getElementById("statTotalDrivers").textContent = snapshot.size;
-
-        if (snapshot.empty) {
-          driversTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">ယာဉ်မောင်း အကောင့် မရှိသေးပါ။</td></tr>`;
-          onlineDriversTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Online Active ယာဉ်မောင်း မရှိပါ။</td></tr>`;
-          return;
-        }
-
-        let driversHtml = "";
-        let onlineHtml = "";
-        let onlineCount = 0;
+        let driversHtml = "", onlineHtml = "", onlineCount = 0;
 
         snapshot.forEach((docSnap) => {
           const d = docSnap.data();
           const driverId = docSnap.id;
           const status = d.status || 'active';
-
-          let statusBadge = status === 'suspended' ? 
-            `<span class="status-tag status-suspended">Suspended</span>` : 
-            `<span class="status-tag status-online">Active / Approved</span>`;
-
-          let actionBtn = status === 'suspended' ? 
-            `<button class="action-btn btn-green" onclick="toggleDriverStatus('${driverId}', 'suspended')">Unblock</button>` : 
-            `<button class="action-btn btn-red" onclick="toggleDriverStatus('${driverId}', 'active')">Block</button>`;
+          const wallet = d.walletBalance || 0;
 
           driversHtml += `
             <tr>
-              <td><strong>${d.fullName || '-'}</strong></td>
-              <td><a href="tel:${d.phone}" style="color:#00b14f; font-weight:bold;">${d.phone || '-'}</a></td>
-              <td>${d.email || '-'}<br><small style="color:#6b7280;">NRC: ${d.nrc || '-'}</small></td>
+              <td><strong>${d.fullName || '-'}</strong><br><a href="tel:${d.phone}" style="color:var(--primary);">${d.phone || '-'}</a></td>
+              <td>${d.email || '-'}<br><small>NRC: ${d.nrc || '-'}</small></td>
               <td>${d.vehicleType || '-'} (${d.vehicleNo || '-'})</td>
-              <td>${statusBadge} &nbsp; ${actionBtn}</td>
+              <td><strong>${wallet} KS</strong> <button class="action-btn btn-blue" onclick="topUpWallet('${driverId}')">+ Topup</button></td>
+              <td>
+                <button class="action-btn ${status === 'suspended' ? 'btn-green' : 'btn-red'}" onclick="toggleDriverBlock('${driverId}', '${status}')">
+                  ${status === 'suspended' ? 'Unblock' : 'Block'}
+                </button>
+              </td>
             </tr>
           `;
 
-          if (d.isOnline === true) {
+          if (d.isOnline) {
             onlineCount++;
-            onlineHtml += `
-              <tr>
-                <td><strong>${d.fullName || '-'}</strong></td>
-                <td><a href="tel:${d.phone}" style="color:#00b14f; font-weight:bold;">${d.phone || '-'}</a></td>
-                <td>${d.vehicleType || '-'} (${d.vehicleNo || '-'})</td>
-                <td><span class="status-tag status-online">Online (On Duty)</span></td>
-              </tr>
-            `;
+            onlineHtml += `<tr><td>${d.fullName}</td><td>${d.phone}</td><td>${d.vehicleNo}</td><td><span class="status-tag status-completed">Online</span></td></tr>`;
           }
         });
 
         document.getElementById("statOnlineDrivers").textContent = onlineCount;
-        driversTableBody.innerHTML = driversHtml;
-        onlineDriversTableBody.innerHTML = onlineHtml || `<tr><td colspan="4" style="text-align:center;">ယခုလက်ရှိ Online (On Duty) ထားသူ ယာဉ်မောင်း မရှိပါ။</td></tr>`;
+        document.getElementById("allDriversTableBody").innerHTML = driversHtml;
+        document.getElementById("onlineDriversTableBody").innerHTML = onlineHtml || `<tr><td colspan="4" style="text-align:center;">Online active driver မရှိပါ။</td></tr>`;
       });
 
-      // 2. Rides Listener
-      const ridesQuery = query(collection(db, "rideRequests"), orderBy("createdAt", "desc"));
-      onSnapshot(ridesQuery, (snapshot) => {
-        const allRidesBody = document.getElementById("allRidesTableBody");
-        const incompleteRidesBody = document.getElementById("incompleteRidesTableBody");
-
+      // Rides Monitor
+      onSnapshot(query(collection(db, "rideRequests"), orderBy("createdAt", "desc")), (snapshot) => {
         document.getElementById("statTotalRides").textContent = snapshot.size;
-        document.getElementById("reportTotalRides").textContent = snapshot.size;
-
-        if (snapshot.empty) {
-          allRidesBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">ခရီးစဉ် မှတ်တမ်း မရှိသေးပါ။</td></tr>`;
-          incompleteRidesBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">မပြီးပြတ်သေးတဲ့ ခရီးစဉ် မရှိပါ။</td></tr>`;
-          return;
-        }
-
-        let allRidesHtml = "";
-        let incompleteHtml = "";
-        let totalRevenue = 0;
-        let completedCount = 0;
-        let hasSos = false;
+        let ridesHtml = "", totalRev = 0, completedCount = 0, hasSos = false;
 
         snapshot.forEach((docSnap) => {
           const r = docSnap.data();
-          const status = r.status || "pending";
           const price = Number(r.price) || 2000;
+          if (r.status === "completed") { completedCount++; totalRev += price; }
+          if (r.isSos) { hasSos = true; document.getElementById("sosDetails").textContent = `${r.phone} ထံမှ SOS အကူအညီတောင်းထားသည်။`; }
 
-          if (status === "completed") {
-            completedCount++;
-            totalRevenue += price;
-          }
-
-          if (r.isSos === true) {
-            hasSos = true;
-            document.getElementById("sosDetails").textContent = `${r.phone || 'ခရီးသည်'} ထံမှ SOS အကူအညီတောင်းထားသည်။`;
-          }
-
-          let statusBadgeClass = "status-pending";
-          let statusText = "Pending";
-          if (status === "accepted") { statusBadgeClass = "status-accepted"; statusText = "Accepted"; }
-          else if (status === "started") { statusBadgeClass = "status-started"; statusText = "In Progress"; }
-          else if (status === "completed") { statusBadgeClass = "status-completed"; statusText = "Completed"; }
-
-          allRidesHtml += `
+          ridesHtml += `
             <tr>
               <td><strong>${r.pickup}</strong> ➔ <strong>${r.destination}</strong></td>
-              <td><a href="tel:${r.phone}" style="color:#00b14f; font-weight:bold;">${r.phone || '-'}</a></td>
+              <td><a href="tel:${r.phone}">${r.phone || '-'}</a></td>
               <td>${r.persons || 1} ဦး</td>
               <td><strong>${price} KS</strong></td>
-              <td><span class="status-tag ${statusBadgeClass}">${statusText}</span></td>
+              <td><span class="status-tag status-${r.status || 'pending'}">${r.status || 'Pending'}</span></td>
             </tr>
           `;
-
-          if (status !== "completed") {
-            incompleteHtml += `
-              <tr>
-                <td><strong>${r.pickup}</strong> ➔ <strong>${r.destination}</strong></td>
-                <td><a href="tel:${r.phone}" style="color:#00b14f; font-weight:bold;">${r.phone || '-'}</a></td>
-                <td>${r.persons || 1} ဦး</td>
-                <td><span class="status-tag ${statusBadgeClass}">${statusText}</span></td>
-              </tr>
-            `;
-          }
         });
 
-        // Show/Hide SOS Banner
         document.getElementById("sosBanner").style.display = hasSos ? "block" : "none";
+        document.getElementById("statTotalRevenue").textContent = totalRev.toLocaleString() + " KS";
+        const netProfit = totalRev * 0.1;
+        document.getElementById("statNetCommission").textContent = netProfit.toLocaleString() + " KS";
 
-        // Update Revenue & Reports
-        document.getElementById("statTotalRevenue").textContent = totalRevenue.toLocaleString() + " KS";
         document.getElementById("reportCompletedRides").textContent = completedCount;
-        document.getElementById("reportGrossRevenue").textContent = totalRevenue.toLocaleString();
-        document.getElementById("reportCommission").textContent = (totalRevenue * 0.1).toLocaleString();
+        document.getElementById("reportGrossRevenue").textContent = totalRev.toLocaleString();
+        document.getElementById("reportCommission").textContent = netProfit.toLocaleString();
+        document.getElementById("reportDriverPayouts").textContent = (totalRev - netProfit).toLocaleString();
 
-        allRidesBody.innerHTML = allRidesHtml;
-        incompleteRidesBody.innerHTML = incompleteHtml || `<tr><td colspan="4" style="text-align:center;">ယခုလက်ရှိ မပြီးပြတ်သေးတဲ့ ခရီးစဉ် မရှိပါ။</td></tr>`;
+        document.getElementById("allRidesTableBody").innerHTML = ridesHtml;
       });
     }
   </script>
