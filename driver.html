@@ -763,33 +763,34 @@
       }, 300);
     };
 
-    window.toggleDutyStatus = async function(checkbox) {
-      const statusText = document.getElementById("statusText");
-      const statusDot = document.getElementById("statusDot");
-      const isOn = checkbox.checked;
+    window.toggleDutyStatus = function(checkbox) {
+  const statusText = document.getElementById("statusText");
+  const statusDot = document.getElementById("statusDot");
+  const isOn = checkbox.checked;
 
-      if (isOn) {
-        statusText.textContent = "အလုပ်စတင်နေသည် (On Duty)";
-        statusText.style.color = "#00b14f";
-        statusDot.classList.remove("offline");
-      } else {
-        statusText.textContent = "နားနေသည် (Offline)";
-        statusText.style.color = "#6b7280";
-        statusDot.classList.add("offline");
-      }
+  if (isOn) {
+    statusText.textContent = "အလုပ်စတင်နေသည် (On Duty)";
+    statusText.style.color = "#00b14f";
+    statusDot.classList.remove("offline");
+  } else {
+    statusText.textContent = "နားနေသည် (Offline)";
+    statusText.style.color = "#6b7280";
+    statusDot.classList.add("offline");
+  }
 
-      // Save to localStorage & Firestore so Admin knows
-      if (currentDriverUid) {
-        localStorage.setItem(`driver_duty_${currentDriverUid}`, isOn ? "true" : "false");
-        try {
-          const docRef = doc(db, "drivers", currentDriverUid);
-          await updateDoc(docRef, { isOnline: isOn });
-        } catch (e) {
-          console.error(e);
-        }
-      }
-      loadRideRequests();
-    };
+  if (currentDriverUid) {
+    localStorage.setItem(`driver_duty_${currentDriverUid}`, isOn ? "true" : "false");
+    
+    // await မခံဘဲ တိုက်ရိုက် Background Async ပို့ခြင်းဖြင့် တုံ့ပြန်မှု မြန်ဆန်စေသည်
+    const docRef = doc(db, "drivers", currentDriverUid);
+    updateDoc(docRef, { 
+      isOnline: isOn,
+      lastActive: new Date().toISOString()
+    }).catch(e => console.error("Duty status sync error:", e));
+  }
+  
+  loadRideRequests  ();
+};
 
     window.switchTab = function(tabId, btn) {
       document.querySelectorAll('.dashboard-section').forEach(sec => sec.classList.add('hidden'));
