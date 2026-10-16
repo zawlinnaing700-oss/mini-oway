@@ -676,25 +676,53 @@
       document.getElementById("adminSettingsModal").classList.add("hidden");
     };
 
-    window.saveSystemSettings = () => {
-      const baseFare = Number(document.getElementById("baseFareInput").value);
-      const perKm = Number(document.getElementById("perKmRateInput").value);
-      const commission = Number(document.getElementById("commissionRateInput").value);
+    
+window.saveSystemSettings = async () => {
+  const baseFare = Number(
+    document.getElementById("baseFareInput").value
+  );
+  const perKm = Number(
+    document.getElementById("perKmRateInput").value
+  );
+  const surge = Number(
+    document.getElementById("surgeInput").value
+  );
+  const commission = Number(
+    document.getElementById("commissionRateInput").value
+  );
 
-      if (
-        !Number.isFinite(baseFare) || baseFare < 0 ||
-        !Number.isFinite(perKm) || perKm < 0 ||
-        !Number.isFinite(commission) || commission < 0 || commission > 100
-      ) {
-        alert("ထည့်သွင်းထားသော တန်ဖိုးများကို ပြန်စစ်ပါ။");
-        return;
-      }
+  if (
+    !Number.isFinite(baseFare) || baseFare < 0 ||
+    !Number.isFinite(perKm) || perKm < 0 ||
+    !Number.isFinite(surge) || surge < 1 ||
+    !Number.isFinite(commission) ||
+    commission < 0 || commission > 100
+  ) {
+    alert("ထည့်သွင်းထားသော တန်ဖိုးများကို ပြန်စစ်ပါ။");
+    return;
+  }
 
-      alert(
-        "တန်ဖိုးများ မှန်ကန်ပါသည်။\n\n" +
-        "သို့သော် Firebase တွင် Settings မသိမ်းရသေးပါ။"
-      );
-    };
+  try {
+    await firebase.firestore()
+      .collection("settings")
+      .doc("pricing")
+      .set({
+        baseFare: baseFare,
+        perKm: perKm,
+        surge: surge,
+        commission: commission,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+
+    alert("Fare Settings ကို Firebase တွင် သိမ်းဆည်းပြီးပါပြီ။");
+  } catch (error) {
+    console.error("Settings save error:", error);
+    alert(
+      "သိမ်းဆည်းမရပါ။ Firebase ချိတ်ဆက်မှုနှင့် Database Rules ကို စစ်ဆေးပါ။"
+    );
+  }
+};
+
 
     // Login
     window.verifyAdminPassword = () => {
