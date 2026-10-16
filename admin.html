@@ -288,10 +288,27 @@
       if (btn) btn.classList.add('active');
     };
 
-    window.toggleDriverBlock = (driverId, currentStatus) => {
-      const newStatus = currentStatus === 'suspended' ? 'active' : 'suspended';
-      updateDoc(doc(db, "drivers", driverId), { status: newStatus });
-    };
+     
+window.toggleDriverBlock = async (driverId, currentStatus) => {
+  const newStatus =
+    currentStatus === "suspended" ? "active" : "suspended";
+
+  try {
+    await updateDoc(doc(db, "drivers", driverId), {
+      status: newStatus
+    });
+
+    alert(
+      newStatus === "suspended"
+        ? "ယာဉ်မောင်းကို Block လုပ်ပြီးပါပြီ။"
+        : "ယာဉ်မောင်းကို Unblock လုပ်ပြီးပါပြီ။"
+    );
+  } catch (error) {
+    console.error("Driver Status Update Error:", error);
+    alert("Status ပြောင်းမရပါ။ Error: " + error.message);
+  }
+};
+
 
     window.topUpWallet = (driverId) => {
       const amount = prompt("Top-up ပြုလုပ်လိုသည့် ပမာဏထည့်ပါ (KS):", "5000");
