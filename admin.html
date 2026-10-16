@@ -79,11 +79,12 @@
     .clickable-row:hover { background-color: #f0fdf4; }
 
     /* Badges & Buttons */
-    .status-tag { padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+    .status-tag { padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; display: inline-block; }
     .status-pending { background: #fef3c7; color: #d97706; }
     .status-accepted { background: #dbeafe; color: #2563eb; }
     .status-completed { background: #d1fae5; color: #059669; }
     .status-suspended { background: #fee2e2; color: #dc2626; }
+    .status-offline { background: #f3f4f6; color: #4b5563; }
     
     .action-btn { padding: 4px 8px; font-size: 11px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; margin-right: 2px; }
     .btn-green { background: #d1fae5; color: #059669; }
@@ -98,7 +99,7 @@
 
     /* Driver Detail Specific CSS */
     .driver-info-box { background: #f9fafb; padding: 12px; border-radius: 8px; border: 1px solid #e5e7eb; font-size: 13px; margin-bottom: 12px; line-height: 1.6; }
-    #driverMap { width: 100%; height: 220px; border-radius: 8px; margin-top: 10px; border: 1px solid #d1d5db; }
+    #driverMap { width: 100%; height: 200px; border-radius: 8px; margin-top: 10px; border: 1px solid #d1d5db; }
 
     .hidden { display: none !important; }
   </style>
@@ -123,29 +124,15 @@
   <div id="adminSettingsModal" class="modal-overlay hidden">
     <div class="modal-card">
       <h2 style="margin-top: 0;">⚙️ Fare & System Configuration</h2>
-      
       <label style="font-size: 12px; font-weight: bold;">အခြေခံခရီးစရိတ် (Base Fare - KS)</label>
       <input type="number" id="baseFareInput" value="2000">
-
       <label style="font-size: 12px; font-weight: bold;">တစ်ကီလိုမီတာနှုန်း (Per KM - KS)</label>
       <input type="number" id="perKmRateInput" value="600">
-
-      <label style="font-size: 12px; font-weight: bold;">Surge Pricing Multiplier (မိုးရွာ/ယာဉ်ကြောပိတ်)</label>
-      <select id="surgeInput">
-        <option value="1.0">Normal (1.0x)</option>
-        <option value="1.2">Rain / Peak (1.2x)</option>
-        <option value="1.5">High Demand (1.5x)</option>
-      </select>
-
-      <label style="font-size: 12px; font-weight: bold;">Platform Commission (%)</label>
-      <input type="number" id="commissionRateInput" value="10">
-
-      <button class="btn-submit" onclick="saveSystemSettings()">သိမ်းဆည်းမည်</button>
-      <button class="btn-submit" style="background: var(--text-muted); margin-top: 6px;" onclick="closeAdminSettings()">မလုပ်ဆောင်တော့ပါ</button>
+      <button class="btn-submit" onclick="closeAdminSettings()">သိမ်းဆည်းမည်</button>
     </div>
   </div>
 
-  <!-- DRIVER DETAIL MODAL (With Live Map & Daily Activity) -->
+  <!-- DRIVER DETAIL MODAL (With Password & Reset & Live Map) -->
   <div id="driverDetailModal" class="modal-overlay hidden">
     <div class="modal-card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -159,8 +146,18 @@
         <div><strong>ဖုန်း:</strong> <span id="mDriverPhone">-</span></div>
         <div><strong>Email / NRC:</strong> <span id="mDriverNrc">-</span></div>
         <div><strong>ယာဉ်အမျိုးအစား/နံပါတ်:</strong> <span id="mDriverVehicle">-</span></div>
+        <div><strong>လက်ရှိစကားဝှက် (Password):</strong> <span id="mDriverPass" style="color: #d97706; font-weight: bold;">-</span></div>
         <div><strong>Wallet Balance:</strong> <span id="mDriverWallet">0 KS</span></div>
-        <div><strong>အခြေအနေ:</strong> <span id="mDriverStatus" class="status-tag status-completed">Online Active</span></div>
+        <div><strong>Duty Status:</strong> <span id="mDriverDuty" class="status-tag status-offline">Offline</span></div>
+      </div>
+
+      <!-- Reset Driver Password Section -->
+      <div style="background: #eff6ff; padding: 10px; border-radius: 8px; border: 1px solid #bfdbfe; margin-bottom: 12px;">
+        <label style="font-size: 12px; font-weight: bold; color: #1e40af;">🔑 ယာဉ်မောင်း စကားဝှက်အသစ် ပြောင်းလဲရန်</label>
+        <div style="display: flex; gap: 6px; margin-top: 4px;">
+          <input type="text" id="newDriverPassInput" placeholder="စကားဝှက်အသစ် (ဥပမာ- 1234)" style="margin:0; font-size: 12px;">
+          <button class="action-btn btn-blue" onclick="resetDriverPassword()" style="padding: 0 12px; font-size: 12px;">ပြောင်းမည်</button>
+        </div>
       </div>
 
       <!-- Daily Activity Summary -->
@@ -185,7 +182,7 @@
     <div class="menu-container">
       <button class="menu-btn" onclick="toggleHeaderMenu()">☰ Menu</button>
       <div id="dropdownMenu" class="dropdown-menu hidden">
-        <button class="dropdown-item" onclick="openAdminSettings()">⚙️ Pricing & Surge Settings</button>
+        <button class="dropdown-item" onclick="openAdminSettings()">⚙️ Pricing Settings</button>
         <button class="dropdown-item logout" onclick="adminLogout()">🚪 Logout</button>
       </div>
     </div>
@@ -229,12 +226,12 @@
 
     <!-- Tab 2: Driver Approval & Wallet Management -->
     <section id="tabDrivers" class="card hidden">
-      <h2 style="font-size: 15px; margin-top:0;">👤 Drivers Verification & Wallet Controls (Driver အား နှိပ်၍ အသေးစိတ်ကြည့်ပါ)</h2>
+      <h2 style="font-size: 15px; margin-top:0;">👤 Drivers Verification & Wallet Controls (Driver ဇယားကို နှိပ်၍ အသေးစိတ်ကြည့်ပါ)</h2>
       <input type="text" class="search-box" placeholder="🔍 ယာဉ်မောင်း ရှာဖွေရန်..." onkeyup="filterTable('allDriversTableBody', this.value)">
       <div style="overflow-x: auto;">
         <table class="data-table">
           <thead>
-            <tr><th>နာမည်/ဖုန်း</th><th>NRC / Email</th><th>ယာဉ်အမျိုးအစား/နံပါတ်</th><th>Wallet Balance</th><th>Actions</th></tr>
+            <tr><th>နာမည်/ဖုန်း</th><th>NRC / Password</th><th>ယာဉ်အမျိုးအစား/နံပါတ်</th><th>Duty Status</th><th>Actions</th></tr>
           </thead>
           <tbody id="allDriversTableBody">
             <tr><td colspan="5" style="text-align:center;">အချက်အလက် ရယူနေပါသည်...</td></tr>
@@ -308,6 +305,7 @@
     let adminPassword = localStorage.getItem("yg_admin_custom_pass") || "admin123";
     let allDriversCache = {};
     let allRidesCache = [];
+    let currentSelectedDriverId = null;
     let mapInstance = null;
     let driverMarker = null;
 
@@ -315,16 +313,11 @@
     window.openAdminSettings = () => { document.getElementById("dropdownMenu").classList.add("hidden"); document.getElementById("adminSettingsModal").classList.remove("hidden"); };
     window.closeAdminSettings = () => document.getElementById("adminSettingsModal").classList.add("hidden");
 
-    window.saveSystemSettings = () => {
-      alert("Grab-Style Dynamic Pricing & Surge Settings Updated!");
-      closeAdminSettings();
-    };
-
     window.verifyAdminPassword = () => {
       if (document.getElementById("adminPassInput").value.trim() === adminPassword) {
         sessionStorage.setItem("yg_admin_logged", "true");
         document.getElementById("adminLoginModal").classList.add("hidden");
-        loadAllData();
+        restoreTabAndLoadData();
       } else {
         document.getElementById("loginErrorMsg").textContent = "စကားဝှက် မှားယွင်းနေပါသည်။";
       }
@@ -332,27 +325,64 @@
 
     window.adminLogout = () => { sessionStorage.clear(); location.reload(); };
 
+    // Fixed Tab Persistence Logic
     window.switchAdminTab = (tabId, btn) => {
-      ['tabRides', 'tabDrivers', 'tabOnlineDrivers', 'tabPromos', 'tabReports'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      ['tabRides', 'tabDrivers', 'tabOnlineDrivers', 'tabPromos', 'tabReports'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
       document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
+
       document.getElementById(tabId).classList.remove('hidden');
       if (btn) btn.classList.add('active');
+
+      sessionStorage.setItem("active_admin_tab", tabId);
     };
 
+    function restoreTabAndLoadData() {
+      const savedTab = sessionStorage.getItem("active_admin_tab") || "tabRides";
+      const targetBtn = document.getElementById(`btn-${savedTab}`);
+      if (targetBtn) {
+        window.switchAdminTab(savedTab, targetBtn);
+      } else {
+        window.switchAdminTab('tabRides', document.getElementById('btn-tabRides'));
+      }
+      loadAllData();
+    }
+
     window.toggleDriverBlock = (event, driverId, currentStatus) => {
-      event.stopPropagation(); // Row click မဖြစ်အောင် တားဆီးရန်
+      event.stopPropagation();
       const newStatus = currentStatus === 'suspended' ? 'active' : 'suspended';
       updateDoc(doc(db, "drivers", driverId), { status: newStatus });
     };
 
     window.topUpWallet = (event, driverId) => {
-      event.stopPropagation(); // Row click မဖြစ်အောင် တားဆီးရန်
+      event.stopPropagation();
       const amount = prompt("Top-up ပြုလုပ်လိုသည့် ပမာဏထည့်ပါ (KS):", "5000");
       if (amount) alert(`${amount} KS Top-up အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ။`);
     };
 
+    // Reset Driver Password Function
+    window.resetDriverPassword = async () => {
+      const newPass = document.getElementById("newDriverPassInput").value.trim();
+      if (!newPass || newPass.length < 4) {
+        alert("စကားဝှက်သည် အနည်းဆုံး ၄ လုံး ရှိရပါမည်။");
+        return;
+      }
+      if (!currentSelectedDriverId) return;
+
+      try {
+        await updateDoc(doc(db, "drivers", currentSelectedDriverId), { password: newPass });
+        alert("ယာဉ်မောင်း စကားဝှက် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ။");
+        document.getElementById("newDriverPassInput").value = "";
+        document.getElementById("mDriverPass").textContent = newPass;
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    };
+
     // Open Driver Detail Modal & Live Track Location
     window.openDriverDetail = (driverId) => {
+      currentSelectedDriverId = driverId;
       const d = allDriversCache[driverId];
       if (!d) return;
 
@@ -360,13 +390,15 @@
       document.getElementById("mDriverPhone").textContent = d.phone || '-';
       document.getElementById("mDriverNrc").textContent = `${d.email || '-'} / ${d.nrc || '-'}`;
       document.getElementById("mDriverVehicle").textContent = `${d.vehicleType || '-'} (${d.vehicleNo || '-'})`;
+      document.getElementById("mDriverPass").textContent = d.password || 'မရှိပါ။ (သို့) သတ်မှတ်မထားပါ';
       document.getElementById("mDriverWallet").textContent = `${d.walletBalance || 0} KS`;
       
       const isOnline = d.isOnline === true;
-      document.getElementById("mDriverStatus").className = `status-tag ${isOnline ? 'status-completed' : 'status-suspended'}`;
-      document.getElementById("mDriverStatus").textContent = isOnline ? 'Online (Duty On)' : 'Offline (Duty Off)';
+      const dutyEl = document.getElementById("mDriverDuty");
+      dutyEl.className = `status-tag ${isOnline ? 'status-completed' : 'status-offline'}`;
+      dutyEl.textContent = isOnline ? '🟢 Duty ON (Online)' : '⚪ Duty OFF (Offline)';
 
-      // Calculate Daily Activity (This Driver)
+      // Calculate Daily Activity
       let todayTrips = 0;
       let todayRevenue = 0;
       allRidesCache.forEach(r => {
@@ -379,12 +411,10 @@
       document.getElementById("mTodayTrips").textContent = todayTrips;
       document.getElementById("mTodayRevenue").textContent = todayRevenue.toLocaleString();
 
-      // Open Modal
       document.getElementById("driverDetailModal").classList.remove("hidden");
 
-      // Initialize or Update Leaflet Map
+      // Initialize Leaflet Map
       setTimeout(() => {
-        // Default Coordinates (Yangon: 16.8409, 96.1735) or Driver Location
         const lat = d.lat || 16.8409;
         const lng = d.lng || 96.1735;
 
@@ -406,7 +436,7 @@
             .openPopup();
           document.getElementById("mapStatusMsg").textContent = "📍 Driver ၏ လက်ရှိ Live တည်နေရာဖြစ်ပါသည်။";
         } else {
-          document.getElementById("mapStatusMsg").textContent = "⚠️ Driver သည် Offline ဖြစ်နေသဖြင့် Live GPS ကို မြင်တွေ့နိုင်မည်မဟုတ်ပါ။";
+          document.getElementById("mapStatusMsg").textContent = "⚠️ Driver သည် Duty Off ဖြစ်နေသဖြင့် Live GPS ကို မြင်တွေ့နိုင်မည်မဟုတ်ပါ။";
         }
       }, 300);
     };
@@ -434,7 +464,7 @@
     window.onload = () => {
       if (sessionStorage.getItem("yg_admin_logged") === "true") {
         document.getElementById("adminLoginModal").classList.add("hidden");
-        loadAllData();
+        restoreTabAndLoadData();
       }
     };
 
@@ -451,14 +481,15 @@
           allDriversCache[driverId] = d;
 
           const status = d.status || 'active';
-          const wallet = d.walletBalance || 0;
+          const isOnline = d.isOnline === true;
+          const dutyBadge = isOnline ? `<span class="status-tag status-completed">Duty ON</span>` : `<span class="status-tag status-offline">Duty OFF</span>`;
 
           driversHtml += `
             <tr class="clickable-row" onclick="openDriverDetail('${driverId}')">
               <td><strong>${d.fullName || '-'}</strong><br><a href="tel:${d.phone}" style="color:var(--primary);">${d.phone || '-'}</a></td>
-              <td>${d.email || '-'}<br><small>NRC: ${d.nrc || '-'}</small></td>
+              <td>${d.nrc || '-'}<br><small style="color:var(--warning);">Pass: ${d.password || 'N/A'}</small></td>
               <td>${d.vehicleType || '-'} (${d.vehicleNo || '-'})</td>
-              <td><strong>${wallet} KS</strong> <button class="action-btn btn-blue" onclick="topUpWallet(event, '${driverId}')">+ Topup</button></td>
+              <td>${dutyBadge}</td>
               <td>
                 <button class="action-btn ${status === 'suspended' ? 'btn-green' : 'btn-red'}" onclick="toggleDriverBlock(event, '${driverId}', '${status}')">
                   ${status === 'suspended' ? 'Unblock' : 'Block'}
@@ -467,7 +498,7 @@
             </tr>
           `;
 
-          if (d.isOnline) {
+          if (isOnline) {
             onlineCount++;
             onlineHtml += `<tr class="clickable-row" onclick="openDriverDetail('${driverId}')"><td>${d.fullName}</td><td>${d.phone}</td><td>${d.vehicleNo}</td><td><span class="status-tag status-completed">Online</span></td></tr>`;
           }
@@ -504,7 +535,7 @@
         });
 
         document.getElementById("sosBanner").style.display = hasSos ? "block" : "none";
-        document.getElementById("statTotalRevenue").textContent = totalRev.toLocaleString() + " KS";
+        document.getElementById("statTotalRevenue").textContent = totalRevenue = totalRev.toLocaleString() + " KS";
         const netProfit = totalRev * 0.1;
         document.getElementById("statNetCommission").textContent = netProfit.toLocaleString() + " KS";
 
