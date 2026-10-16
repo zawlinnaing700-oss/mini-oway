@@ -323,7 +323,9 @@
 
     function loadAllData() {
       // Drivers Monitor
-      onSnapshot(query(collection(db, "drivers")), (snapshot) => {
+      onSnapshot(
+        query(collection(db, "drivers")), 
+        (snapshot) => {
         document.getElementById("statTotalDrivers").textContent = snapshot.size;
         let driversHtml = "", onlineHtml = "", onlineCount = 0;
 
