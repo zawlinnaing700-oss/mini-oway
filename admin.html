@@ -319,7 +319,7 @@
       if (btn) btn.classList.add('active');
     };
 
-    function loadAllData() {
+        function loadAllData() {
       const driversQuery = query(collection(db, "drivers"));
       onSnapshot(driversQuery, (snapshot) => {
         const driversTableBody = document.getElementById("allDriversTableBody");
@@ -347,8 +347,8 @@
             </tr>
           `;
 
-          // Duty On (isOnline: true) ဖြစ်နေသူများကိုသာ Filter လုပ်ပြီးပြသရန်
-          if (d.isOnline === true) {
+          // isOnline က true ဖြစ်နေလျှင် (သို့မဟုတ်) status က 'online' / 'on' ဖြစ်နေလျှင် ပြသမည်
+          if (d.isOnline === true || d.status === 'online' || d.dutyStatus === true) {
             onlineCount++;
             onlineHtml += `
               <tr>
@@ -362,7 +362,7 @@
         });
 
         driversTableBody.innerHTML = driversHtml;
-        onlineDriversTableBody.innerHTML = onlineHtml || `<tr><td colspan="4" style="text-align:center;">ယခုလက်ရှိ Online (On Duty) ထارသူ ယာဉ်မောင်း မရှိပါ။</td></tr>`;
+        onlineDriversTableBody.innerHTML = onlineHtml || `<tr><td colspan="4" style="text-align:center;">ယခုလက်ရှိ Online (On Duty) ထားသူ ယာဉ်မောင်း မရှိပါ။</td></tr>`;
       });
 
       const ridesQuery = query(collection(db, "rideRequests"), orderBy("createdAt", "desc"));
@@ -416,6 +416,7 @@
         incompleteRidesBody.innerHTML = incompleteHtml || `<tr><td colspan="4" style="text-align:center;">ယခုလက်ရှိ မပြီးပြတ်သေးတဲ့ ခရီးစဉ် မရှိပါ။</td></tr>`;
       });
     }
+
   </script>
 </body>
 </html>
