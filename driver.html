@@ -21,7 +21,7 @@
       padding-bottom: 60px;
     }
     header {
-      background: #00b14f; /* YG Green */
+      background: #00b14f;
       color: white;
       padding: 14px 16px;
       text-align: center;
@@ -435,7 +435,6 @@
   </header>
 
   <main class="container">
-    <!-- 1. Sign In View -->
     <section id="signInCard" class="card">
       <h2>အကောင့်ဝင်ရန်</h2>
       <input id="signinEmail" type="email" placeholder="Gmail လိပ်စာ">
@@ -457,7 +456,6 @@
       <p id="signinMsg" class="note"></p>
     </section>
 
-    <!-- 2. Password Reset View -->
     <section id="resetPasswordCard" class="card hidden">
       <h2>စကားဝှက် ပြန်လည်ရယူရန်</h2>
       <p class="sub-title">သင့်အကောင့်၏ Gmail နှင့် ဖုန်းနံပါတ်ကို စစ်ဆေး၍ စကားဝှက်အသစ် ပြောင်းပါမည်။</p>
@@ -478,7 +476,6 @@
       <p id="recoveryMsg" class="note"></p>
     </section>
 
-    <!-- 3. Sign Up Step 1 View -->
     <section id="signupStep1" class="card hidden">
       <h2>အကောင့်အသစ်ဖွင့်ခြင်း</h2>
       <p class="sub-title">အဆင့် ၁/၂ - အခြေခံအချက်အလက်များ</p>
@@ -508,7 +505,6 @@
       <p id="signupStep1Msg" class="note"></p>
     </section>
 
-    <!-- 4. Sign Up Step 2 View -->
     <section id="nrcVerifyStepCard" class="card hidden">
       <h2>NRC အတည်ပြုခြင်း</h2>
       <p class="sub-title" id="nrcInstruction">NRC နံပါတ်၏ <strong>နောက်ဆုံး ဂဏန်း (၆) လုံး</strong> ကို ရိုက်ထည့်ပါ -</p>
@@ -522,7 +518,6 @@
       <p id="nrcVerifyMsg" class="note"></p>
     </section>
 
-    <!-- 5. Dashboard Tab (Home / Rides) -->
     <section id="dashboardTab" class="dashboard-section hidden">
       <div class="duty-bar">
         <div class="driver-status-text" id="statusLabel">
@@ -530,7 +525,7 @@
           <span id="statusText">အလုပ်စတင်နေသည် (On Duty)</span>
         </div>
         <label class="duty-switch">
-          <input type="checkbox" id="dutyToggle" checked onchange="toggleDutyStatus(this)">
+          <input type="checkbox" id="dutyToggle" onchange="toggleDutyStatus(this)">
           <span class="slider"></span>
         </label>
       </div>
@@ -546,7 +541,6 @@
       </div>
     </section>
 
-    <!-- 6. Earnings & Active Missions Tab -->
     <section id="earningsTab" class="dashboard-section hidden">
       <div class="card" style="padding: 14px;">
         <h2>💰 ဝင်ငွေ နှင့် လက်ခံထားသော ခရီးစဉ်များ</h2>
@@ -557,7 +551,6 @@
         </div>
       </div>
 
-      <!-- Live Navigation Dashboard (GPS Speedometer Style with Amount) -->
       <div id="activeNavigationCard" class="card hidden" style="background: #121212; color: #ffffff; border-radius: 12px; padding: 12px; border: 1px solid #333;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
           <span style="font-size: 13px; color: #00ff66; font-weight: bold;" id="navRouteTitle">လမ်းကြောင်း</span>
@@ -604,7 +597,6 @@
       </div>
     </section>
 
-    <!-- 7. Settings & Profile Tab -->
     <section id="settingsTab" class="dashboard-section hidden">
       <div class="card">
         <h2>⚙️ ယာဉ်မောင်း ပြင်ဆင်ချက်များ</h2>
@@ -623,8 +615,6 @@
     </section>
   </main>
 
-  <!-- Modals -->
-  <!-- 1. Receipt Modal -->
   <div id="receiptModal" class="modal-overlay hidden">
     <div class="modal-card">
       <h2 style="color: #00b14f; margin-top:0;">🧾 ခရီးစဉ် ပြေစာ (Receipt)</h2>
@@ -638,7 +628,6 @@
     </div>
   </div>
 
-  <!-- 2. Edit Profile Modal -->
   <div id="editProfileModal" class="modal-overlay hidden">
     <div class="modal-card">
       <h2>✏️ အချက်အလက် ပြင်ဆင်ရန်</h2>
@@ -651,7 +640,6 @@
     </div>
   </div>
 
-  <!-- 3. Earnings Breakdown Modal -->
   <div id="earningsModal" class="modal-overlay hidden">
     <div class="modal-card" style="max-height: 80vh; overflow-y: auto;">
       <h2>📊 ဝင်ငွေ မှတ်တမ်းအသေးစိတ်</h2>
@@ -737,14 +725,13 @@
     let secondsElapsed = 0;
     let activePersons = 1;
 
-    // Web Audio Sound Notification
     function playOrderAlertSound() {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // High pitch A5
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
         gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
@@ -776,10 +763,12 @@
       }, 300);
     };
 
-    window.toggleDutyStatus = function(checkbox) {
+    window.toggleDutyStatus = async function(checkbox) {
       const statusText = document.getElementById("statusText");
       const statusDot = document.getElementById("statusDot");
-      if (checkbox.checked) {
+      const isOn = checkbox.checked;
+
+      if (isOn) {
         statusText.textContent = "အလုပ်စတင်နေသည် (On Duty)";
         statusText.style.color = "#00b14f";
         statusDot.classList.remove("offline");
@@ -787,6 +776,17 @@
         statusText.textContent = "နားနေသည် (Offline)";
         statusText.style.color = "#6b7280";
         statusDot.classList.add("offline");
+      }
+
+      // Save to localStorage & Firestore so Admin knows
+      if (currentDriverUid) {
+        localStorage.setItem(`driver_duty_${currentDriverUid}`, isOn ? "true" : "false");
+        try {
+          const docRef = doc(db, "drivers", currentDriverUid);
+          await updateDoc(docRef, { isOnline: isOn });
+        } catch (e) {
+          console.error(e);
+        }
       }
       loadRideRequests();
     };
@@ -802,7 +802,6 @@
       }
     };
 
-    // Auto Login & State Check
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentDriverUid = user.uid;
@@ -998,6 +997,7 @@
           nrc: tempSignupData.nrc,
           vehicleType: tempSignupData.vehicleType || "-",
           vehicleNo: tempSignupData.vehicleNo || "-",
+          isOnline: false,
           createdAt: new Date().toISOString()
         };
 
@@ -1021,6 +1021,18 @@
       switchTab('dashboardTab');
 
       updateProfileUI(driver);
+
+      // Load Duty Status from localStorage (Default is false / Off)
+      const savedDuty = localStorage.getItem(`driver_duty_${currentDriverUid}`);
+      const dutyCheckbox = document.getElementById("dutyToggle");
+      
+      if (savedDuty === "true") {
+        dutyCheckbox.checked = true;
+      } else {
+        dutyCheckbox.checked = false;
+      }
+      toggleDutyStatus(dutyCheckbox);
+
       initMap();
       loadRideRequests();
     }
@@ -1054,6 +1066,12 @@
     }
 
     window.driverLogout = async function() {
+      if (currentDriverUid) {
+        localStorage.removeItem(`driver_duty_${currentDriverUid}`);
+        try {
+          await updateDoc(doc(db, "drivers", currentDriverUid), { isOnline: false });
+        } catch (e) {}
+      }
       await signOut(auth);
       currentDriverUid = null;
       switchView('signInCard');
@@ -1190,7 +1208,6 @@
           }
         });
 
-        // Audio Alert for new orders
         if (isOnDuty && currentAvailableCount > previousRideCount) {
           playOrderAlertSound();
         }
@@ -1329,7 +1346,6 @@
           const finalPrice = 2000 + (extraP * 1000) + Math.floor(totalDistanceKm * 1000);
           await updateDoc(rideRef, { status: newStatus, price: finalPrice });
 
-          // Show Receipt Modal
           document.getElementById("recTime").textContent = formatTime(secondsElapsed);
           document.getElementById("recDistance").textContent = `${totalDistanceKm.toFixed(2)} km`;
           document.getElementById("recPersons").textContent = `${persons} ဦး`;
@@ -1352,7 +1368,6 @@
       }
     };
 
-    // Modal Control Functions
     window.closeReceiptModal = function() {
       document.getElementById("receiptModal").classList.add("hidden");
     };
