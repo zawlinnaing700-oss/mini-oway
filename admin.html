@@ -358,6 +358,9 @@
         document.getElementById("statOnlineDrivers").textContent = onlineCount;
         document.getElementById("allDriversTableBody").innerHTML = driversHtml;
         document.getElementById("onlineDriversTableBody").innerHTML = onlineHtml || `<tr><td colspan="4" style="text-align:center;">Online active driver မရှိပါ။</td></tr>`;
+            }, (error) => {
+        console.error("Drivers Firebase Error:", error);
+        alert("Drivers Data Error: " + error.message);
       });
 
       // Rides Monitor
